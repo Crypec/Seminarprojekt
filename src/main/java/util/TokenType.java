@@ -1,5 +1,4 @@
 public enum TokenType {
-
     // word tokens
     IMPORT, SYMBOL, FUNCTION, WHILE, FOR, UNTIL, IF, THAN, ELSE, DEFINE,
     CONST, NUMBERTYPE, STRINGTYPE, STRINGLITERAL, NUMBERLITERAL, IMPORT,
@@ -13,5 +12,4 @@ public enum TokenType {
     // boolean expressions
     // NOTE(Simon): We could implement the comparisons in the parser but I think it is easier this way
     TRUE, FALSE, AND, OR, NOT, EQUAL, EQUALEQUAL, NOTEQUAL;
-    
 }
