@@ -15,7 +15,4 @@ public class Token {
 	this.lexeme = lexeme;
 	this.value = null;
     }
-
-    
-    
 }

@@ -1,15 +1,20 @@
+package konrad.util;
+
 public enum TokenType {
-    // word tokens
-    IMPORT, SYMBOL, FUNCTION, WHILE, FOR, UNTIL, IF, THAN, ELSE, DEFINE,
-    CONST, NUMBERTYPE, STRINGTYPE, STRINGLITERAL, NUMBERLITERAL, IMPORT,
-    
-    // single char token
-    DOT, COLON, STARTBLOCK, ENDBLOCK, BRACKETLEFT, BRACKETRIGHT, PARENLEFT, PARENRIGHT,
+    // keywords
+    IMPORT, SYMBOL, FUNCTION, WHILE, FOR, IF, THAN,
+    ELSE, DEFINE, CONST,
+
+    // primitive Types
+    STRINGTYPE, STRINGLITERAL, NUMBERTYPE,
+    NUMBERLITERAL, BOOLEANTYPE, BOOLEANLITERAL,
+
+    // single char tokens
+    STARTBLOCK, ENDBLOCK, PARENLEFT, PARENRIGHT, BRACKETLEFT, BRACKETRIGHT, COLON, DOT, EQUALSIGN,
+
+    // boolean operations
+    TRUE, FALSE, AND, OR, NOT, LESSTHAN, GREATERTHAN, EQUALEQUAL, NOTEQUAL,
 
     // math operators
-    PLUS, MINUS, MULTIPLY, DIVIDE, MOD, GREATER, LESS,
-
-    // boolean expressions
-    // NOTE(Simon): We could implement the comparisons in the parser but I think it is easier this way
-    TRUE, FALSE, AND, OR, NOT, EQUAL, EQUALEQUAL, NOTEQUAL;
+    PLUS, MINUS, MULTIPLY, DIVIDE, MOD;
 }
