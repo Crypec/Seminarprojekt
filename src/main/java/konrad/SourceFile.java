@@ -1,25 +1,34 @@
 package konrad;
 
-import java.util.*;
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.util.*;
 
 public class SourceFile {
 
     public ArrayList<String> lineBuffer;
 
     public String filename;
-    public int rowIndex = 0;
-    public int colIndex = 0; 
+
+    public int row = 0;
+    // WARN(Simon): col has starting value of -1 because we want to get the first,
+    // not the 2. element in the first iteration step
+    public int col = -1;
 
     public SourceFile(String filename) {
 	this.filename = filename;
 	this.lineBuffer = readFile(filename);
+	// System.out.println(lineBuffer.get(0).charAt(57));
+    }
+
+    public SourceFile() {
+	this.filename = null;
+	this.lineBuffer = null;
     }
 
     public static ArrayList<String> readFile(String filename) {
 	var buffer = new ArrayList<String>();
-	try (var br = new BufferedReader(new FileReader(filename))){
+	try (var br = new BufferedReader(new FileReader(filename))) {
 	    // NOTE(Simon): collecting the stream would probably be faster
 	    String line;
 	    while ((line = br.readLine()) != null) {
@@ -33,41 +42,27 @@ public class SourceFile {
 	return buffer;
     }
 
-    public String getPath() {
-	return this.filename;
-    }
-
-    public ArrayList<String> getBuffer() {
-	return this.lineBuffer;
-    }
-
-    public String getRow(int i) {
-	return this.lineBuffer.get(i);
-    }
-
-    public int getRowIndex() {
-	return this.rowIndex;
-    }
-
-    public int getColIndex() {
-	return this.colIndex;
-    }
-
     public boolean hasNext() {
-	return this.lineBuffer.size() > this.rowIndex && this.lineBuffer.get(rowIndex).length() > this.colIndex;
-    }
-    
-    public int rowLength() {
-	return this.lineBuffer.get(this.colIndex).length();
+	if (col < lineBuffer.get(row).length() || row < lineBuffer.size()) {
+	    return true;
+	} else {
+	    return false;
+	}
     }
 
+    public char peek() { return 't'; }
 
     public char next() {
-	if (this.rowLength() == this.colIndex) {
-	    this.colIndex = 0;
-	    this.rowIndex += 1;
+	if (col < lineBuffer.get(row).length() -1) {
+	    this.col++;
+	} else {
+	    this.col = 0;
+	    this.row++;
 	}
-	System.out.printf("%d %d", rowIndex, colIndex);
-	return this.lineBuffer.get(this.rowIndex).charAt(this.colIndex);
+	if (lineBuffer.get(row).length() == 0) {
+	    return next();
+	} else {
+	    return lineBuffer.get(row).charAt(col);   
+	}
     }
 }

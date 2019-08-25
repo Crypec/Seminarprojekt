@@ -1,5 +1,10 @@
-importiere "Mathe".
+importiere "Mathe". //vllt wäre "benutze" das bessere Wort
 importiere "Ausgabe".
+test
+
+
+benutze "Mathe".
+
 
 /*
 	Support for multiline comments -> check in pre-processor
@@ -11,10 +16,10 @@ importiere "Ausgabe".
 */
 
 
-// support for inline comments
-// this comment describes the function below
+	// support for inline comments
+	// this comment describes the function below
 
-definiere funktion test(var x: Zahl) -> Text {
+definiere funktion test(x: Zahl) -> Text {
 
 	  wenn (x > 10) dann {
 	       	  rückgabe "test".
@@ -27,19 +32,27 @@ definiere funktion test(var x: Zahl) -> Text {
 	  // support for external namespaces
 	  definiere variable y: Zahl = Mathe::sin(x).
 
-	  // eventual support for automatic type annotation 
-	  test := 12.
-	  
-	  variable foo: Text = "bar".
-
-	  solange (x != 0) dann {
-	  	  ausgabe("das ist ein Text der Schleife").
-		  x := x -1.
-
-		  //support for shorthand notations
-		  --x.
-		  x--.
+	  solange (wahr) {
+		  ausgabe("test")
+		  test := eingabe("test")
 	  }
+	  
+	  // eventual support for automatic type annotation 
+	test := 12.
+		
+	variable foo: Text = "bar".
+	test := a + 1000_2.
+	foo := 100 000_23.
+	
+
+	solange (x != 0) dann {
+		ausgabe("das ist ein Text der Schleife").
+			x := x -1.
+			test.
+				//support for shorthand notations
+				--x.
+				x--.
+			}
 	  
 	  test: Wahrheitswert = A UND B.
 	  
@@ -48,11 +61,20 @@ definiere funktion test(var x: Zahl) -> Text {
 	  }
 
 	  solange (x != 10) {
-	  	  ausgabe("Hello World").
+	  	  ausgabe("Hello World"). // should we do print and input as syscalls
+	  }
+
+	  fÜr i := 10 bis -10 {
+	      		 
 	  }
 
 
+	  solange (x UNGLEICH 10) {
+	  	  eingabe("test").
+          }
+
 	  // while(true)
+	  solange (wahr)
 	  schleife {
 	  	   weiter.
 	  }
@@ -66,17 +88,6 @@ definiere funktion test(var x: Zahl) -> Text {
 	  } 
 
 	  rückgabe "das ist der return".
-}
 
-// the generated cpp code for parts of the above code example
-std::string test(double zahl) {
-	    if (x > 10) {
-	       	  return "test";
-	    }
-	    double y = Math::sin(x); 
-	    while (x != 0) {
-	    	  fmt::print("this is a text which gets printed in a loop");
-		  x -= 1;
-	    }
-	    return "this is the return";
+	  }
 }

@@ -6,7 +6,21 @@ package konrad;
 public class App {
 
     public static void main(String... args) {
+
 	var sf = new SourceFile("/home/simon/Documents/Code/konrad/examples/example.zs");
-	Error.report("variable ist nicht initalisiert!", sf);
+	while (sf.hasNext()) {
+	    System.out.println(sf.next());
+	}
+
+	String[] test = {"test wie geht es dir ", "test", "mir geht es gut"};
+	int i = 0;
+	while (i < test.length) {
+	    int j = 0;
+	    while (j < test[i].length()) {
+		System.out.printf("%d: %s%n", i, test[i].charAt(j));
+		j++;
+	    }
+	    i++;
+	}
     }
 }
