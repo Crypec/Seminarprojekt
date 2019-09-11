@@ -6,15 +6,6 @@ test
 benutze "Mathe".
 
 
-/*
-	Support for multiline comments -> check in pre-processor
-	Support for german boolean operators?
-
-	solange (x gleich 10) dann {
-
-	}
-*/
-
 
 	// support for inline comments
 	// this comment describes the function below

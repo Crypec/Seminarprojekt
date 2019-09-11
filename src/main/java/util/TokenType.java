@@ -11,7 +11,7 @@ public enum TokenType {
 
     // single char tokens
     STARTBLOCK, ENDBLOCK, PARENLEFT, PARENRIGHT, BRACKETLEFT, BRACKETRIGHT,
-    COLON, DOT, EQUALSIGN,
+    COLON, DOT, EQUALSIGN, VARDEF,
 
     // boolean operations
     TRUE, FALSE, AND, OR, NOT, LESSTHAN, GREATERTHAN, EQUALEQUAL, NOTEQUAL,
@@ -19,4 +19,3 @@ public enum TokenType {
     // math operators
     PLUS, MINUS, MULTIPLY, DIVIDE, MOD;
 }
-

@@ -6,24 +6,24 @@ import java.util.*;
 
 public class SourceFile {
 
-    public ArrayList<String> lineBuffer;
-
     public String filename;
 
-    public int row = 0;
-    // WARN(Simon): col has starting value of -1 because we want to get the first,
-    // not the 2. element in the first iteration step
-    public int col = -1;
-
+    public ArrayList<String> sourceBuffer;
+    
+    public Iterator<String> lineIterator;
+    public Iterator<Character> rowIterator;
+    
+    //Note(Simon): maybe we can abstract these away into something like a filePosition
+	public int currentLine = 0;
+    public int cursor = 0;
+    
     public SourceFile(String filename) {
 	this.filename = filename;
-	this.lineBuffer = readFile(filename);
-	// System.out.println(lineBuffer.get(0).charAt(57));
-    }
-
-    public SourceFile() {
-	this.filename = null;
-	this.lineBuffer = null;
+	this.sourceBuffer = readFile(filename);
+	this.lineIterator = this.sourceBuffer.iterator();
+	var charArr = this.lineIterator.next().toCharArray();
+	List charList = Arrays.asList(charArr);
+	this.rowIterator = charList.iterator();
     }
 
     public static ArrayList<String> readFile(String filename) {
@@ -32,37 +32,43 @@ public class SourceFile {
 	    // NOTE(Simon): collecting the stream would probably be faster
 	    String line;
 	    while ((line = br.readLine()) != null) {
+		// NOTE(Simon): maybe add char to empty line
 		buffer.add(line);
 	    }
 	    br.close();
 	} catch (Exception e) {
 	    e.printStackTrace();
-	    System.out.printf("failed to read file %s %n", filename);
+	    System.out.printf("failed to read file %s %n", filename); //TODO(Simon): better error msg would be nice 
 	}
 	return buffer;
     }
 
     public boolean hasNext() {
-	if (col < lineBuffer.get(row).length() || row < lineBuffer.size()) {
-	    return true;
-	} else {
-	    return false;
-	}
+	return rowIterator.hasNext() || lineIterator.hasNext();
     }
 
-    public char peek() { return 't'; }
-
     public char next() {
-	if (col < lineBuffer.get(row).length() -1) {
-	    this.col++;
-	} else {
-	    this.col = 0;
-	    this.row++;
+	if (!rowIterator.hasNext()) {
+	    if (!lineIterator.hasNext()) {
+		System.out.println("failed");
+	    }
 	}
-	if (lineBuffer.get(row).length() == 0) {
-	    return next();
-	} else {
-	    return lineBuffer.get(row).charAt(col);   
+	return (Character) rowIterator.next();
+    }
+
+    public void updateRowIterator() {
+	var charArr = this.lineIterator.next().toCharArray();
+	List charList = Arrays.asList(charArr);
+	this.rowIterator = charList.iterator();
+    }
+
+    public ArrayList<String> getSourceBuffer() {
+	return this.sourceBuffer;
+    }
+
+    public void printDebug() {
+	for (String line : this.sourceBuffer) {
+	    System.out.println(line);
 	}
     }
 }

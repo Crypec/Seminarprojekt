@@ -3,24 +3,16 @@
  */
 package konrad;
 
+import konrad.util.*;
+
+
 public class App {
 
     public static void main(String... args) {
-
-	var sf = new SourceFile("/home/simon/Documents/Code/konrad/examples/example.zs");
-	while (sf.hasNext()) {
-	    System.out.println(sf.next());
-	}
-
-	String[] test = {"test wie geht es dir ", "test", "mir geht es gut"};
-	int i = 0;
-	while (i < test.length) {
-	    int j = 0;
-	    while (j < test[i].length()) {
-		System.out.printf("%d: %s%n", i, test[i].charAt(j));
-		j++;
-	    }
-	    i++;
+	var test = new StringIterator("Hello World");
+	while (test.hasNext()) {
+	    System.out.println(test.next());
 	}
     }
+    
 }
