@@ -19,12 +19,19 @@ public class StringIterator implements Iterator {
     public Character previous() {
 	return buffer.charAt(cursor -1);
     }
-    public Character current() {
-	return buffer.charAt(cursor);
-    }
 
     public Character next() {
 	return buffer.charAt(cursor++);
+    }
+
+    //peeks looks at the item directly under the cursor
+    // which means peeking one item into the future
+    public Character peek() {
+	return buffer.charAt(cursor);
+    }
+
+    public void setBackOnePosition() {
+	cursor--;
     }
 
 

@@ -106,7 +106,7 @@ public class Token {
 
     public static boolean isSingleCharToken(char s) {
 	return switch (s) {
-	case '{', '}', '(', ')', '[', ']', '.', '+', '-', '*', '%', '<', '>' -> true;
+	case '{', '}', '(', ')', '[', ']', '.', '+', '*', '%', '<' -> true;
 	default  -> false;
 	};
     }

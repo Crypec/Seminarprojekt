@@ -1,9 +1,8 @@
-importiere "Mathe". //vllt wäre "benutze" das bessere Wort
-importiere "Ausgabe".
-test
+importiere "Mathe" //vllt wäre "benutze" das bessere Wort
+importiere "Ausgabe"
 
 
-benutze "Mathe".
+benutze "Mathe"
 
 
 
@@ -13,15 +12,15 @@ benutze "Mathe".
 definiere funktion test(x: Zahl) -> Text {
 
 	  wenn (x > 10) dann {
-	       	  rückgabe "test".
+	       	  rückgabe "test"
 	  }
 
 	  // add support for Linter -> naming convention
-	  variable FooBar: Text = "test".
-	  variable foo_bar: Text = "test".
+	  variable FooBar: Text = "test"
+	  variable foo_bar: Text = "test"
 
 	  // support for external namespaces
-	  definiere variable y: Zahl = Mathe::sin(x).
+	  definiere variable y: Zahl = Mathe::sin(x)
 
 	  solange (wahr) {
 		  ausgabe("test")
@@ -29,21 +28,16 @@ definiere funktion test(x: Zahl) -> Text {
 	  }
 	  
 	  // eventual support for automatic type annotation 
-	test := 12.
+	test := 12
 		
-	variable foo: Text = "bar".
-	test := a + 1000_2.
-	foo := 100 000_23.
-	
+	variable foo: Text = "bar"
+	test := a + 1000_2
+	foo := 100 000_23
 
 	solange (x != 0) dann {
-		ausgabe("das ist ein Text der Schleife").
-			x := x -1.
-			test.
-				//support for shorthand notations
-				--x.
-				x--.
-			}
+	ausgabe("das ist ein Text der Schleife")
+	x := x -1
+	}
 	  
 	  test: Wahrheitswert = A UND B.
 	  
@@ -61,24 +55,24 @@ definiere funktion test(x: Zahl) -> Text {
 
 
 	  solange (x UNGLEICH 10) {
-	  	  eingabe("test").
+	  	  eingabe("test")
           }
 
 	  // while(true)
 	  solange (wahr)
 	  schleife {
-	  	   weiter.
+	  	   weiter
 	  }
 
 	  wiederhole {
 	  	     wenn ((x modulo 2) == 0) {
-		     	  weiter. //continue
+		     	  weiter //continue
 		     } sonst {
-		       	  stop. // break
+		       	  stop // break
 		     }
 	  } 
 
-	  rückgabe "das ist der return".
+	  rückgabe "das ist der return"
 
 	  }
 }

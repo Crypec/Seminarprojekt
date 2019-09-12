@@ -4,15 +4,18 @@
 package konrad;
 
 import konrad.util.*;
-
+import konrad.util.common.*;
+import java.util.ArrayList;
 
 public class App {
 
     public static void main(String... args) {
-	var test = new StringIterator("Hello World");
-	while (test.hasNext()) {
-	    System.out.println(test.next());
-	}
+	    var test = new SourceFile("/home/simon/Documents/Code/konrad/examples/example.zs");
+	    var tokenStream = new ArrayList<Token>();
+	    while (test.hasNext()) {
+		tokenStream.addAll(Lexer.tokenize(new StringIterator(test.next())));
+	    }
+	    long end = System.currentTimeMillis();
+
     }
-    
 }
