@@ -1,7 +1,0 @@
-package konrad;
-
-public class LexerTest.java {
-
-    public static ArrayList<Token> tokenize() {}
-    
-}

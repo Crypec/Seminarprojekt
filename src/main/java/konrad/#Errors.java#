@@ -1,8 +1,0 @@
-package konrad;
-
-public enum Errors {
-
-    TypeError("Typenverwechslung", "")
-
-    public String 
-}
