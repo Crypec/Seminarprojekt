@@ -23,7 +23,7 @@ public class LexerTest {
 	var actual = new ArrayList<Token>();
 	actual.add(new Token("definiere"));
 	actual.add(new Token("funktion"));
-	actual.add(new Token("test"));
+	actual.add(new Token("bar"));
 	actual.add(new Token("("));
 	actual.add(new Token("x"));
 	actual.add(new Token(":"));
@@ -36,7 +36,7 @@ public class LexerTest {
 	actual.add(new Token("->"));
 	actual.add(new Token("Text"));
 
-	//assertTrue(tokenStream.equals(actual));
+	assertTrue(listEquals(tokenStream, actual));
     }
     @Test
     public void testTokenizeVarDef() {
@@ -47,12 +47,12 @@ public class LexerTest {
 	var actual = new ArrayList<Token>();
 
 	actual.add(new Token("foo"));
-	    actual.add(new Token(":"));
-	    actual.add(new Token("text"));
-	    actual.add(new Token("="));
-	    actual.add(new Token("\"Hello World\""));
+	actual.add(new Token(":"));
+	actual.add(new Token("Text"));
+	actual.add(new Token("="));
+	actual.add(new Token("\"Hello World\""));
 
-	    //assertTrue(tokenStream.equals(actual));
+	assertTrue(listEquals(tokenStream, actual));
     }
 
     @Test
@@ -72,6 +72,16 @@ public class LexerTest {
 	actual.add(new Token("{"));
 	actual.add(new Token("}"));
 
-	//assertTrue(tokenStream.equals(actual));
+	assertTrue(listEquals(tokenStream, actual));
+    }
+
+    public static boolean listEquals(ArrayList<Token> given, ArrayList<Token> wanted) {
+
+	if (given.size() != wanted.size()) return false;
+
+	for (int i = 0; i < wanted.size(); i++) {
+	    if (given.get(i).getType() != wanted.get(i).getType()) return false;
+	}
+	return true;
     }
 }

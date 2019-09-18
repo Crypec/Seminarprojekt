@@ -11,8 +11,12 @@ public class App {
 
     public static void main(String... args) {
 
-	var sb = new SourceFile("./examples/example.zs");
 	var tokenStream = new ArrayList<Token>();
+	// String testDecl = "solange(x != 0) {}";
+	// tokenStream.addAll(Lexer.tokenize(new StringIterator(testDecl)));
+	
+
+	var sb = new SourceFile("./examples/example.zs");
 	while (sb.hasNext()) {
 	    tokenStream.addAll(Lexer.tokenize(new StringIterator(sb.next())));
 	}

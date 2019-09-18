@@ -30,7 +30,6 @@ public class Lexer {
 	    } else if (Character.isDigit(c)) {
 		var token = getNumLiteral(it, c);
 		tokenStream.add(token);
-
 	    } else if (c == '/' && it.peek() == '/') {
 		// looks like we encountered a comment and can skip the rest of the line
 		return tokenStream;
@@ -40,6 +39,8 @@ public class Lexer {
 		    sb.setLength(0);
 		    tokenStream.add(new Token(Character.toString(c)));
 		
+		} else {
+		    tokenStream.add(new Token(Character.toString(c)));
 		}
 	    } else {
 		sb.append(c);
