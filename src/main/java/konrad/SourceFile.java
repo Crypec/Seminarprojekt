@@ -6,36 +6,38 @@ import java.util.*;
 
 public class SourceFile {
 
-    private String filename;
-    private ArrayList<String> sourceBuffer;
-    private int currentLine = 0;
-    
-    public SourceFile(String filename) {
-	this.filename = filename;
-	this.sourceBuffer = readFile(filename);
-    }
+  private String filename;
+  private ArrayList<String> sourceBuffer;
+  private int currentLine = 0;
 
-    private static ArrayList<String> readFile(String filename) {
-	var buffer = new ArrayList<String>();
-	try (var br = new BufferedReader(new FileReader(filename))) {
-	    // NOTE(Simon): collecting the stream would probably be faster
-	    String line;
-	    while ((line = br.readLine()) != null) {
-		// NOTE(Simon): maybe add char to empty line
-		buffer.add(line);
-	    }
-	    br.close();
-	} catch (Exception e) {
-	    e.printStackTrace();
-	    System.out.printf("failed to read file %s %n", filename); //TODO(Simon): better error msg would be nice 
-	}
-	return buffer;
+  public SourceFile(String filename) {
+    this.filename = filename;
+    this.sourceBuffer = readFile(filename);
+  }
+
+  private static ArrayList<String> readFile(String filename) {
+    var buffer = new ArrayList<String>();
+    try (var br = new BufferedReader(new FileReader(filename))) {
+      // NOTE(Simon): collecting the stream would probably be faster
+      String line;
+      while ((line = br.readLine()) != null) {
+        // NOTE(Simon): maybe add char to empty line
+        buffer.add(line);
+      }
+      br.close();
+    } catch (Exception e) {
+      e.printStackTrace();
+      System.out.printf(
+          "failed to read file %s %n", filename); // TODO(Simon): better error msg would be nice
     }
-    
-    public boolean hasNext() {
-	return sourceBuffer.size() > currentLine;
-    }
-    public String next() {
-	return sourceBuffer.get(currentLine++);
-    }
+    return buffer;
+  }
+
+  public boolean hasNext() {
+    return sourceBuffer.size() > currentLine;
+  }
+
+  public String next() {
+    return sourceBuffer.get(currentLine++);
+  }
 }

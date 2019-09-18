@@ -1,115 +1,126 @@
 package konrad.util;
 
 import java.util.HashSet;
+import konrad.*;
 import konrad.util.common.*;
 
 public class Token {
 
-    // NOTE(Simon): How are we going to do error messages so that not all of the
-    // tokens NOTE(Simon): have to know their filename and position inside their
-    // sourcefile
+    // NOTE(Simon): How are we going to handle error messages so that not all of the tokens  have to know their filename separately
     // also these fields should't be public :D
     public String lexeme;
     public TokenType type;
-    public Object value = null;
+    public Object value;
     public MetaData metaData;
 
-    public Token(TokenType type, String lexeme) {
-	this.type = type;
+    public Token(String lexeme) {
+
+	this.type = Token.matchType(lexeme);
 	this.lexeme = lexeme;
+
+	this.value = switch (this.type) {
+	case STRINGLITERAL -> lexeme;
+	case NUMBERLITERAL -> Lexer.parseNum(lexeme);
+	case TRUE -> true;
+	case FALSE -> false; 
+	default -> null;
+	};
     }
 
-    public Token(TokenType type, String lexeme, Object value) {
-	this.type = type;
+    public Token(String lexeme, TokenType type, Object value) {
 	this.lexeme = lexeme;
+	this.type = type;
 	this.value = value;
     }
 
+
     // NOTE(Simon): should we allow the use of english keywords?
-    public static Token match(String s) {
+    public static TokenType matchType(String s) {
 
 	if (isNumeric(s)) {
-	    double num = Double.parseDouble(s);
-	    return new Token(TokenType.NUMBERLITERAL, s, num);
+	    return TokenType.NUMBERLITERAL;
 	}
-
+	
 	return switch (s) {
 	    // keywords
-	case "importiere" -> new Token(TokenType.IMPORT, s);
-	case "funktion" -> new Token(TokenType.FUNCTION, s);
-	case "solange" -> new Token(TokenType.WHILE, s);
-	case "für" -> new Token(TokenType.FOR, s);
-	case "wenn" -> new Token(TokenType.IF, s);
-	case "dann" -> new Token(TokenType.THAN, s);
-	case "sonst" -> new Token(TokenType.ELSE, s);
-	case "definiere" -> new Token(TokenType.DEFINE, s);
+	case "importiere" -> TokenType.IMPORT;
+	case "funktion" -> TokenType.FUNCTION;
+	case "solange" -> TokenType.WHILE;
+	case "für" -> TokenType.FOR;
+	case "wenn" -> TokenType.IF;
+	case "dann" -> TokenType.THAN;
+	case "sonst" -> TokenType.ELSE;
+	case "definiere" -> TokenType.DEFINE;
 
 	//basic types
-	case "Zahl" -> new Token(TokenType.NUMBERTYPE, s);
-	case "Text" -> new Token(TokenType.STRINGTYPE, s);
-	case "Wahrheitswert" -> new Token(TokenType.BOOLEANTYPE, s);
+	case "Zahl" -> TokenType.NUMBERTYPE;
+	case "Text" -> TokenType.STRINGTYPE;
+	case "Wahrheitswert" -> TokenType.BOOLEANTYPE;
 
 	//const declarations
-	case "konst","konstant", "konstante" -> new Token(TokenType.CONST, s);
+	case "konst","konstant", "konstante" -> TokenType.CONST;
 
 	//boolean operations
-	case "wahr" -> new Token(TokenType.TRUE, s, true);
-	case "falsch" -> new Token(TokenType.FALSE, s, false);
+	case "wahr" -> TokenType.TRUE;
+	case "falsch" -> TokenType.FALSE;
 
-	case "UND", "&&" -> new Token(TokenType.AND, s);
+	case "UND", "&&" -> TokenType.AND;
 
-	case "ODER", "||" -> new Token(TokenType.OR, s);
+	case "ODER", "||" -> TokenType.OR;
 
-	case "NICHT", "!" -> new Token(TokenType.NOT, s);
+	case "NICHT", "!" -> TokenType.NOT;
 
 	//comparisons
-	case "==" -> new Token(TokenType.EQUALEQUAL, s);
-	case "!=" -> new Token(TokenType.NOTEQUAL, s);
-	case "<" -> new Token(TokenType.LESSTHAN, s);
-	case ">"  -> new Token(TokenType.GREATERTHAN, s);
+	case "==" -> TokenType.EQUALEQUAL;
+	case "!=" -> TokenType.NOTEQUAL;
+	case "<" -> TokenType.LESSTHAN;
+	case ">"  -> TokenType.GREATERTHAN;
 
 	//assignment operators
-	case ":=" -> new Token(TokenType.VARDEF, s);
+	case ":=" -> TokenType.VARDEF;
+	case "->" -> TokenType.ARROW;
 	
 	//other single char tokens
-	case "{" -> new Token(TokenType.STARTBLOCK, s);
-	case "}" -> new Token(TokenType.ENDBLOCK, s);
-	case "(" -> new Token(TokenType.PARENLEFT, s);
-	case ")" -> new Token(TokenType.PARENRIGHT, s);
-	case "[" -> new Token(TokenType.BRACKETLEFT, s);
-	case "]" -> new Token(TokenType.BRACKETRIGHT, s);
-	case ":" -> new Token(TokenType.COLON, s);
-	case "." -> new Token(TokenType.DOT, s);
-	case "=" -> new Token(TokenType.EQUALSIGN, s);
+	case "{" -> TokenType.STARTBLOCK;
+	case "}" -> TokenType.ENDBLOCK;
+	case "(" -> TokenType.PARENLEFT;
+	case ")" -> TokenType.PARENRIGHT;
+	case "[" -> TokenType.BRACKETLEFT;
+	case "]" -> TokenType.BRACKETRIGHT;
+	case ":" -> TokenType.COLON;
+	case "." -> TokenType.DOT;
+	case "=" -> TokenType.EQUALSIGN;
 
 	//Math operators
-	case "+" -> new Token(TokenType.PLUS, s);
-	case "-" -> new Token(TokenType.MINUS, s);
-	case "*" -> new Token(TokenType.MULTIPLY, s);
-	case "/" -> new Token(TokenType.DIVIDE, s);
+	case "+" -> TokenType.PLUS;
+	case "-" -> TokenType.MINUS;
+	case "*" -> TokenType.MULTIPLY;
+	case "/" -> TokenType.DIVIDE;
 	
-	case "%", "mod", "modulo" -> new Token(TokenType.MOD, s);
+	case "%", "mod", "modulo" -> TokenType.MOD;
 
-	default -> new Token(TokenType.SYMBOL, s);
+	default -> TokenType.SYMBOL;
 	};
     }
-
-    public static boolean isNumeric(String str) {
-	// null or empty
-        if (str == null || str.length() == 0) {
-            return false;
-        }
-
-        return str.chars().allMatch(Character::isDigit);
-    }
-
 
     public static boolean isSingleCharToken(char s) {
 	return switch (s) {
-	case '{', '}', '(', ')', '[', ']', '.', '+', '*', '%', '<' -> true;
+	case '{', '}', '(', ')', '[', ']', '.', '+', '*', '%', '<', ':' -> true;
 	default  -> false;
 	};
     }
+
+    // NOTE(Simon): throwing and catching an exception in java is really costly if we ever try to speed up th compiler we should try to replace this routine with something different
+    public static boolean isNumeric(String str) {
+	try {
+	    Double.parseDouble(str);
+	}
+	catch (Exception e) {
+	    return false;
+		}
+		return true;
+    }
+
 
     public String toString() {
 	if (this.value != null) {
@@ -117,9 +128,5 @@ public class Token {
 	} else {
 	    return String.format("Token: %s [%s]", this.type.name(), this.lexeme);
 	}
-
     }
-
-
-
 }

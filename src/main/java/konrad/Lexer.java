@@ -1,9 +1,8 @@
 package konrad;
 
-import java.lang.*;
-import java.util.*;
+import java.util.ArrayList;
 import konrad.util.*;
-import konrad.util.common.*;
+    import konrad.util.common.*;
 
 public class Lexer {
 
@@ -18,11 +17,10 @@ public class Lexer {
 	var sb = new StringBuilder();
 
 	while (it.hasNext()) {
-	    var c = it.next();
+	    char c = it.next();
 	    if (c == ' ' || c == 9) { // check for tab (ASCII code 9)
 		if (sb.length() != 0) {
-		    var token = Token.match(sb.toString());
-		    tokenStream.add(token);
+		    tokenStream.add(new Token(sb.toString()));
 		    sb.setLength(0); // clear StringBuilder
 		} else {
 		    continue; // if StringBuilder is empty we can just skip the whitespace
@@ -37,64 +35,72 @@ public class Lexer {
 		// looks like we encountered a comment and can skip the rest of the line
 		return tokenStream;
 	    } else if (Token.isSingleCharToken(c)) {
-		tokenStream.add(Token.match(c.toString()));
+		if (sb.length() != 0) {
+		    tokenStream.add(new Token(sb.toString()));
+		    sb.setLength(0);
+		    tokenStream.add(new Token(Character.toString(c)));
+		
+		}
 	    } else {
 		sb.append(c);
 	    }
 	}
 	if (sb.length() != 0) {
-	    tokenStream.add(Token.match(sb.toString()));
+	    tokenStream.add(new Token(sb.toString()));
 	}
 	return tokenStream;
     }
 
     public static Token getStringLiteral(StringIterator it) {
-var sb = new StringBuilder();
-    sb.append('"');
-    while (it.hasNext()) {
-      var c = it.next();
-      if (c == '"') {
-        sb.append(c);
-        break;
-      } else {
-        sb.append(c);
-      }
-    }
-    // WARN(Simon): bug this can fail if string is initalized as empty
-    /*
-      a : Text = ""; //this would fail in the current implementation
-    */
-    return new Token(TokenType.STRINGLITERAL, sb.toString(), sb.toString());
-  }
-
-  /*
-    Right now numeric value can look like this:
-
-    foo: Zahl = 123_23
-
-    we only skip underscores, internally every number gets represented as a
-    64bit float we can think about using some other representation for numbers
-    in the future maybe DEC64 would be nice: http://www.dec64.com/
-  */
-  public static Token getNumLiteral(StringIterator it, Character firstDigit) {
-    var sb = new StringBuilder(firstDigit);
-    sb.append(firstDigit);
-
-    while (it.hasNext()) {
-	var c = it.next();
-	if (Character.isDigit(c)) {
-	    sb.append(c);
-
-	} else if (c == '_') {
-	    continue;
-	} else if (c == '.') {
-	    sb.append(","); // we
-	} else {
-	    it.setBackOnePosition();
-	    break;
+	var sb = new StringBuilder();
+	sb.append('"');
+	while (it.hasNext()) {
+	    var c = it.next();
+	    if (c == '"') {
+		sb.append(c);
+		break;
+	    } else {
+		sb.append(c);
+	    }
 	}
+	// FIX(Simon): this can fail if string is initalized as empty
+	/*
+	  a : Text = ""; //this would fail in the current implementation
+	*/
+	return new Token(sb.toString());
     }
-    double numValue = Double.parseDouble(sb.toString());
-    return new Token(TokenType.NUMBERLITERAL, sb.toString(), numValue);
-  }
+
+    /*
+      Right now numeric value can look like this:
+
+      foo: Zahl = 123_23
+
+      we only skip underscores, internally every number gets represented as a
+      64bit float we can think about using some other representation for numbers
+      in the future maybe DEC64 would be nice: http://www.dec64.com/
+    */
+    public static Token getNumLiteral(StringIterator it, Character firstDigit) {
+	var sb = new StringBuilder(firstDigit);
+	sb.append(firstDigit);
+
+	while (it.hasNext()) {
+	    var c = it.next();
+	    if (Character.isDigit(c)) {
+		sb.append(c);
+
+	    } else if (c == '_') {
+		continue;
+	    } else if (c == '.') {
+		sb.append(","); // we
+	    } else {
+		it.setBackOnePosition();
+		break;
+	    }
+	}
+	return new Token(sb.toString());
+    }
+
+    public static double parseNum(String str) {
+	return Double.parseDouble(str);
+    }
 }

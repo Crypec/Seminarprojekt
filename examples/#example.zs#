@@ -35,19 +35,19 @@ definiere funktion test(x: Zahl) -> Text {
 	foo := 100 000_23
 
 	solange (x != 0) dann {
-	ausgabe("das ist ein Text der Schleife")
-	x := x -1
+		ausgabe("das ist ein Text der Schleife")
+		x := x -1
 	}
 	  
-	  test: Wahrheitswert = A UND B.
+	test: Wahrheitswert = A UND B.
 	  
-	  solange (x ungleich 10) dann {
+	solange (x ungleich 10) dann {
 	  	  
-	  }
+	}
 
-	  solange (x != 10) {
+	solange (x != 10) {
 	  	  ausgabe("Hello World"). // should we do print and input as syscalls
-	  }
+	}
 
 	  fÜr i := 10 bis -10 {
 	      		 

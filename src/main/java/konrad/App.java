@@ -3,19 +3,21 @@
  */
 package konrad;
 
+import java.util.ArrayList;
 import konrad.util.*;
 import konrad.util.common.*;
-import java.util.ArrayList;
 
 public class App {
 
     public static void main(String... args) {
-	    var test = new SourceFile("/home/simon/Documents/Code/konrad/examples/example.zs");
-	    var tokenStream = new ArrayList<Token>();
-	    while (test.hasNext()) {
-		tokenStream.addAll(Lexer.tokenize(new StringIterator(test.next())));
-	    }
-	    long end = System.currentTimeMillis();
 
+	var sb = new SourceFile("./examples/example.zs");
+	var tokenStream = new ArrayList<Token>();
+	while (sb.hasNext()) {
+	    tokenStream.addAll(Lexer.tokenize(new StringIterator(sb.next())));
+	}
+	for (Token t : tokenStream) {
+	    System.out.println(t);
+	}
     }
 }
