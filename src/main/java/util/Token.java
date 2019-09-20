@@ -50,7 +50,7 @@ public class Token {
 	case "wenn" -> TokenType.IF;
 	case "dann" -> TokenType.THAN;
 	case "sonst" -> TokenType.ELSE;
-	case "definiere" -> TokenType.DEFINE;
+	case "definiere","def" -> TokenType.DEFINE;
 
 	//basic types
 	case "Zahl" -> TokenType.NUMBERTYPE;
@@ -71,7 +71,7 @@ public class Token {
 	case "NICHT", "!" -> TokenType.NOT;
 
 	//comparisons
-	case "==" -> TokenType.EQUALEQUAL;
+	case "==", "gleich" -> TokenType.EQUALEQUAL;
 	case "!=" -> TokenType.NOTEQUAL;
 	case "<" -> TokenType.LESSTHAN;
 	case ">"  -> TokenType.GREATERTHAN;
