@@ -2,7 +2,7 @@ package konrad;
 
 import java.util.ArrayList;
 import konrad.util.*;
-    import konrad.util.common.*;
+import konrad.util.common.*;
 
 public class Lexer {
 
@@ -38,7 +38,6 @@ public class Lexer {
 		    tokenStream.add(new Token(sb.toString()));
 		    sb.setLength(0);
 		    tokenStream.add(new Token(Character.toString(c)));
-		
 		} else {
 		    tokenStream.add(new Token(Character.toString(c)));
 		}
@@ -84,24 +83,27 @@ public class Lexer {
 	var sb = new StringBuilder(firstDigit);
 	sb.append(firstDigit);
 
+	outer:
 	while (it.hasNext()) {
 	    var c = it.next();
+
 	    if (Character.isDigit(c)) {
 		sb.append(c);
+	    } 
 
-	    } else if (c == '_') {
-		continue;
-	    } else if (c == '.') {
-		sb.append(","); // we
-	    } else {
-		it.setBackOnePosition();
-		break;
+	    switch (c) {
+	    case '_':
+		continue outer;
+	    case '.':
+		sb.append(","); break;
+	    default :
+		it.setBackOnePosition(); break outer; 
 	    }
+
+	    return new Token(sb.toString());
 	}
-	return new Token(sb.toString());
-    }
 
     public static double parseNum(String str) {
-		return Double.parseDouble(str);
+	return Double.parseDouble(str);
     }
 }
