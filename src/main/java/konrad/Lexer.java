@@ -99,10 +99,9 @@ public class Lexer {
 	    default :
 		it.setBackOnePosition(); break outer; 
 	    }
-
-	    return new Token(sb.toString());
 	}
-
+	return new Token(sb.toString());
+    }
     public static double parseNum(String str) {
 	return Double.parseDouble(str);
     }
