@@ -2,12 +2,9 @@ package konrad.util.common;
 
 import konrad.util.common.*;
 import konrad.util.*;
+import com.github.tomaslanger.chalk.*;
 
 public class Log {
-
-    public static void reportError(String errorType, String errorMsg, MetaData meta) {
-	System.out.println(errorMsg);
-    }
 
 
     public void reportWarning(String msg) {

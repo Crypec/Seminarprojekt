@@ -105,4 +105,5 @@ public class Lexer {
     public static double parseNum(String str) {
 	return Double.parseDouble(str);
     }
+    
 }
