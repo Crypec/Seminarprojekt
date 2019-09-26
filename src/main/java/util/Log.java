@@ -17,8 +17,6 @@ public class Log {
 
 	printErrorHeader("Invalider Token -> [ExprParser]");
 
-	System.out.printf("Unzulaessiger Token %s, %s", );
-
 	System.exit(1);
     }
 

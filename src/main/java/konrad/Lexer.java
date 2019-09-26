@@ -78,6 +78,16 @@ public class Lexer {
       64bit float we can think about using some other representation for numbers
       in the future maybe DEC64 would be nice: http://www.dec64.com/
     */
+
+    public static ArrayList<Token> tokenize(SourceFile sf) {
+	var tokenStream = new ArrayList<Token>();
+	while (sf.hasNext()) {
+	    tokenStream.addAll(tokenize(new StringIterator(sf.next())));
+	}
+	return tokenStream;
+    }
+
+
     public static Token getNumLiteral(StringIterator it, Character firstDigit) {
 	var sb = new StringBuilder(firstDigit);
 	sb.append(firstDigit);

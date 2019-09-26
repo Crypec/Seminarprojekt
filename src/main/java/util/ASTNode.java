@@ -22,6 +22,8 @@ public class ASTNode {
     public ASTNode getRight() {
 	return this.right;
     }
-    
-    
+
+    public NodeType getNodeType() {
+	return this.type;
+    }
 }

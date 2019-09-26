@@ -10,17 +10,7 @@ public class App {
 
     public static void main(String... args) {
 
-	var tokenStream = new ArrayList<Token>();
-	// String testDecl = "solange(x != 0) {}";
-	// tokenStream.addAll(Lexer.tokenize(new StringIterator(testDecl)));
-	
-	Log.reportWarning("Invalides Zeichen", "Es scheint als haettes du ein nicht zulaessiges Zeichen an folgender Stelle benutzt!");
-	// var sb = new SourceFile("./examples/example.zs");
-	// while (sb.hasNext()) {
-	//     tokenStream.addAll(Lexer.tokenize(new StringIterator(sb.next())));
-	// }
-	// for (Token t : tokenStream) {
-	//     System.out.println(t);
-	// }
+	var tokenStream = Lexer.tokenize(new SourceFile("./examples/new_example.zs"));
+	Token.printStream(tokenStream);
     }
 }
