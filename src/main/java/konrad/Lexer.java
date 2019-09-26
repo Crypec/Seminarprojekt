@@ -2,7 +2,6 @@ package konrad;
 
 import java.util.ArrayList;
 import konrad.util.*;
-import konrad.util.common.*;
 
 public class Lexer {
 
@@ -11,7 +10,7 @@ public class Lexer {
     // handling... (making it compatible with taking a sourcefile)
     // FIX(Simon): this function is a pure mess, I should really fix it some day
     // => make it compatible with taking a raw sourceFile
-    public static ArrayList<Token> tokenize(konrad.util.common.StringIterator it) {
+    public static ArrayList<Token> tokenize(StringIterator it) {
 
 	var tokenStream = new ArrayList<konrad.util.Token>();
 	var sb = new StringBuilder();

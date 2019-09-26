@@ -5,7 +5,6 @@ package konrad;
 
 import java.util.ArrayList;
 import konrad.util.*;
-import konrad.util.common.*;
 
 public class App {
 
@@ -15,13 +14,13 @@ public class App {
 	// String testDecl = "solange(x != 0) {}";
 	// tokenStream.addAll(Lexer.tokenize(new StringIterator(testDecl)));
 	
-
-	var sb = new SourceFile("./examples/example.zs");
-	while (sb.hasNext()) {
-	    tokenStream.addAll(Lexer.tokenize(new StringIterator(sb.next())));
-	}
-	for (Token t : tokenStream) {
-	    System.out.println(t);
-	}
+	Log.reportWarning("Invalides Zeichen", "Es scheint als haettes du ein nicht zulaessiges Zeichen an folgender Stelle benutzt!");
+	// var sb = new SourceFile("./examples/example.zs");
+	// while (sb.hasNext()) {
+	//     tokenStream.addAll(Lexer.tokenize(new StringIterator(sb.next())));
+	// }
+	// for (Token t : tokenStream) {
+	//     System.out.println(t);
+	// }
     }
 }

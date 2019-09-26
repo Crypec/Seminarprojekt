@@ -1,8 +1,6 @@
-package konrad;
+package konrad.util;
 
 import java.util.*;
-import konrad.util.*;
 
 public class Parser {
-
 }

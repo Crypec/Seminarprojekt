@@ -8,7 +8,6 @@ import java.util.*;
 
 import konrad.*;
 import konrad.util.*;
-import konrad.util.common.*;
 
 
 public class LexerTest {

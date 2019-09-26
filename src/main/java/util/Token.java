@@ -1,18 +1,12 @@
-package konrad.util;
-
-import java.util.HashSet;
-import konrad.*;
-import konrad.util.common.*;
+package konrad.util; 
 
 public class Token {
 
-    // NOTE(Simon): How are we going to handle error messages so that not all of the tokens  have to know their filename separately
     // also these fields should't be public :D
     public String lexeme;
     public TokenType type;
     public Object value;
     public MetaData metaData;
-
     public Token(String lexeme) {
 
 	this.type = Token.matchType(lexeme);
@@ -20,7 +14,7 @@ public class Token {
 
 	this.value = switch (this.type) {
 	case STRINGLITERAL -> lexeme;
-	case NUMBERLITERAL -> Lexer.parseNum(lexeme);
+	case NUMBERLITERAL -> konrad.Lexer.parseNum(lexeme);
 	case TRUE -> true;
 	case FALSE -> false; 
 	default -> null;
@@ -31,6 +25,13 @@ public class Token {
 	this.lexeme = lexeme;
 	this.type = type;
 	this.value = value;
+    }
+
+    public Token(TokenType type) {
+	this.lexeme = null;
+	this.type = type;
+	this. value = null;
+	this.metaData = null;
     }
 
 
@@ -83,8 +84,8 @@ public class Token {
 	//other single char tokens
 	case "{" -> TokenType.STARTBLOCK;
 	case "}" -> TokenType.ENDBLOCK;
-	case "(" -> TokenType.PARENLEFT;
-	case ")" -> TokenType.PARENRIGHT;
+	case "(" -> TokenType.LPAREN;
+	case ")" -> TokenType.RPAREN;
 	case "[" -> TokenType.BRACKETLEFT;
 	case "]" -> TokenType.BRACKETRIGHT;
 	case ":" -> TokenType.COLON;
@@ -117,8 +118,8 @@ public class Token {
 	}
 	catch (Exception e) {
 	    return false;
-		}
-		return true;
+	}
+	return true;
     }
 
 

@@ -23,13 +23,14 @@ public enum TokenType {
   // single char tokens
   STARTBLOCK,
   ENDBLOCK,
-  PARENLEFT,
-  PARENRIGHT,
+  LPAREN,
+  RPAREN,
   BRACKETLEFT,
   BRACKETRIGHT,
   COLON,
   DOT,
   EQUALSIGN,
+  ENDOFEXPR,
 
   VARDEF,
   ARROW,
@@ -51,4 +52,16 @@ public enum TokenType {
   MULTIPLY,
   DIVIDE,
   MOD;
+
+  public static boolean isMathOperator(TokenType t) {
+      return switch(t) {
+      case PLUS, MINUS, MULTIPLY, DIVIDE, MOD -> true;
+      default -> false;
+      };
+  }
+
+  public boolean isMathOperator() {
+      return isMathOperator(this);
+  }
+  
 }
