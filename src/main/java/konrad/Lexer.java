@@ -103,12 +103,12 @@ public class Lexer {
 	    switch (c) {
 	    case '_':
 		continue outer;
-	    case '.':
-		sb.append(","); break;
+	     case ',':
+		 sb.append("."); break;
 	    default :
 		it.setBackOnePosition(); break outer; 
 	    }
-	}
+		}
 	return new Token(sb.toString());
     }
     public static double parseNum(String str) {
