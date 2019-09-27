@@ -9,11 +9,10 @@ public class Parser {
     
     public static ASTNode parseKopfVonFunktion(ArrayList<Token> tokenList) {
 
-	var kopf = new FunktionsKopf();
-
 	if (tokenList.get(position).getType() == TokenType.FUNCTION) {
 	    
 	}
+	return new FunktionsKopf();
     }
 
     

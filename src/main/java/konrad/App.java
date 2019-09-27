@@ -12,5 +12,6 @@ public class App {
 
 	var tokenStream = Lexer.tokenize(new SourceFile("./examples/new_example.zs"));
 	Token.printStream(tokenStream);
+	Log.reportWarning("Unzulaessiger Typ!", "Du hast den Typ verwechselt!!");
     }
 }
