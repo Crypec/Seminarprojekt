@@ -36,14 +36,7 @@ public class Token {
 	this.metaData = null;
     }
 
-
-    // NOTE(Simon): should we allow the use of english keywords?
     public static TokenType matchType(String s) {
-
-	if (isNumeric(s)) {
-	    return TokenType.NUMBERLITERAL;
-	}
-	
 	return switch (s) {
 	    // keywords
 	case "importiere" -> TokenType.IMPORT;
@@ -113,30 +106,15 @@ public class Token {
 	};
     }
 
-    // NOTE(Simon): throwing and catching an exception in java is really costly if we ever try to speed up th compiler we should try to replace this routine with something different
-    public static boolean isNumeric(String str) {
-
-	try {
-	    Double.parseDouble(str);
-	}
-	catch (Exception e) {
-	    return false;
-	}
-	return true;
-    }
-
-
     public TokenType getType() {
 	return this.type;
     }
-
 
     public static void printStream(List<Token> tokenStream) {
 	for (Token t : tokenStream) {
 	    System.out.println(t);
 	}
     }
-
 
     public String toString() {
 	if (this.value != null) {

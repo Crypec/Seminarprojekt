@@ -1,7 +1,7 @@
 package konrad.util;
 
 import java.util.*;
-import konrad.util.TokenType;
+
 public abstract class ASTNode {
 
     private ArrayList<ASTNode> children;
@@ -24,8 +24,8 @@ public abstract class ASTNode {
 	public FunctionDecl(Iterator<Token> it) {
 	    while (it.hasNext()) {
 		Token current = it.next();
-		if (current = STARTBLOCK) {
-		    this.left = new Block();
+		if (current.getType() == TokenType.STARTBLOCK) {
+		    super.children.add(new ASTNode.Block());
 		}
 	    }
 	
@@ -52,7 +52,9 @@ public abstract class ASTNode {
 	public TokenType getRetType() {
 	    return this.returnType;
 	}
-
-
     }
- }
+
+    public static class Block extends ASTNode {
+	
+    }
+}
