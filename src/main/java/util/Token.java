@@ -115,6 +115,7 @@ public class Token {
 
     // NOTE(Simon): throwing and catching an exception in java is really costly if we ever try to speed up th compiler we should try to replace this routine with something different
     public static boolean isNumeric(String str) {
+
 	try {
 	    Double.parseDouble(str);
 	}

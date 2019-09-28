@@ -5,16 +5,16 @@ import konrad.util.*;
 
 public class Parser {
 
-    private int position = 0;
-    
-    public static ASTNode parseKopfVonFunktion(ArrayList<Token> tokenList) {
+    public static ASTNode parseFunctionDecl(Iterator<Token> it) {
 
-	var kopf = new FunktionsKopf();
+	var funcDecl = new ASTNode.FunctionDecl();
 
-	if (tokenList.get(position).getType() == TokenType.FUNCTION) {
-	    
+	while (it.hasNext()) {
+	    Token t = it.next();
+	    if (t.getType() == TokenType.STARTBLOCK) {
+		//handle block
+	    }
 	}
+	return new ASTNode.FunctionDecl();
     }
-
-    
 }
