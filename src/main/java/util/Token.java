@@ -116,6 +116,14 @@ public class Token {
 	}
     }
 
+    public String getLexeme() {
+	return this.lexeme;
+    }
+
+    public MetaData getMeta() {
+	return this.metaData;
+    }
+    
     public String toString() {
 	if (this.value != null) {
 	    return String.format("Token: %s [%s :: %s]", this.type.name(), this.lexeme, this.value);
