@@ -15,13 +15,12 @@ public class LexerTest {
     @Test
     public void testTokenizeFunctionDecl() {
 
-	String testDecl = "definiere funktion bar(x: Zahl, y: Zahl) -> Text";
+	String testDecl = "fun bar(x: Zahl, y: Zahl) -> Text";
 
 	var tokenStream = Lexer.tokenize(new StringIterator(testDecl));
 
 	var actual = new ArrayList<Token>();
-	actual.add(new Token("definiere"));
-	actual.add(new Token("funktion"));
+	actual.add(new Token("fun"));
 	actual.add(new Token("bar"));
 	actual.add(new Token("("));
 	actual.add(new Token("x"));
