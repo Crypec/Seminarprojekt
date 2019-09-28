@@ -98,18 +98,18 @@ public class Lexer {
 
 	    if (Character.isDigit(c)) {
 		sb.append(c);
-	    } 
-
-	    switch (c) {
-	    case '_':
-		continue outer;
-	     case ',':
-		 sb.append("."); break;
-	    default :
-		it.setBackOnePosition(); break outer; 
+		continue;
+	    }  else if (c == ',') {
+		sb.append("."); //replace Comma with dot.
+		continue;
+	    }  else if (c == '_') {
+		continue;
 	    }
-		}
-	return new Token(sb.toString());
+	    it.setBackOnePosition();
+	    break;
+	}
+	Double value = parseNum(sb.toString());
+	return new Token(sb.toString(), TokenType.NUMBERLITERAL, value);
     }
     public static double parseNum(String str) {
 	return Double.parseDouble(str);
