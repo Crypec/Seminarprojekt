@@ -8,9 +8,9 @@ public abstract class ASTNode {
     
     public static class FunctionDecl extends ASTNode {
 
-	private String name;
-	private ArrayList<Argument> args;
-	private TokenType returnType;  
+	public String name;
+	public ArrayList<Argument> args;
+	public TokenType returnType;  
 
 	public FunctionDecl(String name, ArrayList<Argument> args, TokenType returnType) {
 	    this.name = name;
@@ -22,39 +22,25 @@ public abstract class ASTNode {
 	public FunctionDecl() {}
 
 	public FunctionDecl(Iterator<Token> it) {
+
+	    this.name = it.next().getLexeme();
+
 	    while (it.hasNext()) {
 		Token current = it.next();
-		if (current.getType() == TokenType.STARTBLOCK) {
-		    super.children.add(new ASTNode.Block());
+		if (current.getType() == TokenType.LPAREN) break;
+
+		if (current.getType() == TokenType.SYMBOL) {
+		    if (!it.hasNext()) {
+		    }
 		}
 	    }
-	
-	}
-	
-	public void setName(String name) {
-	    this.name = name;
-	}
-
-	public void setArgs(ArrayList<Argument> args) {
-	    this.args = args;
-	}
-
-	public void setRetType(TokenType type) {
-	    this.returnType = type;
-	}
-	
-	public String getName() {
-	    return this.name;
-	}
-	public ArrayList<Argument> getArgs() {
-	    return this.args;
-	}
-	public TokenType getRetType() {
-	    return this.returnType;
+	    super.children.add(new ASTNode.Block(it));
 	}
     }
 
     public static class Block extends ASTNode {
-	
+	public Block(Iterator<Token> it) {
+	    
+	}
     }
 }

@@ -9,9 +9,6 @@ import konrad.util.*;
 public class App {
 
     public static void main(String... args) {
-
-	var tokenStream = Lexer.tokenize(new SourceFile("./examples/new_example.zs"));
-	Token.printStream(tokenStream);
-	Log.reportWarning("Unzulaessiger Typ!", "Du hast den Typ verwechselt!!");
+	Log.funcDeclArgumentTypeError(new MetaData("Start.zs", 10, 10));
     }
 }
