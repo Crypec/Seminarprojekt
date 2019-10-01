@@ -15,13 +15,25 @@ public class Lexer {
 	var tokenStream = new ArrayList<konrad.util.Token>();
 	var sb = new StringBuilder();
 
+	int startPos = 0;
+	int endPos = 0;
+
 	while (it.hasNext()) {
 	    char c = it.next();
 	    if (c == ' ' || c == 9) { // check for tab (ASCII code 9)
 		if (sb.length() != 0) {
-		    tokenStream.add(new Token(sb.toString()));
+		    var token = new Token.Builder()
+			.filename(it.getFilename())
+			.line(it.getLine())
+			.position(startPos, endPos)
+			.lexeme(sb.toString())
+			.build();
+		    tokenStream.add(token);
+		    startPos = endPos;
+		    endPos = 0;
 		    sb.setLength(0); // clear StringBuilder
 		} else {
+		    endPos++;
 		    continue; // if StringBuilder is empty we can just skip the whitespace
 		}
 	    } else if (c == '"') {
@@ -34,18 +46,40 @@ public class Lexer {
 		return tokenStream;
 	    } else if (Token.isSingleCharToken(c)) {
 		if (sb.length() != 0) {
-		    tokenStream.add(new Token(sb.toString()));
+		    var token = new Token.Builder()
+			.filename(it.getFilename())
+			.line(it.getLine())
+			.position(startPos, endPos)
+			.lexeme(Character.toString(c))
+			.build();
+		    tokenStream.add(token);
+
+		    startPos = endPos;
+		    endPos = 0;
 		    sb.setLength(0);
-		    tokenStream.add(new Token(Character.toString(c)));
 		} else {
-		    tokenStream.add(new Token(Character.toString(c)));
+		    var token = new Token.Builder()
+			.filename(it.getFilename())
+			.line(it.getLine())
+			.position(startPos, endPos)
+			.lexeme(sb.toString())
+			.build();
+		    startPos = endPos;
+		    endPos = 0;
+		    tokenStream.add(token);
 		}
 	    } else {
 		sb.append(c);
 	    }
 	}
 	if (sb.length() != 0) {
-	    tokenStream.add(new Token(sb.toString()));
+	    var token = new Token.Builder()
+		.filename(it.getFilename())
+		.line(it.getLine())
+		.position(startPos, endPos)
+		.lexeme(sb.toString())
+		.build();
+	    tokenStream.add(token);
 	}
 	return tokenStream;
     }
@@ -66,7 +100,12 @@ public class Lexer {
 	/*
 	  a : Text = ""; //this would fail in the current implementation
 	*/
-	return new Token(sb.toString());
+	var token = new Token.Builder()
+	    .lexeme(sb.toString())
+	    .filename(it.getFilename())
+	    .line(it.getLine())
+	    .build();
+	return token;
     }
 
     /*
@@ -78,16 +117,6 @@ public class Lexer {
       64bit float we can think about using some other representation for numbers
       in the future maybe DEC64 would be nice: http://www.dec64.com/
     */
-
-    public static ArrayList<Token> tokenize(SourceFile sf) {
-	var tokenStream = new ArrayList<Token>();
-	while (sf.hasNext()) {
-	    tokenStream.addAll(tokenize(new StringIterator(sf.next())));
-	}
-	return tokenStream;
-    }
-
-
     public static Token getNumLiteral(StringIterator it, Character firstDigit) {
 	var sb = new StringBuilder(firstDigit);
 	sb.append(firstDigit);
@@ -108,10 +137,26 @@ public class Lexer {
 	    it.setBackOnePosition();
 	    break;
 	}
-	Double value = parseNum(sb.toString());
-	return new Token(sb.toString(), TokenType.NUMBERLITERAL, value);
+
+	var token = new Token.Builder()
+	    .lexeme(sb.toString())
+	    .filename(it.getFilename())
+	    .line(it.getLine())
+	    .build();
+	return token;
     }
+
     public static double parseNum(String str) {
 	return Double.parseDouble(str);
     }
+
+    public static ArrayList<Token> tokenize(SourceFile sf) {
+	var tokenStream = new ArrayList<Token>();
+	while (sf.hasNext()) {
+	    var sIT = new StringIterator(sf.next(), sf);
+	    tokenStream.addAll(tokenize(sIT));
+	}
+	return tokenStream;
+    }
+
 }

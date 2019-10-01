@@ -7,8 +7,13 @@ public class StringIterator implements Iterator {
     private String buffer;
     private int cursor = 0;
 
-    public StringIterator(String buffer) {
+    private String filename;
+    private int line; 
+
+    public StringIterator(String buffer, SourceFile sf) {
 	this.buffer = buffer;
+	this.filename = sf.getFilename();
+	this.line = sf.getLine();
     }
 
     public boolean hasNext() {
@@ -33,7 +38,16 @@ public class StringIterator implements Iterator {
 	cursor--;
     }
 
+    
+
     public void remove() {
 	throw new UnsupportedOperationException();
+    }
+    
+    public String getFilename() {
+	return this.filename;
+    }
+    public int getLine() {
+	return this.lineNumber;
     }
 }

@@ -5,16 +5,17 @@ import java.util.*;
 public class Token {
 
     // also these fields should't be public :D
-    public final String lexeme;
-    public final TokenType type;
-    public final Object value;
-    public final MetaData metaData;
+    public String lexeme;
+    public TokenType type;
+    public Object value;
+    public MetaData meta;
 
-    public Token(String lexeme) {
-	this.type = Token.matchType(lexeme);
+
+    public Token(String lexeme, MetaData meta) {
+
 	this.lexeme = lexeme;
-
-	this.metaData = null;
+	this.meta = meta;
+	this.type = Token.matchType(lexeme);
 
 	this.value = switch (this.type) {
 	case STRINGLITERAL -> lexeme;
@@ -25,19 +26,39 @@ public class Token {
 	};
     }
 
-    public Token(String lexeme, TokenType type, Object value) {
-	this.lexeme = lexeme;
-	this.type = type;
-	this.value = value;
-	this.metaData = null;
+    public static class Builder {
+	
+	private String lexeme;
+	private Object value;
+	private MetaData meta;
+
+	public Builder filename(String filename) {
+	    this.meta = new MetaData();
+	    this.meta.filename = filename;
+	    return this;
+	}
+
+	public Builder line(int line) {
+	    this.meta.lineNumber = line; 
+	    return this;
+	}
+
+	public Builder position(int start, int end) {
+	    this.meta.startPosition = start;
+	    this.meta.endPosition = end;
+	    return this;
+	}
+	
+	public Builder lexeme(String lexeme) {
+	    this.lexeme = lexeme;
+	    return this;
+	}
+
+	public Token build() {
+	    return new Token(this.lexeme, this.meta);
+	}
     }
 
-    public Token(TokenType type) {
-	this.lexeme = null;
-	this.type = type;
-	this. value = null;
-	this.metaData = null;
-    }
 
     public static TokenType matchType(String s) {
 	return switch (s) {
@@ -109,6 +130,8 @@ public class Token {
 	};
     }
 
+    
+
     public TokenType getType() {
 	return this.type;
     }
@@ -124,14 +147,14 @@ public class Token {
     }
 
     public MetaData getMeta() {
-	return this.metaData;
+	return this.meta;
     }
     
     public String toString() {
 	if (this.value != null) {
-	    return String.format("Token: %s [%s :: %s]", this.type.name(), this.lexeme, this.value);
+	    return String.format("Token: %s [%s :: %s] line:%d", this.type.name(), this.lexeme, this.value, this.meta.lineNumber);
 	} else {
-	    return String.format("Token: %s [%s]", this.type.name(), this.lexeme);
+	    return String.format("Token: %s [%s] line: %d ", this.type.name(), this.lexeme, this.meta.lineNumber);
 	}
     }
 }

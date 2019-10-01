@@ -37,7 +37,18 @@ public class SourceFile {
     return sourceBuffer.size() > currentLine;
   }
 
-  public String next() {
-    return sourceBuffer.get(currentLine++);
-  }
+    public String next() {
+	return sourceBuffer.get(currentLine++);
+    }
+
+    public String getFilename() {
+	return this.filename;
+    }
+
+    public int getLine() {
+	return this.currentLine;
+    }
 }
+
+    
+	

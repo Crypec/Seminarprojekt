@@ -4,9 +4,15 @@
 package konrad;
 
 import java.util.ArrayList;
+import java.util.*;
 import konrad.util.*;
 
 public class App {
     public static void main(String... args) {
+
+	System.out.println("Working Directory = " + System.getProperty("user.dir"));
+	var sf = new SourceFile("./examples/new_example.zs");
+	var tokenStream = Lexer.tokenize(sf);
+	Token.printStream(tokenStream);
     }
 }

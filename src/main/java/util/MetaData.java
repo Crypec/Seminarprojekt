@@ -1,18 +1,31 @@
 package konrad.util;
 
-// PERF(Simon): this is just a workaround until I have  a better idea to do error handling
-// it is not efficient to save all the metadata like filenames in every token of a sourcefile
+// TODO (Simon): we shouldn't save the filename in all tokens
 public class MetaData {
+
+    // HACK(Simon): Refactor to be private
     public String filename;
-    public int line;
-    public int colum;
+    public int lineNumber = 0;
 
-    // TODO (Simon): Save start and end positon of token to get better error reporting 
-    // TODO (Simon): maybe int startPos, int endPos???
+    public int startPosition = 0;
+    public int endPosition = 0;
 
-    public MetaData(String filename, int line, int colum) {
+    public MetaData(String filename, int start, int end, int lineNumber) {
+	this.lineNumber = 0;
 	this.filename = filename;
-	this.line = line;
-	this.colum = colum;
+	this.startPosition = start;
+	this.endPosition = end;
+    }
+
+    public MetaData() {
+	this.filename = "[Error] filename not specified";
+
+	this.lineNumber = 0;
+	this.startPosition = 0;
+	this.endPosition = 0;
+    }
+
+    public MetaData(String filename) {
+	this.filename = filename;
     }
 }
