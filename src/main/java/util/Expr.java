@@ -21,6 +21,9 @@ abstract class Expr {
 
     static class Assign extends Expr {
 
+	public final Token name;
+	public final Expr value;
+
 	Assign(Token name, Expr value) {
 	    this.name = name;
 	    this.value = value;
@@ -29,12 +32,14 @@ abstract class Expr {
 	<R> R accept(Visitor<R> visitor) {
 	    return visitor.visitAssignExpr(this);
 	}
-
-	final Token name;
-	final Expr value;
     }
 
     static class Binary extends Expr {
+
+	public final Expr left;
+	public final Token operator;
+	public final Expr right;
+
 	Binary(Expr left, Token operator, Expr right) {
 	    this.left = left;
 	    this.operator = operator;
@@ -44,13 +49,14 @@ abstract class Expr {
 	<R> R accept(Visitor<R> visitor) {
 	    return visitor.visitBinaryExpr(this);
 	}
-
-	final Expr left;
-	final Token operator;
-	final Expr right;
     }
 
     static class Call extends Expr {
+
+	public final Expr callee;
+	public final Token paren;
+	public final List<Expr> arguments;
+
 	Call(Expr callee, Token paren, List<Expr> arguments) {
 	    this.callee = callee;
 	    this.paren = paren;
@@ -60,13 +66,13 @@ abstract class Expr {
 	<R> R accept(Visitor<R> visitor) {
 	    return visitor.visitCallExpr(this);
 	}
-
-	final Expr callee;
-	final Token paren;
-	final List<Expr> arguments;
     }
 
     static class Get extends Expr {
+
+	public final Expr object;
+	public final Token name;
+
 	Get(Expr object, Token name) {
 	    this.object = object;
 	    this.name = name;
@@ -75,12 +81,12 @@ abstract class Expr {
 	<R> R accept(Visitor<R> visitor) {
 	    return visitor.visitGetExpr(this);
 	}
-
-	final Expr object;
-	final Token name;
     }
 
     static class Grouping extends Expr {
+
+	public final Expr expression;
+
 	Grouping(Expr expression) {
 	    this.expression = expression;
 	}
@@ -88,11 +94,12 @@ abstract class Expr {
 	<R> R accept(Visitor<R> visitor) {
 	    return visitor.visitGroupingExpr(this);
 	}
-
-	final Expr expression;
     }
 
     static class Literal extends Expr {
+
+	public final Object value;
+
 	Literal(Object value) {
 	    this.value = value;
 	}
@@ -100,11 +107,14 @@ abstract class Expr {
 	<R> R accept(Visitor<R> visitor) {
 	    return visitor.visitLiteralExpr(this);
 	}
-
-	final Object value;
     }
 
     static class Logical extends Expr {
+
+	public final Expr left;
+	public final Token operator;
+	public final Expr right;
+
 	Logical(Expr left, Token operator, Expr right) {
 	    this.left = left;
 	    this.operator = operator;
@@ -115,12 +125,14 @@ abstract class Expr {
 	    return visitor.visitLogicalExpr(this);
 	}
 
-	final Expr left;
-	final Token operator;
-	final Expr right;
     }
 
     static class Set extends Expr {
+	
+	public final Expr object;
+	public final Token name;
+	public final Expr value;
+
 	Set(Expr object, Token name, Expr value) {
 	    this.object = object;
 	    this.name = name;
@@ -131,12 +143,13 @@ abstract class Expr {
 	    return visitor.visitSetExpr(this);
 	}
 
-	final Expr object;
-	final Token name;
-	final Expr value;
     }
 
     static class Super extends Expr {
+
+	public final Token keyword;
+	public final Token method;
+
 	Super(Token keyword, Token method) {
 	    this.keyword = keyword;
 	    this.method = method;
@@ -145,12 +158,12 @@ abstract class Expr {
 	<R> R accept(Visitor<R> visitor) {
 	    return visitor.visitSuperExpr(this);
 	}
-
-	final Token keyword;
-	final Token method;
     }
 
     static class This extends Expr {
+
+	public final Token keyword;
+
 	This(Token keyword) {
 	    this.keyword = keyword;
 	}
@@ -158,11 +171,13 @@ abstract class Expr {
 	<R> R accept(Visitor<R> visitor) {
 	    return visitor.visitThisExpr(this);
 	}
-
-	final Token keyword;
     }
 
     static class Unary extends Expr {
+
+	public final Token operator;
+	public final Expr right;
+
 	Unary(Token operator, Expr right) {
 	    this.operator = operator;
 	    this.right = right;
@@ -171,9 +186,6 @@ abstract class Expr {
 	<R> R accept(Visitor<R> visitor) {
 	    return visitor.visitUnaryExpr(this);
 	}
-
-	final Token operator;
-	final Expr right;
     }
 
     static class Variable extends Expr {

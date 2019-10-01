@@ -7,8 +7,6 @@ import java.util.ArrayList;
 import konrad.util.*;
 
 public class App {
-
     public static void main(String... args) {
-	Log.funcDeclArgumentTypeError(new MetaData("Start.zs", 10, 10));
     }
 }

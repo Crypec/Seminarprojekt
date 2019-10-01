@@ -81,5 +81,5 @@ public class LexerTest {
 	    if (given.get(i).getType() != wanted.get(i).getType()) return false;
 	}
 	return true;
-    }
+   }
 }

@@ -5,14 +5,16 @@ import java.util.*;
 public class Token {
 
     // also these fields should't be public :D
-    public String lexeme;
-    public TokenType type;
-    public Object value;
-    public MetaData metaData;
+    public final String lexeme;
+    public final TokenType type;
+    public final Object value;
+    public final MetaData metaData;
 
     public Token(String lexeme) {
 	this.type = Token.matchType(lexeme);
 	this.lexeme = lexeme;
+
+	this.metaData = null;
 
 	this.value = switch (this.type) {
 	case STRINGLITERAL -> lexeme;
@@ -27,6 +29,7 @@ public class Token {
 	this.lexeme = lexeme;
 	this.type = type;
 	this.value = value;
+	this.metaData = null;
     }
 
     public Token(TokenType type) {
