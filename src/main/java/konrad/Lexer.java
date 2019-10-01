@@ -50,19 +50,29 @@ public class Lexer {
 			.filename(it.getFilename())
 			.line(it.getLine())
 			.position(startPos, endPos)
-			.lexeme(Character.toString(c))
+			.lexeme(sb.toString())
 			.build();
 		    tokenStream.add(token);
 
 		    startPos = endPos;
 		    endPos = 0;
 		    sb.setLength(0);
+
+		    token = new Token.Builder()
+			.filename(it.getFilename())
+			.line(it.getLine())
+			.position(startPos, endPos)
+			.lexeme(Character.toString(c))
+			.build();
+		    tokenStream.add(token);
+		    startPos = endPos;
+		    endPos = 0;
 		} else {
 		    var token = new Token.Builder()
 			.filename(it.getFilename())
 			.line(it.getLine())
 			.position(startPos, endPos)
-			.lexeme(sb.toString())
+			.lexeme(Character.toString(c))
 			.build();
 		    startPos = endPos;
 		    endPos = 0;
@@ -158,5 +168,4 @@ public class Lexer {
 	}
 	return tokenStream;
     }
-
 }

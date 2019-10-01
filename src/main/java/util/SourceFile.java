@@ -1,4 +1,4 @@
-package konrad;
+package konrad.util;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -49,6 +49,3 @@ public class SourceFile {
 	return this.currentLine;
     }
 }
-
-    
-	

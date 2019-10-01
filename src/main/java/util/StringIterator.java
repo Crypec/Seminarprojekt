@@ -15,6 +15,12 @@ public class StringIterator implements Iterator {
 	this.filename = sf.getFilename();
 	this.line = sf.getLine();
     }
+    
+    public StringIterator(String buffer) {
+	this.buffer = buffer;
+	this.filename = null;
+	this.line = 0;
+    }
 
     public boolean hasNext() {
 	return buffer.length() > cursor;
@@ -48,6 +54,6 @@ public class StringIterator implements Iterator {
 	return this.filename;
     }
     public int getLine() {
-	return this.lineNumber;
+	return this.line;
     }
 }

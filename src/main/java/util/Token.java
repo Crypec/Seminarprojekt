@@ -152,9 +152,9 @@ public class Token {
     
     public String toString() {
 	if (this.value != null) {
-	    return String.format("Token: %s [%s :: %s] line:%d", this.type.name(), this.lexeme, this.value, this.meta.lineNumber);
+	    return String.format("%d > %s [%s :: %s]", this.meta.lineNumber,  this.type.name(), this.lexeme, this.value);
 	} else {
-	    return String.format("Token: %s [%s] line: %d ", this.type.name(), this.lexeme, this.meta.lineNumber);
+	    return String.format("%d > %s [%s]", this.meta.lineNumber, this.type.name(), this.lexeme);
 	}
     }
 }
