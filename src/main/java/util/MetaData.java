@@ -4,11 +4,11 @@ package konrad.util;
 public class MetaData {
 
     // HACK(Simon): Refactor to be private
-    public String filename;
-    public int lineNumber = 0;
+    private String filename;
+    private int lineNumber = 0;
 
-    public int startPosition = 0;
-    public int endPosition = 0;
+    private int startPosition = 0;
+    private int endPosition = 0;
 
     public MetaData(String filename, int start, int end, int lineNumber) {
 	this.lineNumber = 0;
@@ -25,7 +25,21 @@ public class MetaData {
 	this.endPosition = 0;
     }
 
-    public MetaData(String filename) {
-	this.filename = filename;
-    }
+    public MetaData(String filename) { this.filename = filename; }
+
+    public void setFilename(String filename) { this.filename = filename; }
+
+    public void setLine(int line) { this.lineNumber = line; }
+
+    public void setStartPos(int start) { this.startPosition = start; }
+
+    public void setEndPos(int end) { this.endPosition = end; }
+
+    public String getFilename() { return this.filename; }
+
+    public int getStartPos() { return this.startPosition; }
+
+    public int getEndPos() { returrn this.endPosition; }
+
+    public int getLine() { return this.lineNumber; }
 }
