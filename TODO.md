@@ -1,8 +1,8 @@
 # TODO
 	1. Parser
-	2. Typechecker in parser?
-	4. Codegen
-	5. ByteCode vm (in Rust?)
+	2. Interp
+	3. CLI tool
+
 
 #  Ideas
 	 Implementing different number bases in the compiler is clearly stupid, we should try to make the simplest language possible.
