@@ -5,14 +5,13 @@ import java.util.*;
 public class Token {
 
     // also these fields should't be public :D
-    public String lexeme;
-    public TokenType type;
-    public Object value;
-    public MetaData meta;
+    private String lexeme;
+    private TokenType type;
+    private Object value;
+    private MetaData meta;
 
 
     public Token(String lexeme, MetaData meta) {
-
 	this.lexeme = lexeme;
 	this.meta = meta;
 	this.type = Token.matchType(lexeme);
@@ -34,18 +33,18 @@ public class Token {
 
 	public Builder filename(String filename) {
 	    this.meta = new MetaData();
-	    this.meta.filename = filename;
+	    this.meta.setFilename(filename);
 	    return this;
 	}
 
 	public Builder line(int line) {
-	    this.meta.lineNumber = line; 
+	    this.meta.setLine(line);
 	    return this;
 	}
 
 	public Builder position(int start, int end) {
-	    this.meta.startPosition = start;
-	    this.meta.endPosition = end;
+	    this.meta.setStartPos(start);
+	    this.meta.setEndPos(end);
 	    return this;
 	}
 	
@@ -130,8 +129,22 @@ public class Token {
 	};
     }
 
-    
+    public void setType(TokenType type) {
+	this.type = type;
+    }
 
+    public void setLexeme(String lexeme) {
+	this.lexeme = lexeme;
+    }
+    
+    public void setValue(Object value) {
+	this.value = value; 
+    }
+
+    public void setMeta(MetaData meta) {
+	this.meta = meta;
+    }
+    
     public TokenType getType() {
 	return this.type;
     }
@@ -140,6 +153,10 @@ public class Token {
 	for (Token t : tokenStream) {
 	    System.out.println(t);
 	}
+    }
+
+    public Object getValue() {
+	return this.value;
     }
 
     public String getLexeme() {
@@ -152,9 +169,9 @@ public class Token {
     
     public String toString() {
 	if (this.value != null) {
-	    return String.format("%d > %s [%s :: %s]", this.meta.lineNumber,  this.type.name(), this.lexeme, this.value);
+	    return String.format("%d > %s [%s :: %s]", this.meta.getLine(),  this.type.name(), this.lexeme, this.value);
 	} else {
-	    return String.format("%d > %s [%s]", this.meta.lineNumber, this.type.name(), this.lexeme);
+	    return String.format("%d > %s [%s]", this.meta.getLine(), this.type.name(), this.lexeme);
 	}
     }
 }

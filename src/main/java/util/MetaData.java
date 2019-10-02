@@ -3,7 +3,6 @@ package konrad.util;
 // TODO (Simon): we shouldn't save the filename in all tokens
 public class MetaData {
 
-    // HACK(Simon): Refactor to be private
     private String filename;
     private int lineNumber = 0;
 
@@ -39,7 +38,7 @@ public class MetaData {
 
     public int getStartPos() { return this.startPosition; }
 
-    public int getEndPos() { returrn this.endPosition; }
+    public int getEndPos() { return this.endPosition; }
 
     public int getLine() { return this.lineNumber; }
 }
