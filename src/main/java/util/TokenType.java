@@ -40,8 +40,10 @@ public enum TokenType {
     AND,
     OR,
     NOT,
-    LESSTHAN,
-    GREATERTHAN,
+    LESS,
+    LESSEQUAL,
+    GREATER,
+    GREATEREQUAL,
     EQUALEQUAL,
     NOTEQUAL,
 

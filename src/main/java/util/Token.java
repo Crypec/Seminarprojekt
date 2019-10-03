@@ -1,4 +1,4 @@
-package konrad.util; 
+package konrad.util;
 
 import java.util.*;
 
@@ -7,17 +7,16 @@ public class Token {
     // also these fields should't be public :D
     private String lexeme;
     private TokenType type;
-    private Object value;
+    private Object literal;
     private MetaData meta;
-
 
     public Token(String lexeme, MetaData meta) {
 	this.lexeme = lexeme;
 	this.meta = meta;
 	this.type = Token.matchType(lexeme);
 
-	this.value = switch (this.type) {
-	case STRINGLITERAL -> lexeme;
+	this.literal = switch (this.type) {
+        case STRINGLITERAL -> lexeme;
 	case NUMBERLITERAL -> konrad.Lexer.parseNum(lexeme);
 	case TRUE -> true;
 	case FALSE -> false; 
@@ -28,7 +27,7 @@ public class Token {
     public static class Builder {
 	
 	private String lexeme;
-	private Object value;
+	private Object literal;
 	private MetaData meta;
 
 	public Builder filename(String filename) {
@@ -73,7 +72,7 @@ public class Token {
 	//basic types
 	case "Zahl" -> TokenType.NUMBERTYPE;
 	case "Text" -> TokenType.STRINGTYPE;
-	case "bool" -> TokenType.BOOLEANTYPE;
+	case "Bool" -> TokenType.BOOLEANTYPE;
 
 	//const declarations
 	case "konst" -> TokenType.CONST;
@@ -91,8 +90,12 @@ public class Token {
 	//comparisons
 	case "==", "gleich" -> TokenType.EQUALEQUAL;
 	case "!=" -> TokenType.NOTEQUAL;
-	case "<" -> TokenType.LESSTHAN;
-	case ">"  -> TokenType.GREATERTHAN;
+
+	case "<="TokenType.LESSEQUAL;
+	case ">=" TokenType.GREATEREQUAL;
+
+	case "<" -> TokenType.LESS;
+	case ">"  -> TokenType.GREATER;
 
 	//assignment operators
 	case ":=" -> TokenType.VARDEF;
@@ -129,6 +132,13 @@ public class Token {
 	};
     }
 
+    public static boolean endOfExprTokenNeeded(Token token) {
+	return switch (token.getType()) {
+	case WHILE, FOR, FUNCTION, IF, THAN, ELSE -> false; 
+	default -> true;
+	};
+    }
+    
     public void setType(TokenType type) {
 	this.type = type;
     }
@@ -137,8 +147,8 @@ public class Token {
 	this.lexeme = lexeme;
     }
     
-    public void setValue(Object value) {
-	this.value = value; 
+    public void setLiteral(Object literal) {
+	this.literal = literal; 
     }
 
     public void setMeta(MetaData meta) {
@@ -155,23 +165,18 @@ public class Token {
 	}
     }
 
-    public Object getValue() {
-	return this.value;
-    }
+    public Object getLiteral() { return this.literal; }
 
-    public String getLexeme() {
-	return this.lexeme;
-    }
+    public String getLexeme() { return this.lexeme; }
 
-    public MetaData getMeta() {
-	return this.meta;
-    }
-    
+    public MetaData getMeta() { return this.meta; }
+
     public String toString() {
-	if (this.value != null) {
-	    return String.format("%d > %s [%s :: %s]", this.meta.getLine(),  this.type.name(), this.lexeme, this.value);
+	if (this.literal != null) {
+            return String.format("%d > %s (%d - %d) ", this.meta.getLine(), this.type.name().toLowerCase(), this.meta.getStartPos(), this.meta.getEndPos());
 	} else {
-	    return String.format("%d > %s [%s]", this.meta.getLine(), this.type.name(), this.lexeme);
+            return String.format("%d > %s (%d - %d) ", this.meta.getLine(), this.type.name().toLowerCase(), this.meta.getStartPos(), this.meta.getEndPos());
+            // return String.format("%d > %s [%s]", this.meta.getLine(), this.type.name(), this.lexeme); 
 	}
     }
 }
