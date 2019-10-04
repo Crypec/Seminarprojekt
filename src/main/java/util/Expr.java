@@ -2,7 +2,7 @@ package konrad.util;
 
 import java.util.List;
 
-abstract class Expr {
+public abstract class Expr {
 
     interface Visitor<R> {
 	R visitAssignExpr(Assign expr);
@@ -19,12 +19,12 @@ abstract class Expr {
 	R visitVariableExpr(Variable expr);
     }
 
-    static class Assign extends Expr {
+    public static class Assign extends Expr {
 
-	public final Token name;
-	public final Expr value;
+	public Token name;
+	public Expr value;
 
-	Assign(Token name, Expr value) {
+	public Assign(Token name, Expr value) {
 	    this.name = name;
 	    this.value = value;
 	}
@@ -34,13 +34,13 @@ abstract class Expr {
 	}
     }
 
-    static class Binary extends Expr {
+    public static class Binary extends Expr {
 
-	public final Expr left;
-	public final Token operator;
-	public final Expr right;
+	public Expr left;
+	public Token operator;
+	public Expr right;
 
-	Binary(Expr left, Token operator, Expr right) {
+	public Binary(Expr left, Token operator, Expr right) {
 	    this.left = left;
 	    this.operator = operator;
 	    this.right = right;
@@ -51,13 +51,13 @@ abstract class Expr {
 	}
     }
 
-    static class Call extends Expr {
+    public static class Call extends Expr {
 
-	public final Expr callee;
-	public final Token paren;
-	public final List<Expr> arguments;
+	public Expr callee;
+	public Token paren;
+	public List<Expr> arguments;
 
-	Call(Expr callee, Token paren, List<Expr> arguments) {
+	public Call(Expr callee, Token paren, List<Expr> arguments) {
 	    this.callee = callee;
 	    this.paren = paren;
 	    this.arguments = arguments;
@@ -68,12 +68,12 @@ abstract class Expr {
 	}
     }
 
-    static class Get extends Expr {
+    public static class Get extends Expr {
 
-	public final Expr object;
-	public final Token name;
+	public Expr object;
+	public Token name;
 
-	Get(Expr object, Token name) {
+	public Get(Expr object, Token name) {
 	    this.object = object;
 	    this.name = name;
 	}
@@ -83,11 +83,11 @@ abstract class Expr {
 	}
     }
 
-    static class Grouping extends Expr {
+    public static class Grouping extends Expr {
 
-	public final Expr expression;
+	public Expr expression;
 
-	Grouping(Expr expression) {
+	public Grouping(Expr expression) {
 	    this.expression = expression;
 	}
 
@@ -96,11 +96,11 @@ abstract class Expr {
 	}
     }
 
-    static class Literal extends Expr {
+    public static class Literal extends Expr {
 
-	public final Object value;
+	public Object value;
 
-	Literal(Object value) {
+	public Literal(Object value) {
 	    this.value = value;
 	}
 
@@ -109,13 +109,13 @@ abstract class Expr {
 	}
     }
 
-    static class Logical extends Expr {
+    public static class Logical extends Expr {
 
-	public final Expr left;
-	public final Token operator;
-	public final Expr right;
+	public Expr left;
+	public Token operator;
+	public Expr right;
 
-	Logical(Expr left, Token operator, Expr right) {
+	public Logical(Expr left, Token operator, Expr right) {
 	    this.left = left;
 	    this.operator = operator;
 	    this.right = right;
@@ -127,13 +127,13 @@ abstract class Expr {
 
     }
 
-    static class Set extends Expr {
+    public static class Set extends Expr {
 	
-	public final Expr object;
-	public final Token name;
-	public final Expr value;
+	public Expr object;
+	public Token name;
+	public Expr value;
 
-	Set(Expr object, Token name, Expr value) {
+	public Set(Expr object, Token name, Expr value) {
 	    this.object = object;
 	    this.name = name;
 	    this.value = value;
@@ -145,12 +145,12 @@ abstract class Expr {
 
     }
 
-    static class Super extends Expr {
+    public static class Super extends Expr {
 
-	public final Token keyword;
-	public final Token method;
+	public Token keyword;
+	public Token method;
 
-	Super(Token keyword, Token method) {
+	public Super(Token keyword, Token method) {
 	    this.keyword = keyword;
 	    this.method = method;
 	}
@@ -160,11 +160,11 @@ abstract class Expr {
 	}
     }
 
-    static class This extends Expr {
+    public static class This extends Expr {
 
-	public final Token keyword;
+	public Token keyword;
 
-	This(Token keyword) {
+	public This(Token keyword) {
 	    this.keyword = keyword;
 	}
 
@@ -173,12 +173,12 @@ abstract class Expr {
 	}
     }
 
-    static class Unary extends Expr {
+    public static class Unary extends Expr {
 
-	public final Token operator;
-	public final Expr right;
+	public Token operator;
+	public Expr right;
 
-	Unary(Token operator, Expr right) {
+	public Unary(Token operator, Expr right) {
 	    this.operator = operator;
 	    this.right = right;
 	}
@@ -188,10 +188,10 @@ abstract class Expr {
 	}
     }
 
-    static class Variable extends Expr {
-	public final Token name;
+    public static class Variable extends Expr {
+	public Token name;
 
-	Variable(Token name) {
+	public Variable(Token name) {
 	    this.name = name;
 	}
 
