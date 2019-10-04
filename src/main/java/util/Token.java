@@ -1,6 +1,7 @@
 package konrad.util;
 
 import java.util.*;
+import konrad.Lexer;
 
 public class Token {
 
@@ -17,7 +18,7 @@ public class Token {
 
 	this.literal = switch (this.type) {
         case STRINGLITERAL -> lexeme;
-	case NUMBERLITERAL -> konrad.Lexer.parseNum(lexeme);
+	case NUMBERLITERAL -> Lexer.parseNum(lexeme);
 	case TRUE -> true;
 	case FALSE -> false; 
 	default -> null;
@@ -91,8 +92,8 @@ public class Token {
 	case "==", "gleich" -> TokenType.EQUALEQUAL;
 	case "!=" -> TokenType.NOTEQUAL;
 
-	case "<="TokenType.LESSEQUAL;
-	case ">=" TokenType.GREATEREQUAL;
+	case "<=" -> TokenType.LESSEQUAL;
+	case ">=" -> TokenType.GREATEREQUAL;
 
 	case "<" -> TokenType.LESS;
 	case ">"  -> TokenType.GREATER;
