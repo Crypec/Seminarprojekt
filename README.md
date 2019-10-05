@@ -12,7 +12,7 @@ fun start() {
 }
 ```	
 ## Variablen	
-Eine Variable ist ein Behaelter fuer fuer etwas was du speichern willst. Du kannst ihr Werte zuweisen und diese spaeter abrufen.
+Eine Variable ist ein Behaelter fuer etwas was du speichern willst. Du kannst ihr Werte zuweisen und diese spaeter abrufen.
 ```go
 pi := 3.14159 //Du speicherst also den Wert pi in der Variable mit dem Namen pi
 r := 5
