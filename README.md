@@ -11,3 +11,12 @@ fun start() {
 	
 }
 ```	
+## Variablen	
+Eine Variable ist ein Behaelter fuer fuer etwas was du speichern willst. Du kannst ihr Werte zuweisen und diese spaeter abrufen.
+```go
+pi := 3.14159 //Du speicherst also den Wert pi in der Variable mit dem Namen pi
+r := 5
+umfang := 2 * pi * 5 // hier wird also der Umfang eines Kreises mit dem Radius 5 berechnet!
+
+fmt::Ausgabe(umfang);
+```	
