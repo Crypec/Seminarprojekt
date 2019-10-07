@@ -15,7 +15,7 @@ public abstract class Stmt {
 	R visitWhileStmt(While stmt);
     }
 
-    static class Block extends Stmt {
+    public static class Block extends Stmt {
 	Block(List<Stmt> statements) {
 	    this.statements = statements;
 	}
@@ -27,7 +27,7 @@ public abstract class Stmt {
 	final List<Stmt> statements;
     }
 
-    static class Class extends Stmt {
+    public static class Class extends Stmt {
 	Class(Token name,
 	      Expr.Variable superclass,
 	      List<Stmt.Function> methods) {
