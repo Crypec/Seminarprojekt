@@ -5,9 +5,12 @@ import konrad.util.*;
 
 public class Lexer {
 
-    //TODO(Simon): refactor to Object?
+    //TODO(Simon): Right now the lexer does accept all chracters as valid input -> perhaps we should do some basic error reporting in
+    //TODO(Simon): in the lexer
+
+    //TODO(Simon): refactor lexer fun to Object?
     //FIXME(Simon): start and End positon don't quite work, should be getting fixed
-    public static ArrayList<Token> tokenize(StringIterator it) {
+    public static ArrayList<Token> tokenizeLine(Iter<Character> it, String filename, int line) {
 
 	var tokenStream = new ArrayList<konrad.util.Token>();
 	var sb = new StringBuilder();
@@ -26,8 +29,8 @@ public class Lexer {
 	    if (c == ' ' || c == 9) { // check for tab (ASCII code 9)
 		if (sb.length() != 0) {
 		    tokenStream.add(new Token.Builder()
-				    .filename(it.getFilename())
-				    .line(it.getLine())
+				    .filename(filename)
+				    .line(line)
 				    .position(startPos, endPos)
 				    .lexeme(sb.toString())
 				    .build());
@@ -38,17 +41,30 @@ public class Lexer {
 		}
 	    } else if (c == '"') {
 		startPos = endPos;
-		tokenStream.add(getStringLiteral(it));
+
+		tokenStream.add(new Token.Builder()
+				.lexeme(getStringLiteral(it))
+				.filename(filename)
+				.line(line)
+				.build());
 	    } else if (Character.isDigit(c)) {
-		startPos = endPos;
-		tokenStream.add(Lexer.getNumLiteral(it, c));
+		if (sb.length() != 0) sb.append(c);
+		else {
+		    startPos = endPos;  
+		    String strNum = Lexer.getNumLiteral(it, c);
+		    tokenStream.add(new Token.Builder()
+				    .lexeme(strNum)
+				    .filename(filename)
+				    .line(line)
+				    .build());
+		} 
 	    } else if (c == '/' && it.peek() == '/') {
 		return tokenStream; // looks like we encountered a comment and can skip the rest of the line
 	    } else if (Token.isSingleCharToken(c)) {
 		if (sb.length() != 0) {
 		    tokenStream.add(new Token.Builder()
-				    .filename(it.getFilename())
-				    .line(it.getLine())
+				    .filename(filename)
+				    .line(line)
 				    .position(startPos, endPos)
 				    .lexeme(sb.toString())
 				    .build());
@@ -56,8 +72,8 @@ public class Lexer {
 		    sb.setLength(0);
 		} else {
 		    tokenStream.add(new Token.Builder()
-				    .filename(it.getFilename())
-				    .line(it.getLine())
+				    .filename(filename)
+				    .line(line)
 				    .position(startPos, endPos)
 				    .lexeme(Character.toString(c))
 				    .build());
@@ -69,8 +85,8 @@ public class Lexer {
 	}
 	if (sb.length() != 0) {
 	    var token = new Token.Builder()
-		.filename(it.getFilename())
-		.line(it.getLine())
+		.filename(filename)
+		.line(line)
 		.position(startPos, endPos)
 		.lexeme(sb.toString())
 		.build();
@@ -79,7 +95,11 @@ public class Lexer {
 	return tokenStream;
     }
 
-    public static Token getStringLiteral(StringIterator it) {
+    // FIXME(Simon): this can fail if string is initalized as empty
+    /* 
+       a : Text = ""; //this would fail in the current implementation
+    */
+    public static String getStringLiteral(Iter<Character> it) {
 	var sb = new StringBuilder();
 	sb.append('"');
 	while (it.hasNext()) {
@@ -91,15 +111,7 @@ public class Lexer {
 		sb.append(c);
 	    }
 	}
-	// FIXME(Simon): this can fail if string is initalized as empty
-	/* 
-	   a : Text = ""; //this would fail in the current implementation
-	*/
-	return new Token.Builder()
-	    .lexeme(sb.toString())
-	    .filename(it.getFilename())
-	    .line(it.getLine())
-	    .build();
+	return sb.toString();
     }
 
     public static boolean emitSemicolon(List<Token> tokenStream) {
@@ -120,7 +132,7 @@ public class Lexer {
       64bit float we can think about using some other representation for numbers
       in the future maybe DEC64 would be nice: http://www.dec64.com/
     */
-    public static Token getNumLiteral(StringIterator it, Character firstDigit) {
+    public static String getNumLiteral(Iter<Character> it, Character firstDigit) {
 	var sb = new StringBuilder();
 	sb.append(firstDigit);
 
@@ -139,23 +151,28 @@ public class Lexer {
 	    it.setBackOnePosition();
 	    break;
 	}
-
-	return new Token.Builder()
-	    .lexeme(sb.toString())
-	    .filename(it.getFilename())
-	    .line(it.getLine())
-	    .build();
+	return sb.toString();
     }
 
     public static double parseNum(String str) {
 	return Double.parseDouble(str);
     }
+
+    private static Character[] toCharArray(String line) {
+	var chars = new Character[line.length()];
+	for (int i = 0; i < line.length(); i++) {
+	    chars[i] = new Character(line.charAt(i));
+	}
+	return chars;
+    }
+
     
     public static ArrayList<Token> tokenize(SourceFile sf) {
 	var tokenStream = new ArrayList<Token>();
 	while (sf.hasNext()) {
-	    var sIT = new StringIterator(sf.next(), sf);
-	    tokenStream.addAll(tokenize(sIT));
+	    var chars = toCharArray(sf.next());
+	    var it = new Iter<Character>(chars);
+	    tokenStream.addAll(tokenizeLine(it, sf.getFilename(), sf.getLine()));
 	}
 	return tokenStream;
     }
