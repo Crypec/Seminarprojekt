@@ -10,12 +10,13 @@ import konrad.util.*;
 public class App {
     public static void main(String... args) {
 
-	String testDecl = "fun foo(x: Zahl) -> Text {}";
-	var tokenStream = Lexer.tokenize(new StringIterator(testDecl));
-	Token.printStream(tokenStream);
-	
-	// var sf = new SourceFile("./examples/new_example.zs");
-	// var tokenStream = Lexer.tokenize(sf);
+	// String testDecl = "fun foo(x: Zahl) -> Text {}";
+
+	// var tokenStream = Lexer.tokenize();
 	// Token.printStream(tokenStream);
+	
+	var sf = new SourceFile("./examples/new_example.zs");
+	var tokenStream = Lexer.tokenize(sf);
+	Token.printStream(tokenStream);
     }
 }

@@ -2,7 +2,6 @@ package konrad.util;
 
 import java.util.Iterator;
 
-//TODO(Simon): factor filename and lineNumber dependecy out!
 public class Iter<T> implements Iterator {
 
     private T[] buffer;
@@ -27,6 +26,9 @@ public class Iter<T> implements Iterator {
     // peeks looks at the item directly under the cursor
     // which means peeking one item into the future
     public T peek() {
+	if (!this.hasNext()) {
+	    return null;
+	}
 	return buffer[cursor];
     }
 

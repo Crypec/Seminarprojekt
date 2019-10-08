@@ -12,18 +12,12 @@ public class Parser {
 	this.buffer = buffer;
     }
     
-    public static Expr parse(List<Token> tokenStream) {
-	var parser = new Parser(tokenStream);
-	return parser.parse();
-    }
-
-    public Expr parse() {}
-
     private Expr expression() {
 	return equality();
     }
 
     private Expr equality() {
+
 	var ASTNode = comparison();
 
 	while (match(TokenType.EQUALEQUAL, TokenType.NOTEQUAL)) {
@@ -51,7 +45,7 @@ public class Parser {
 	while (match(TokenType.GREATER, TokenType.GREATEREQUAL, TokenType.LESS, TokenType.LESSEQUAL)) {
 	    var operator = previous();
 	    var right = multiplication();
-	    ASTNode = Expr.Binary(ASTNode, operator, right);
+	    ASTNode = new Expr.Binary(ASTNode, operator, right);
 	}
 	return ASTNode;
     }
@@ -62,7 +56,7 @@ public class Parser {
 	while (match(TokenType.DIVIDE, TokenType.MULTIPLY)) {
 	    var operator = previous();
 	    var right = unary();
-	    ASTNode = Expr.Binary(ASTNode, operator, right);
+	    ASTNode = new Expr.Binary(ASTNode, operator, right);
 	}
 	return ASTNode;
     }
@@ -80,9 +74,9 @@ public class Parser {
 
 	
 	
-	if (match(TokenType.FALSE)) return Expr.Literal(false);
-	if (match(TokenType.TRUE)) return Expr.Literal(true);
-	if (match(TokenType.NUMBERLITERAL, TokenType.STRINGLITERAL)) return Expr.Literal(previous().getLiteral());
+	if (match(TokenType.FALSE)) return new Expr.Literal(false);
+	if (match(TokenType.TRUE)) return new Expr.Literal(true);
+	if (match(TokenType.NUMBERLITERAL, TokenType.STRINGLITERAL)) return new Expr.Literal(previous().getLiteral());
 	//NOTE(Simon): maybe we should support NULL values in the future, i still thinks its a good
 	//NOTE(Simon): idea to just initalize every var with a default value
 	//if (match(TokenType.NULL)) return new Expr.Literal(null); 
@@ -91,8 +85,9 @@ public class Parser {
 	if (match(TokenType.LPAREN)) {
 	    var ASTNode = expression();
 	    consume(TokenType.RPAREN, "Nach einem Ausdruck haben wir eine ')' erwartet");
-	    return Expr.Grouping(ASTNode);
+	    return new Expr.Grouping(ASTNode);
 	}
+	return new Expr.Literal(false); // just to please the java compiler
     }
     
 
@@ -113,7 +108,7 @@ public class Parser {
     
     private Token consume(TokenType type, String msg) {
 	if (check(type)) return next();
-	
+	return new Token.Builder().build();
     }
 
     private Token next() {
