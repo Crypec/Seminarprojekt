@@ -5,8 +5,7 @@ import konrad.util.*;
 
 public class Lexer {
 
-    //TODO(Simon): Right now the lexer does accept all chracters as valid input -> perhaps we should do some basic error reporting in
-    //TODO(Simon): in the lexer
+    //TODO(Simon): Right now the lexer does accept all chracters as valid input -> perhaps we should do some basic error reporting right in the lexer
 
     //TODO(Simon): refactor lexer fun to Object?
     //FIXME(Simon): start and End positon don't quite work, should be getting fixed
@@ -14,7 +13,6 @@ public class Lexer {
 
 	var tokenStream = new ArrayList<konrad.util.Token>();
 	var sb = new StringBuilder();
-
 
 	//NOTE(Simon): These are trivially to compute if we ever encounter an error. Maybe we should only compute these if we have to do it for error handling?
 	//NOTE(Simon):
@@ -158,22 +156,23 @@ public class Lexer {
 	return Double.parseDouble(str);
     }
 
-    private static Character[] toCharArray(String line) {
+    private static Character[] stringToCharArray(String line) {
 	var chars = new Character[line.length()];
 	for (int i = 0; i < line.length(); i++) {
 	    chars[i] = new Character(line.charAt(i));
 	}
 	return chars;
     }
-
     
     public static ArrayList<Token> tokenize(SourceFile sf) {
 	var tokenStream = new ArrayList<Token>();
 	while (sf.hasNext()) {
-	    var chars = toCharArray(sf.next());
+	    var chars = stringToCharArray(sf.next());
 	    var it = new Iter<Character>(chars);
 	    tokenStream.addAll(tokenizeLine(it, sf.getFilename(), sf.getLine()));
 	}
+	// TODO(Simon): Construct the metadata of the EOF token with the right values, after the last actual token from the tokenStream
+	tokenStream.add(new Token(TokenType.EOF));
 	return tokenStream;
     }
 }

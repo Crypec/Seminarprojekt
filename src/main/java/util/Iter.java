@@ -39,4 +39,17 @@ public class Iter<T> implements Iterator {
     public void remove() {
 	throw new UnsupportedOperationException();
     }
+
+    public ArrayList<Token> getUntil(T needle){
+
+	var sub = new ArrayList<T>();
+	var haystack = al.subList(this.cursor, this.buffer.length);
+
+	for (T elem : haystack) {
+	    if (elem == needle) {
+		return sub;
+	    }
+	}
+    }
+
 }

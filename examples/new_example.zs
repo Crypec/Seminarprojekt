@@ -1,6 +1,5 @@
 importiere "mathe"
 
-
 fun add(a: Text, b: Zahl, istFalsch: Bool) -> Zahl {
 
     wenn istFalsch {
@@ -29,17 +28,16 @@ Typ SpielBrett {
 }
 
 implementiere Haus {
-    fun neu(adresse: Text, nummer: Zahl) -> Haus {
+    fun neu(addr: Text, nr: Zahl) -> Haus {
     	rueckgabe Haus{
-	    adresse: adresse,
-	    nummer: nummer,
+	    adresse: addr,
+	    nummer: nr,
 	}		  
     }
 
+
     fun formatiere(selbst) -> Text {
-
     }
-
 }
 
 fun Start() {
@@ -52,9 +50,10 @@ fun Start() {
     	 Fmt::ausgabe();
     }
 
-    
-
     user := eingabe("was ist dein begrehren, welche zahl willst du haben")
     fmt::ausgabe("Der absolutwert deiner Zahl ist {}", abs(eingabe))
     sinx := mathe::sin(x)
+
+
+
 }

@@ -25,6 +25,13 @@ public class Token {
 	};
     }
 
+    public Token(TokenType type) {
+	this.type = type;
+	this.lexeme = null;
+	this.literal = null;
+	this.meta = new MetaData("");
+    }
+
     public static class Builder {
 	
 	private String lexeme;
@@ -172,6 +179,12 @@ public class Token {
 
     public MetaData getMeta() { return this.meta; }
 
+    @Override
+    public boolean equals(Token t) {
+	return t.type == t.getType();
+    }
+
+    @Override
     public String toString() {
 	if (this.literal != null) {
             return String.format("%d > %s (%d - %d) ", this.meta.getLine(), this.type.name().toLowerCase(), this.meta.getStartPos(), this.meta.getEndPos());
