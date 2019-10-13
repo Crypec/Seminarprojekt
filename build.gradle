@@ -33,7 +33,7 @@ dependencies {
 
 jar {
     manifest {
-	attributes 'Main-Class' : 'konrad.App'
+	attributes 'Main-Class' : 'kuzuto.App'
     }
     from {
         configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
@@ -42,9 +42,9 @@ jar {
 
 application {
     // Define the main class for the application
-    mainClassName = 'konrad.App'
+    mainClassName = 'kuzuto.App'
 }
-//enable java 12 features
+
 tasks.withType(JavaCompile).each {
     it.options.compilerArgs.add('--enable-preview')
 }

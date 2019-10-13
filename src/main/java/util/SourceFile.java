@@ -1,4 +1,4 @@
-package konrad.util;
+package kuzuto.util;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -18,7 +18,6 @@ public class SourceFile {
   private static ArrayList<String> readFile(String filename) {
     var buffer = new ArrayList<String>();
     try (var br = new BufferedReader(new FileReader(filename))) {
-      // NOTE(Simon): collecting the stream would probably be faster
       String line;
       while ((line = br.readLine()) != null) {
         // NOTE(Simon): maybe add char to empty line

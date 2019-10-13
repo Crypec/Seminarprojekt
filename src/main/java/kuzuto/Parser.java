@@ -1,7 +1,6 @@
-package konrad;
+package kuzuto;
 
-import java.util.*;
-import konrad.util.*;
+import kuzuto.util.*;
 
 
 // TODO(Simon): Refactor to Iter  

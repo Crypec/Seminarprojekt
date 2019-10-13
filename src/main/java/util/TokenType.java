@@ -1,4 +1,4 @@
-package konrad.util;
+package kuzuto.util;
 
 public enum TokenType {
     // keywords
@@ -30,6 +30,7 @@ public enum TokenType {
     DOT,
     EQUALSIGN,
     SEMICOLON,
+
     EOF, // the EndOfFile token specifies the end of a file, if we reach this token we are finished with parsing
 
     VARDEF,

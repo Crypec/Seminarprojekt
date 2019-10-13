@@ -1,6 +1,6 @@
-package konrad;
+package kuzuto;
 
-import konrad.util.*;
+import kuzuto.util.*;
 
 public class Typer {
     

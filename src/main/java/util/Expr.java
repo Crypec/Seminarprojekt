@@ -1,4 +1,4 @@
-package konrad.util;
+package kuzuto.util;
 
 import java.util.List;
 

@@ -1,7 +1,7 @@
-package konrad.util;
+package kuzuto.util;
 
 import java.util.*;
-import konrad.Lexer;
+import kuzuto.Lexer;
 
 public class Token {
 
@@ -179,7 +179,6 @@ public class Token {
 
     public MetaData getMeta() { return this.meta; }
 
-    @Override
     public boolean equals(Token t) {
 	return t.type == t.getType();
     }

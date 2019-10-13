@@ -1,4 +1,4 @@
-package konrad.util;
+package kuzuto.util;
 
 // TODO (Simon): we shouldn't save the filename in all tokens
 public class MetaData {

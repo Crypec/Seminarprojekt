@@ -1,13 +1,7 @@
-package konrad;
-
-import static org.junit.Assert.*;
-
-import org.junit.Test;
-import java.util.*;
+package kuzuto;
 
 
-import konrad.*;
-import konrad.util.*;
+import kuzuto.util.*;
 
 
 public class LexerTest {
