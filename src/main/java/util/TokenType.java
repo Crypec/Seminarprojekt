@@ -1,4 +1,4 @@
-package kuzuto.util;
+package util;
 
 public enum TokenType {
     // keywords

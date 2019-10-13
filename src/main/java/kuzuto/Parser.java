@@ -1,6 +1,6 @@
 package kuzuto;
 
-import kuzuto.util.*;
+import util.*;
 
 
 // TODO(Simon): Refactor to Iter  

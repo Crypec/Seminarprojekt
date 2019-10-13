@@ -1,4 +1,4 @@
-package kuzuto.util;
+package util;
 
 import java.util.*;
 

@@ -1,6 +1,6 @@
-package kuzuto.util;
+package util;
 
-import kuzuto.util.*;
+import util.*;
 import com.github.tomaslanger.chalk.*;
 
 public class Log {

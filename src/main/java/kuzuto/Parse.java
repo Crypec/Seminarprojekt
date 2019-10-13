@@ -1,6 +1,6 @@
 package kuzuto;
 
-import kuzuto.util.*;
+import util.*;
 
 public class Parse {
     // /*

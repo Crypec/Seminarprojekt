@@ -1,7 +1,7 @@
 package kuzuto;
 
 import java.util.*;
-import kuzuto.util.*;
+import util.*;
 
 public class Lexer {
 
