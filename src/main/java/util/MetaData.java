@@ -17,7 +17,7 @@ public class MetaData {
     }
 
     public MetaData() {
-	this.filename = "[Error] filename not specified";
+	this.filename = "[Error] :: Filename not specified";
 
 	this.lineNumber = 0;
 	this.startPosition = 0;

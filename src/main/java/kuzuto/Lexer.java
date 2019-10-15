@@ -11,7 +11,7 @@ public class Lexer {
     //FIXME(Simon): start and End positon don't quite work, should be getting fixed
     public static ArrayList<Token> tokenizeLine(Iter<Character> it, String filename, int line) {
 
-	var tokenStream = new ArrayList<kuzuto.util.Token>();
+	var tokenStream = new ArrayList<Token>();
 	var sb = new StringBuilder();
 
 	//NOTE(Simon): These are trivially to compute if we ever encounter an error. Maybe we should only compute these if we have to do it for error handling?

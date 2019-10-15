@@ -1,7 +1,8 @@
 package kuzuto;
 
 
-import kuzuto.util.*;
+import kuzuto.*;
+import util.*;
 
 
 public class LexerTest {
