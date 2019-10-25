@@ -146,6 +146,15 @@ public class Token {
 	default -> true;
 	};
     }
+
+    public static boolean validForExpr(Token t) {
+	return switch(t.type) {
+	case NUMBERLITERAL, STRINGLITERAL, TRUE, FALSE, PLUS, MINUS, MULTIPLY, DIVIDE, AND, OR, NOT -> true,
+	default -> false;
+	}
+			     
+    }
+
     
     public void setType(TokenType type) {
 	this.type = type;
