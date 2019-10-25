@@ -1,25 +1,23 @@
-package konrad.util;
+package util;
 
-import java.util.HashSet;
-import konrad.*;
-import konrad.util.common.*;
+import java.util.*;
+import kuzuto.Lexer;
 
 public class Token {
 
-    // NOTE(Simon): How are we going to handle error messages so that not all of the tokens  have to know their filename separately
     // also these fields should't be public :D
-    public String lexeme;
-    public TokenType type;
-    public Object value;
-    public MetaData metaData;
+    private String lexeme;
+    private TokenType type;
+    private Object literal;
+    private MetaData meta;
 
-    public Token(String lexeme) {
-
-	this.type = Token.matchType(lexeme);
+    public Token(String lexeme, MetaData meta) {
 	this.lexeme = lexeme;
+	this.meta = meta;
+	this.type = Token.matchType(lexeme);
 
-	this.value = switch (this.type) {
-	case STRINGLITERAL -> lexeme;
+	this.literal = switch (this.type) {
+        case STRINGLITERAL -> lexeme;
 	case NUMBERLITERAL -> Lexer.parseNum(lexeme);
 	case TRUE -> true;
 	case FALSE -> false; 
@@ -27,64 +25,96 @@ public class Token {
 	};
     }
 
-    public Token(String lexeme, TokenType type, Object value) {
-	this.lexeme = lexeme;
+    public Token(TokenType type) {
 	this.type = type;
-	this.value = value;
+	this.lexeme = null;
+	this.literal = null;
+	this.meta = new MetaData("");
+    }
+
+    public static class Builder {
+	
+	private String lexeme;
+	private Object literal;
+	private MetaData meta;
+
+	public Builder filename(String filename) {
+	    this.meta = new MetaData();
+	    this.meta.setFilename(filename);
+	    return this;
+	}
+
+	public Builder line(int line) {
+	    this.meta.setLine(line);
+	    return this;
+	}
+
+	public Builder position(int start, int end) {
+	    this.meta.setStartPos(start);
+	    this.meta.setEndPos(end);
+	    return this;
+	}
+	
+	public Builder lexeme(String lexeme) {
+	    this.lexeme = lexeme;
+	    return this;
+	}
+
+	public Token build() {
+	    return new Token(this.lexeme, this.meta);
+	}
     }
 
 
-    // NOTE(Simon): should we allow the use of english keywords?
     public static TokenType matchType(String s) {
-
-	if (isNumeric(s)) {
-	    return TokenType.NUMBERLITERAL;
-	}
-	
 	return switch (s) {
 	    // keywords
 	case "importiere" -> TokenType.IMPORT;
-	case "funktion" -> TokenType.FUNCTION;
+	case "fun" -> TokenType.FUNCTION;
 	case "solange" -> TokenType.WHILE;
 	case "für" -> TokenType.FOR;
 	case "wenn" -> TokenType.IF;
 	case "dann" -> TokenType.THAN;
 	case "sonst" -> TokenType.ELSE;
-	case "definiere" -> TokenType.DEFINE;
 
 	//basic types
 	case "Zahl" -> TokenType.NUMBERTYPE;
 	case "Text" -> TokenType.STRINGTYPE;
-	case "Wahrheitswert" -> TokenType.BOOLEANTYPE;
+	case "Bool" -> TokenType.BOOLEANTYPE;
 
 	//const declarations
-	case "konst","konstant", "konstante" -> TokenType.CONST;
+	case "konst" -> TokenType.CONST;
 
 	//boolean operations
 	case "wahr" -> TokenType.TRUE;
 	case "falsch" -> TokenType.FALSE;
 
-	case "UND", "&&" -> TokenType.AND;
+	case "&&" -> TokenType.AND;
 
-	case "ODER", "||" -> TokenType.OR;
+	case "||" -> TokenType.OR;
 
-	case "NICHT", "!" -> TokenType.NOT;
+	case "!" -> TokenType.NOT;
 
 	//comparisons
-	case "==" -> TokenType.EQUALEQUAL;
+	case "==", "gleich" -> TokenType.EQUALEQUAL;
 	case "!=" -> TokenType.NOTEQUAL;
-	case "<" -> TokenType.LESSTHAN;
-	case ">"  -> TokenType.GREATERTHAN;
+
+	case "<=" -> TokenType.LESSEQUAL;
+	case ">=" -> TokenType.GREATEREQUAL;
+
+	case "<" -> TokenType.LESS;
+	case ">"  -> TokenType.GREATER;
 
 	//assignment operators
 	case ":=" -> TokenType.VARDEF;
+
 	case "->" -> TokenType.ARROW;
 	
 	//other single char tokens
 	case "{" -> TokenType.STARTBLOCK;
 	case "}" -> TokenType.ENDBLOCK;
-	case "(" -> TokenType.PARENLEFT;
-	case ")" -> TokenType.PARENRIGHT;
+	case "(" -> TokenType.LPAREN;
+	case ")" -> TokenType.RPAREN;
 	case "[" -> TokenType.BRACKETLEFT;
 	case "]" -> TokenType.BRACKETRIGHT;
 	case ":" -> TokenType.COLON;
@@ -97,7 +127,7 @@ public class Token {
 	case "*" -> TokenType.MULTIPLY;
 	case "/" -> TokenType.DIVIDE;
 	
-	case "%", "mod", "modulo" -> TokenType.MOD;
+	case "%" -> TokenType.MODULO;
 
 	default -> TokenType.SYMBOL;
 	};
@@ -110,28 +140,56 @@ public class Token {
 	};
     }
 
-    // NOTE(Simon): throwing and catching an exception in java is really costly if we ever try to speed up th compiler we should try to replace this routine with something different
-    public static boolean isNumeric(String str) {
-	try {
-	    Double.parseDouble(str);
-	}
-	catch (Exception e) {
-	    return false;
-		}
-		return true;
+    public static boolean endOfExprTokenNeeded(Token token) {
+	return switch (token.getType()) {
+	case WHILE, FOR, FUNCTION, IF, THAN, ELSE -> false; 
+	default -> true;
+	};
+    }
+    
+    public void setType(TokenType type) {
+	this.type = type;
     }
 
+    public void setLexeme(String lexeme) {
+	this.lexeme = lexeme;
+    }
+    
+    public void setLiteral(Object literal) {
+	this.literal = literal; 
+    }
 
+    public void setMeta(MetaData meta) {
+	this.meta = meta;
+    }
+    
     public TokenType getType() {
 	return this.type;
     }
 
+    public static void printStream(List<Token> tokenStream) {
+	for (Token t : tokenStream) {
+	    System.out.println(t);
+	}
+    }
 
+    public Object getLiteral() { return this.literal; }
+
+    public String getLexeme() { return this.lexeme; }
+
+    public MetaData getMeta() { return this.meta; }
+
+    public boolean equals(Token t) {
+	return t.type == t.getType();
+    }
+
+    @Override
     public String toString() {
-	if (this.value != null) {
-	    return String.format("Token: %s [%s :: %s]", this.type.name(), this.lexeme, this.value);
+	if (this.literal != null) {
+            return String.format("%d > %s (%d - %d) ", this.meta.getLine(), this.type.name().toLowerCase(), this.meta.getStartPos(), this.meta.getEndPos());
 	} else {
-	    return String.format("Token: %s [%s]", this.type.name(), this.lexeme);
+            return String.format("%d > %s (%d - %d) ", this.meta.getLine(), this.type.name().toLowerCase(), this.meta.getStartPos(), this.meta.getEndPos());
+            // return String.format("%d > %s [%s]", this.meta.getLine(), this.type.name(), this.lexeme); 
 	}
     }
 }

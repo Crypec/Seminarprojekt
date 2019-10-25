@@ -22,32 +22,37 @@ repositories {
 
 dependencies {
     // This dependency is used by the application.
-    implementation 'com.google.guava:guava:28.1-jre'
+    compile 'com.google.guava:guava:28.1-jre'
 
     // color printing for nice error messages
-    implementation "com.github.tomas-langer:chalk:1.0.2"
+    compile "com.github.tomas-langer:chalk:1.0.2"
 
     // Use JUnit test framework
-    testImplementation 'junit:junit:4.12'
-
+    compile 'junit:junit:4.12'
 }
 
 jar {
     manifest {
-	attributes 'Main-Class' : 'konrad.App'
-    } 
+	attributes 'Main-Class' : 'kuzuto.App'
+    }
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
 }
 
 application {
     // Define the main class for the application
-    mainClassName = 'konrad.App'
+    mainClassName = 'kuzuto.App'
 }
-//enable java 12 features
+
 tasks.withType(JavaCompile).each {
     it.options.compilerArgs.add('--enable-preview')
 }
 //enable java 12 features for tests
 test {
+    testLogging {
+	showStandardStreams = true
+    }
     jvmArgs(['--enable-preview'])
 }
 
