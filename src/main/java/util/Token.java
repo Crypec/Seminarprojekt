@@ -1,5 +1,7 @@
 package util;
 
+import com.google.gson.*;
+
 import java.util.*;
 import kuzuto.Lexer;
 
@@ -74,8 +76,13 @@ public class Token {
 	case "solange" -> TokenType.WHILE;
 	case "für" -> TokenType.FOR;
 	case "wenn" -> TokenType.IF;
-	case "dann" -> TokenType.THAN;
 	case "sonst" -> TokenType.ELSE;
+	case "rückgabe" -> TokenType.RETURN;
+	case "Typ" -> TokenType.CLASS;
+
+	// Compiler native functions
+	case "#eingabe" -> TokenType.READINPUT;
+	case "#ausgabe" -> TokenType.PRINT;
 
 	//basic types
 	case "Zahl" -> TokenType.NUMBERTYPE;
@@ -89,9 +96,9 @@ public class Token {
 	case "wahr" -> TokenType.TRUE;
 	case "falsch" -> TokenType.FALSE;
 
-	case "&&" -> TokenType.AND;
+	case "&&", "und" -> TokenType.AND;
 
-	case "||" -> TokenType.OR;
+	case "||", "oder" -> TokenType.OR;
 
 	case "!" -> TokenType.NOT;
 
@@ -142,16 +149,16 @@ public class Token {
 
     public static boolean endOfExprTokenNeeded(Token token) {
 	return switch (token.getType()) {
-	case WHILE, FOR, FUNCTION, IF, THAN, ELSE -> false; 
+	case WHILE, FOR, FUNCTION, IF, ELSE -> false; 
 	default -> true;
 	};
     }
 
     public static boolean validForExpr(Token t) {
 	return switch(t.type) {
-	case NUMBERLITERAL, STRINGLITERAL, TRUE, FALSE, PLUS, MINUS, MULTIPLY, DIVIDE, AND, OR, NOT -> true,
+	case NUMBERLITERAL, STRINGLITERAL, TRUE, FALSE, PLUS, MINUS, MULTIPLY, DIVIDE, AND, OR, NOT -> true;
 	default -> false;
-	}
+	};
 			     
     }
 
@@ -192,13 +199,13 @@ public class Token {
 	return t.type == t.getType();
     }
 
+
     @Override
     public String toString() {
-	if (this.literal != null) {
-            return String.format("%d > %s (%d - %d) ", this.meta.getLine(), this.type.name().toLowerCase(), this.meta.getStartPos(), this.meta.getEndPos());
-	} else {
-            return String.format("%d > %s (%d - %d) ", this.meta.getLine(), this.type.name().toLowerCase(), this.meta.getStartPos(), this.meta.getEndPos());
-            // return String.format("%d > %s [%s]", this.meta.getLine(), this.type.name(), this.lexeme); 
-	}
+	return new GsonBuilder()
+	    .setPrettyPrinting()
+	    .serializeNulls()
+	    .create()
+	    .toJson(this);
     }
 }
