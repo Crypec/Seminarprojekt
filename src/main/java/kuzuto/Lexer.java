@@ -6,8 +6,6 @@ import util.*;
 public class Lexer {
 
     //TODO(Simon): Right now the lexer does accept all chracters as valid input -> perhaps we should do some basic error reporting right in the lexer
-
-    //TODO(Simon): refactor lexer fun to Object?
     //FIXME(Simon): start and End positon don't quite work, should be getting fixed
     public static ArrayList<Token> tokenizeLine(Iter<Character> it, String filename, int line) {
 
