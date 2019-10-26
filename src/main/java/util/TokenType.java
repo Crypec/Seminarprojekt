@@ -5,12 +5,18 @@ public enum TokenType {
     IMPORT,
     SYMBOL,
     FUNCTION,
+    CLASS,
     WHILE,
     FOR,
     IF,
-    THAN,
     ELSE,
     CONST,
+    RETURN,
+
+    // Compiler native functions
+    READINPUT,
+    PRINT,
+
 
     // primitive Types
     STRINGTYPE,
