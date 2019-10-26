@@ -23,6 +23,7 @@ repositories {
 dependencies {
     // This dependency is used by the application.
     compile 'com.google.guava:guava:28.1-jre'
+    compile 'com.google.code.gson:gson:2.8.6'
 
     // color printing for nice error messages
     compile "com.github.tomas-langer:chalk:1.0.2"
