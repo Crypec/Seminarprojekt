@@ -36,6 +36,8 @@ public class Iter<T> implements Iterator {
 	cursor--;
     }
 
+    //TODO(Simon): Extend Iterator to make suitable for use in the parser 
+
     public void remove() {
 	throw new UnsupportedOperationException();
     }

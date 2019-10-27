@@ -77,6 +77,7 @@ public class Report {
 	}
     }
 
+    // TODO(Simon): Implement nice pretty prining of error/warning messages
     @Override
     public String toString() {
 	return new GsonBuilder()
