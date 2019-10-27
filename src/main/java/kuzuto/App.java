@@ -4,17 +4,29 @@
 package kuzuto;
 
 import util.*;
+import com.github.tomaslanger.chalk.*;
+
 
 public class App {
     public static void main(String... args) {
 
-	// String testDecl = "fun foo(x: Zahl) -> Text {}";
+	// String testExpr = "2 * ((2 - 3) + 4)"; // Result: 6
+	// var parser = new Parser(Lexer.tokenizeLine(Lexer.toCharArra));
 
-	// var tokenStream = Lexer.tokenize();
-	// Token.printStream(tokenStream);
-
-	var sf = new SourceFile("./examples/new_example.zs");
-	var tokenStream = Lexer.tokenize(sf);
-	Token.printStream(tokenStream);
+	var err = new util.Report.Builder()
+	    .errWasFatal()
+	    .setErrorType("Fehler beim parsen")
+	    .withErrorMsg(String.format("Ich war gerade dabei einen Mathematischen ausdruck zu parsen als ich auf einen unerwarteten Token gestossen bin: %s.", ">"))
+	    .addExample("4 + 2")
+	    .addExample("n * (4 + 2)")
+	    .addExample("Math::sin(x) * (4 + 2)")
+	    .atToken(new Token.Builder()
+		     .lexeme(">")
+		     .filename("test.zt")
+		     .line(10)
+		     .build())
+	    .url("www.github.com/crypec/seminarproject#ausdruecke")
+	    .create();
+	System.out.println(err);
     }
 }
