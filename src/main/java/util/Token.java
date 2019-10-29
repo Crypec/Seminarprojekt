@@ -79,6 +79,7 @@ public class Token {
 	case "sonst" -> TokenType.ELSE;
 	case "rückgabe" -> TokenType.RETURN;
 	case "Typ" -> TokenType.CLASS;
+	case "bis" -> TokenType.UNTIL;
 
 	// Compiler native functions
 	case "#eingabe" -> TokenType.READINPUT;
@@ -127,6 +128,7 @@ public class Token {
 	case ":" -> TokenType.COLON;
 	case "." -> TokenType.DOT;
 	case "=" -> TokenType.EQUALSIGN;
+	case "," -> TokenType.COMMA;
 
 	//Math operators
 	case "+" -> TokenType.PLUS;
@@ -159,7 +161,6 @@ public class Token {
 	case NUMBERLITERAL, STRINGLITERAL, TRUE, FALSE, PLUS, MINUS, MULTIPLY, DIVIDE, AND, OR, NOT -> true;
 	default -> false;
 	};
-			     
     }
 
     
@@ -183,7 +184,7 @@ public class Token {
 	return this.type;
     }
 
-    public static void printStream(List<Token> tokenStream) {
+    public static void printAll(List<Token> tokenStream) {
 	for (Token t : tokenStream) {
 	    System.out.println(t);
 	}

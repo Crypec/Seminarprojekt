@@ -8,6 +8,7 @@ public enum TokenType {
     CLASS,
     WHILE,
     FOR,
+    UNTIL,
     IF,
     ELSE,
     CONST,
@@ -36,6 +37,7 @@ public enum TokenType {
     DOT,
     EQUALSIGN,
     SEMICOLON,
+    COMMA,
 
     EOF, // the EndOfFile token specifies the end of a file, if we reach this token we are finished with parsing
 
