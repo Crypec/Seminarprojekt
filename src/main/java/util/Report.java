@@ -1,9 +1,13 @@
 package util;
 
-import com.google.gson.*;
 import java.util.*;
+import java.lang.*;
+
+import com.google.gson.*;
 
 public class Report {
+
+    public class ParseError extends RuntimeException{}
 
     // if we encounter a fatal error while parsing we set this field to not execute corrupted code
     public static boolean hadErr = false;
@@ -19,13 +23,14 @@ public class Report {
     private String url;
 
     public Report(String errType, String errMsg, List<String> examples,
-		  Token token, String url) {
+		  Token token, String url, boolean isFatal) {
 	
 	this.errType = errType;
 	this.errMsg = errMsg;
 	this.examples = examples;
 	this.token = token;
 	this.url = url;
+	this.isFatal = isFatal;
     }
 
     public static class Builder {
@@ -73,8 +78,14 @@ public class Report {
 
 	public Report create() {
 	    return new Report(this.errType, this.errMsg, this.examples, this.token,
-			      this.url);
+			      this.url, isFatal);
 	}
+    }
+
+    // if we encounter an error during the parsing stage we can use the following exception to restore state and continue parsing till the end
+    // this means we can try to detect all errors and not just a single error every time the user tries to compile a programm
+    public void sync() throws ParseError {
+	if (this.isFatal) throw new ParseError();
     }
 
     // TODO(Simon): Implement nice pretty prining of error/warning messages
