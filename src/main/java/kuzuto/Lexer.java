@@ -36,7 +36,6 @@ public class Lexer {
 		}
 	    } else if (c == '"') {
 		startPos = endPos;
-
 		tokenStream.add(new Token.Builder()
 				.lexeme(getStringLiteral(it))
 				.filename(filename)
@@ -62,6 +61,12 @@ public class Lexer {
 				    .line(line)
 				    .position(startPos, endPos)
 				    .lexeme(sb.toString())
+				    .build());
+		    tokenStream.add(new Token.Builder()
+				    .filename(filename)
+				    .line(line)
+				    .position(startPos, endPos)
+				    .lexeme(Character.toString(c))
 				    .build());
 		    startPos = endPos;
 		    sb.setLength(0);
