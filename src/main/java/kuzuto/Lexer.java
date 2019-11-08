@@ -5,7 +5,7 @@ import util.*;
 
 public class Lexer {
 
-    //TODO(Simon): Right now the lexer does accept all chracters as valid input -> perhaps we should do some basic error reporting right in the lexer
+    // TODO(Simon): Right now the lexer does accept all chracters as valid input -> perhaps we should do some basic error reporting right in the lexer
     public static ArrayList<Token> tokenizeLine(Iter<Character> it, String filename, int line) {
 
 	var tokenStream = new ArrayList<Token>();
@@ -137,8 +137,9 @@ public class Lexer {
 	sb.append(firstDigit);
 
 	while (it.hasNext()) {
-	    var c = it.next();
 
+	    var c = it.next();
+	    System.out.println(c);
 	    if (Character.isDigit(c)) {
 		sb.append(c);
 		continue;
@@ -147,10 +148,11 @@ public class Lexer {
 		continue;
 	    }  else if (c == '_') {
 		continue;
+	    } else {
+		break;
 	    }
-	    it.setBackOnePosition();
-	    break;
 	}
+	it.setBackOnePosition(); 
 	return sb.toString();
     }
 
@@ -158,7 +160,7 @@ public class Lexer {
 	return Double.parseDouble(str);
     }
 
-    private static Character[] stringToCharArray(String line) {
+    public static Character[] stringToCharArray(String line) {
 	var chars = new Character[line.length()];
 	for (int i = 0; i < line.length(); i++) {
 	    chars[i] = new Character(line.charAt(i));

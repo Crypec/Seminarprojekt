@@ -69,10 +69,13 @@ public class Token {
 
 
     public static TokenType matchType(String s) {
+	if (isNumeric(s)) {
+	    return TokenType.NUMBERLITERAL;
+	}
 	return switch (s) {
-	    // keywords
-	case "importiere" -> TokenType.IMPORT;
-	case "fun" -> TokenType.FUNCTION;
+		// keywords
+	    case "importiere" -> TokenType.IMPORT;
+	    case "fun" -> TokenType.FUNCTION;
 	case "solange" -> TokenType.WHILE;
 	case "für" -> TokenType.FOR;
 	case "wenn" -> TokenType.IF;
@@ -190,6 +193,15 @@ public class Token {
 	}
     }
 
+    public static boolean isNumeric(String s) {
+	try {
+	    Double.parseDouble(s);
+	} catch (Exception e) {
+	    return false;
+	}
+	return true;
+    }
+    
     public Object getLiteral() { return this.literal; }
 
     public String getLexeme() { return this.lexeme; }
@@ -200,6 +212,14 @@ public class Token {
 	return t.type == t.getType();
     }
 
+    // TODO(Simon): add operator precedence of boolean operators
+    public int getPrecedence() {
+	return switch (this.type) {
+	case MULTIPLY, DIVIDE -> 3;
+	case PLUS, MINUS -> 2;
+	default -> 0;
+	};
+    }
 
     @Override
     public String toString() {
