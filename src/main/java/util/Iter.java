@@ -1,6 +1,7 @@
 package util;
 
 import java.util.*;
+import java.util.stream.*;
 
 public class Iter<T> implements Iterator {
 
@@ -41,4 +42,9 @@ public class Iter<T> implements Iterator {
     public void remove() {
 	throw new UnsupportedOperationException();
     }
+
+    public Stream<T> stream() {
+	return Stream.of(buffer);
+    }
+    
 }
