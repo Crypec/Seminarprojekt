@@ -39,7 +39,7 @@ ausgabe 3+10 //ohne hochgestellte Anführungszeichen
 ````
 d) Was ist der Unterschied zwischen Textausgaben und Zahlen/Rechnungen?<BR>
 e) Wo braucht man die hochgestellten Anführungszeichen, wovon hängt es ab?(Bei welchen Typen sind sie notwendig?)<BR>
-f) Erzeuge (Initialisiere) eine Variable wie unten gezeigt, gebe Sie dann wie folgt aus:
+f) Erzeugen Sie (Initialisiere) eine Variable wie unten gezeigt, gebe Sie dann wie folgt aus:
 ````java
 benutze
 [
@@ -50,7 +50,7 @@ a: Zahl = 2
 ausgabe "a hat den Wert {}!", a
 [
 ````
-Was passiert wenn du das Programm ausführst? Versuche es mit anderen Beispielen und mehreren Variablen!
+Was passiert wenn Sie das Programm ausführen? Versuchen Sie es mit anderen Beispielen und mehreren Variablen!
 
 Wenn Sie die Basics nochmal nachlesen wollen folgen Sie folgendem Link: 
 "LINK PLATZHALTER"
