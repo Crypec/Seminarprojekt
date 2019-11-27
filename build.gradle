@@ -34,7 +34,7 @@ dependencies {
 
 jar {
     manifest {
-	attributes 'Main-Class' : 'kuzuto.App'
+	attributes 'Main-Class' : 'core.App'
     }
     from {
         configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
@@ -43,7 +43,7 @@ jar {
 
 application {
     // Define the main class for the application
-    mainClassName = 'kuzuto.App'
+    mainClassName = 'core.App'
 }
 
 tasks.withType(JavaCompile).each {

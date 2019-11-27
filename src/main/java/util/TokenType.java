@@ -45,6 +45,8 @@ public enum TokenType {
     VARDEF,
     ARROW,
 
+    NULL,
+
     // boolean operations
     TRUE,
     FALSE,
@@ -94,6 +96,8 @@ public enum TokenType {
 	//const declarations
 	// NOTE(Simon): Do we really need those?
 	case "konst" -> TokenType.CONST;
+
+	case "#NULL" -> TokenType.NULL;
 
 	//boolean operations
 	case "wahr" -> TokenType.TRUE;

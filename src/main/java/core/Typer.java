@@ -1,4 +1,4 @@
-package kuzuto;
+package core;
 
 import util.*;
 

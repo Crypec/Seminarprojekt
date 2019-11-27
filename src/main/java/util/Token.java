@@ -3,7 +3,7 @@ package util;
 import com.google.gson.*;
 
 import java.util.*;
-import kuzuto.Lexer;
+import core.Lexer;
 
 public class Token {
 
@@ -12,11 +12,15 @@ public class Token {
     private TokenType type;
     private Object literal;
     private MetaData meta;
-
+    
     public Token(String lexeme, MetaData meta) {
 	this.lexeme = lexeme;
 	this.meta = meta;
-	if (this.type == null) {
+
+	// NOTE(Simon): Do we really need this?
+	// NOTE(Simon): Because we also match Literals in the parser. We shouldn't be doing the same work twice.
+	System.out.println(this);
+	if (this.literal == null) {
 	    this.literal = switch (this.type) {
 	    case STRINGLITERAL -> lexeme;
 	    case NUMBERLITERAL -> Lexer.parseNum(lexeme);
@@ -37,8 +41,8 @@ public class Token {
     public static class Builder {
 	
 	private String lexeme;
-	private TokenType type = null; 
-	private Object literal;
+	private TokenType type;
+	private Object literal = null;
 	private MetaData meta;
 
 	public Builder filename(String filename) {
@@ -70,6 +74,8 @@ public class Token {
 	}
 
 	public Token build() {
+	    if (this.type == null) System.out.println(this);
+
 	    return new Token(this.lexeme, this.meta);
 	}
     }
@@ -102,7 +108,6 @@ public class Token {
 	default -> false;
 	};
     }
-
     
     public void setType(TokenType type) {
 	this.type = type;

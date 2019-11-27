@@ -1,0 +1,11 @@
+
+
+
+fun Start() {
+    wenn fehler {
+    	 fmt::Ausgabe("da ist wohl etwas schief gelaufen")
+    }
+}
+
+
+2 + (4 * 2) / 20 - 20

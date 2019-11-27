@@ -1,4 +1,4 @@
-package kuzuto;
+package core;
 
 import util.*;
 
@@ -9,7 +9,7 @@ public class Interp implements Expr.Visitor<Object> {
 	return expr.value;
     }
 
-    public static evalute(Expr expr) {
+    public static Object evalute(Expr expr) {
 	return expr.accept();
     }
 

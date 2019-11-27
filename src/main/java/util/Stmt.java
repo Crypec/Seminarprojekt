@@ -144,8 +144,8 @@ public abstract class Stmt {
 	final Expr value;
     }
 
-    static class VarDef extends Stmt {
-	VarDef(Token name, Token typeName, Expr initializer) {
+    public static class VarDef extends Stmt {
+	public VarDef(Token name, Token typeName, Expr initializer) {
 	    this.name = name;
 	    this.typeName = typeName;
 	    this.initializer = initializer;

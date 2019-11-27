@@ -1,9 +1,7 @@
-package kuzuto;
+package core;
 
 import util.*;
 import java.util.*;
-
-import java.util.ArrayDeque;
 
 // TODO(Simon): make err messages better and more descriptive. Maybe we should handle more cases with their own err msg
 public class Parser {
@@ -20,6 +18,89 @@ public class Parser {
 	return null;
     }
 
+    // NOTE(Simon): the new expression 
+
+    public static Expr expression(Iter<Token> it) {
+	return equality(it);
+    }
+
+    private static Expr equality(Iter<Token> it) {
+	Expr expr = comparison(it);
+
+	while (matchAny(it, TokenType.NOTEQUAL, TokenType.EQUALEQUAL)) {
+	    Token operator = it.previous();
+	    Expr right = comparison(it);
+	    expr = new Expr.Binary(expr, operator, right);
+	}
+	return expr;
+    }
+
+    private static Expr comparison(Iter<Token> it) {
+	Expr expr = addtion(it);
+
+	while (matchAny(it, TokenType.GREATER, TokenType.GREATEREQUAL, TokenType.LESS, TokenType.LESSEQUAL))  {
+	    Token operator = it.previous();
+	    Expr right = addtion(it);
+	    expr = new Expr.Binary(expr, operator, right);
+	}
+	return expr;
+    }
+
+    private static Expr addtion(Iter<Token> it) {
+	Expr expr = multiplication(it);
+
+	while (matchAny(it, TokenType.PLUS, TokenType.MINUS)) {
+	    Token operator = it.previous();
+	    Expr right = multiplication(it);
+	    expr = new Expr.Binary(expr, operator, right);
+	}
+	return expr;
+    }
+
+    private static Expr multiplication(Iter<Token> it) {
+	Expr expr = unary(it);
+
+	while (matchAny(it, TokenType.MULTIPLY, TokenType.DIVIDE)) {
+	    Token operator = it.previous();
+	    Expr right = unary(it);
+	    expr = new Expr.Binary(expr, operator, right);
+	}
+	return expr;
+    }
+
+    private static Expr unary(Iter<Token> it) {
+	if (matchAny(it, TokenType.NOT, TokenType.MINUS)) {
+	    Token operator = it.previous();
+	    Expr right = unary(it);
+	    return new Expr.Unary(operator, right);
+	}
+	return primary(it);
+    }
+
+    private static Expr primary(Iter<Token> it) {
+	if (matchAny(it, TokenType.NULL)) return new Expr.Literal(null);
+	if (matchAny(it, TokenType.FALSE)) return new Expr.Literal(false);
+	if (matchAny(it, TokenType.TRUE)) return new Expr.Literal(true);
+
+	if (matchAny(it, TokenType.STRINGLITERAL, TokenType.NUMBERLITERAL)) {
+	    return new Expr.Literal(it.previous().getLiteral());
+	}
+	if (matchAny(it, TokenType.LPAREN)) {
+
+	    var err = new Report.Builder()
+		.errWasFatal()
+		.setErrorType("Mathematischer Ausdruck nicht geschlossen")
+		.withErrorMsg("Hey wir waren gerade dabei einen Mathematischen Ausdruck zu parsen, es scheint als haettest du vergessen eine Klammer zu schliesen")
+		.url("www.k&n.de")
+		.create();
+
+	    Expr expr = expression(it);
+	    consume(TokenType.RPAREN, err, it);
+	    return new Expr.Grouping(expr);
+	}
+	return null; // should never be reached
+	    }
+    // ===============================
 
     // NOTE(Simon): this is the fundamental parsing function for our language, it should handle math, boolean and String calculating operations
     // NOTE(Simon): Right now we use the "shunting yard" algorithm: https://de.wikipedia.org/wiki/Shunting-yard-Algorithmus
@@ -51,30 +132,30 @@ public class Parser {
 			.url("www.k&n.de")
 			.create();
 		    System.out.println(err);
-		    err.sync();
-		}
-		while (!nodes.isEmpty() &&  !ops.isEmpty() && ops.peek().getType() != TokenType.LPAREN) {
-		    addOperatorNode(nodes, ops.pop());
-		}
-		ops.pop();
-	    }
+		err.sync();
+			}
+			while (!nodes.isEmpty() &&  !ops.isEmpty() && ops.peek().getType() != TokenType.LPAREN) {
+			    addOperatorNode(nodes, ops.pop());
+			}
+			ops.pop();
+		    }
 
-	    if (current.isOperator()) {
-		while (!ops.isEmpty() &&
-		       ops.peek().getPrecedence() > current.getPrecedence() ||
-		       (current.isLeftAssoziative() &&
-			ops.peek().getPrecedence() == current.getPrecedence() &&
-			current.getType() != TokenType.LPAREN)) {
+		    if (current.isOperator()) {
+			while (!ops.isEmpty() &&
+			       ops.peek().getPrecedence() > current.getPrecedence() ||
+			       (current.isLeftAssoziative() &&
+				ops.peek().getPrecedence() == current.getPrecedence() &&
+				current.getType() != TokenType.LPAREN)) {
+			    addOperatorNode(nodes, ops.pop());
+			}
+			ops.push(current);
+		    }
+		}
+		while (!ops.isEmpty()) {
 		    addOperatorNode(nodes, ops.pop());
 		}
-		ops.push(current);
+		return nodes.get(1);
 	    }
-	}
-	while (!ops.isEmpty()) {
-	    addOperatorNode(nodes, ops.pop());
-	}
-	return nodes.get(1);
-    }
 
     private static void addOperandNode(Stack<Expr> nodes, Token token) {
 	var ASTNode = new Expr.Literal(token.getLiteral());
@@ -213,6 +294,7 @@ public class Parser {
 
     public static Stmt varDef(Iter<Token> it) {
 
+
 	var err = new Report.Builder()
 	    .errWasFatal()
 	    .setErrorType("Fehler beim parsen einer Variablen Defintion")
@@ -223,17 +305,19 @@ public class Parser {
 	    .create();
 	
 	// we assume that we peeked ahead to find the :=  Symbol
+	Token typeName = null;
 	Token varName = consume(TokenType.SYMBOL, err, it);
 	if (it.peek().getType() != TokenType.VARDEF) {
 	    consume(TokenType.VARDEF, err, it);
 	} else if (it.peek().getType() == TokenType.COLON) {
 	    // Variable is typed
 	    consume(TokenType.COLON, err, it);
-	    Token typeName = consume(TokenType.SYMBOL, err, it);
+	    typeName = consume(TokenType.SYMBOL, err, it);
 	    consume(TokenType.EQUALSIGN, err, it);
 	}
 	Expr value = parseExpr(it);
 	consume(TokenType.SEMICOLON, err, it);
+	return new Stmt.VarDef(varName, typeName, value);
     }
 
     private static Token consume(TokenType type, Report err, Iter<Token> it) {
@@ -244,6 +328,14 @@ public class Parser {
 	return null; // unreachable code becase sync will throw an execption
     }
 
+    private static boolean matchAny(Iter<Token> it, TokenType... types) {
+	
+	for (TokenType type : types) {
+	    if (check(type, it)) it.next();
+	    return true;
+	}
+	return false;
+    }
 
     private static boolean check(TokenType type, Iter<Token> it) {
 	if (!it.hasNext()) return false;

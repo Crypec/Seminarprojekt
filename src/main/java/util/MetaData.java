@@ -1,5 +1,7 @@
 package util;
 
+import com.google.gson.*;
+
 // TODO (Simon): we shouldn't save the filename in all tokens
 public class MetaData {
 
@@ -41,4 +43,13 @@ public class MetaData {
     public int getEndPos() { return this.endPosition; }
 
     public int getLine() { return this.lineNumber; }
+
+    @Override
+    public String toString() {
+	return new GsonBuilder()
+	    .setPrettyPrinting()
+	    .serializeNulls()
+	    .create()
+	    .toJson(this);
+    }
 }
