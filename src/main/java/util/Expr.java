@@ -1,10 +1,11 @@
 package util;
 
 import java.util.List;
+import com.google.gson.*;
 
 public abstract class Expr {
 
-    interface Visitor<R> {
+    public interface Visitor<R> {
 	R visitAssignExpr(Assign expr);
 	R visitBinaryExpr(Binary expr);
 	R visitCallExpr(Call expr);
@@ -19,10 +20,24 @@ public abstract class Expr {
 	R visitVariableExpr(Variable expr);
     }
 
+    /*
+      The assignment operator allows you to specify a new variable, which can be used later.
+      By default you dont have to specify the type of a variable, the compiler is going to figure it for you. 
+
+      Example: 
+      foo := (10 + 3)
+      
+      If you want to explicatly specify the type of a variable you can do this using the following syntax:
+
+      bar: Text = "Hello World"
+
+    */
     public static class Assign extends Expr {
 
 	public Token name;
 	public Expr value;
+
+	public Token type = null; // use for later in typechecker
 
 	public Assign(Token name, Expr value) {
 	    this.name = name;
@@ -200,4 +215,13 @@ public abstract class Expr {
 	}
     }
     abstract <R> R accept(Visitor<R> visitor);
+
+    @Override
+    public String toString() {
+	return new GsonBuilder()
+	    .setPrettyPrinting()
+	    .serializeNulls()
+	    .create()
+	    .toJson(this);
+    }
 }

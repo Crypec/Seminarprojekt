@@ -6,45 +6,38 @@ import java.util.*;
 
 public class SourceFile {
 
-  private String filename;
-  private ArrayList<String> sourceBuffer;
-  private int currentLine = 0;
+    private String filename;
+    private int line;
+    private Iter<String> lineIter;
 
-  public SourceFile(String filename) {
-    this.filename = filename;
-    this.sourceBuffer = readFile(filename);
-  }
-
-  private static ArrayList<String> readFile(String filename) {
-    var buffer = new ArrayList<String>();
-    try (var br = new BufferedReader(new FileReader(filename))) {
-      String line;
-      while ((line = br.readLine()) != null) {
-        // NOTE(Simon): maybe add char to empty line
-        buffer.add(line);
-      }
-      br.close();
-    } catch (Exception e) {
-      e.printStackTrace();
-      System.out.printf(
-          "failed to read file %s %n", filename); // TODO(Simon): better error msg would be nice
+    public SourceFile(String filename) {
+	this.filename = filename;
+	this.lineIter = new Iter<String>(readFile(filename).toArray(new String[0]));
     }
-    return buffer;
-  }
 
-  public boolean hasNext() {
-    return sourceBuffer.size() > currentLine;
-  }
-
-    public String next() {
-	return sourceBuffer.get(currentLine++);
+    private static ArrayList<String> readFile(String filename) {
+	var buffer = new ArrayList<String>();
+	try (var br = new BufferedReader(new FileReader(filename))) {
+	    String line;
+	    while ((line = br.readLine()) != null) {
+		// NOTE(Simon): maybe add char to empty line
+		buffer.add(line);
+	    }
+	    br.close();
+	} catch (Exception e) {
+	    e.printStackTrace();
+	    System.out.printf(
+			      "failed to read file %s %n", filename); // TODO(Simon): better error msg would be nice
+	}
+	return buffer;
     }
+
+    public Iter<String> getIter() {
+	return this.lineIter;
+    }
+    
 
     public String getFilename() {
 	return this.filename;
-    }
-
-    public int getLine() {
-	return this.currentLine;
     }
 }

@@ -3,6 +3,7 @@ package util;
 import java.util.*;
 import java.util.stream.*;
 
+//TODO(Simon): Extend Iterator to make suitable for use in the parser 
 public class Iter<T> implements Iterator {
 
     private T[] buffer;
@@ -34,10 +35,8 @@ public class Iter<T> implements Iterator {
     }
 
     public void setBackOnePosition() {
-	cursor--;
+	cursor -= 1;
     }
-
-    //TODO(Simon): Extend Iterator to make suitable for use in the parser 
 
     public void remove() {
 	throw new UnsupportedOperationException();
@@ -46,5 +45,12 @@ public class Iter<T> implements Iterator {
     public Stream<T> stream() {
 	return Stream.of(buffer);
     }
-    
+
+    public T[] getBuffer() {
+	return this.buffer;
+    }
+
+    public int getCursor() {
+	return this.cursor;
+    }
 }

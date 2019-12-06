@@ -82,6 +82,11 @@ public class Report {
 	}
     }
 
+    public void setToken(Token t) {
+	this.token = token;
+    }
+    
+    
     // if we encounter an error during the parsing stage we can use the following exception to restore state and continue parsing till the end
     // this means we can try to detect all errors and not just a single error every time the user tries to compile a programm
     public void sync() throws ParseError {

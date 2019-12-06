@@ -1,8 +1,4 @@
-package kuzuto;
-
-
-import kuzuto.*;
-import util.*;
+package core;
 
 
 public class LexerTest {
