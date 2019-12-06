@@ -6,21 +6,23 @@ import java.util.*;
 // TODO(Simon): make err messages better and more descriptive. Maybe we should handle more cases with their own err msg
 public class Parser {
 
-    public static List<Stmt> parse(Iter<Token> it){
+    public Iter<Token> it;
 
-	var stmts = new ArrayList<Stmt>();
+    // public static List<Stmt> parse(){
 
-	switch (it.peek().getType()) {
-	case FUNCTION: stmts.add(functionDecl(it)); 
-	case CLASS: break;
-	case IMPORT: stmts.add(importStmt(it));
-	}
-	return null;
-    }
+    // 	var stmts = new ArrayList<Stmt>();
+
+    // 	switch (it.peek().getType()) {
+    // 	case FUNCTION: stmts.add(functionDecl(it)); 
+    // 	case CLASS: break;
+    // 	case IMPORT: stmts.add(importStmt(it));
+    // 	}
+    // 	return null;
+    // }
 
     // NOTE(Simon): the new expression 
 
-    public static Expr expression(Iter<Token> it) {
+    public static Expr parseExpr(Iter<Token> it) {
 	return equality(it);
     }
 
@@ -88,120 +90,54 @@ public class Parser {
 	if (matchAny(it, TokenType.LPAREN)) {
 
 	    var err = new Report.Builder()
-		.errWasFatal()
-		.setErrorType("Mathematischer Ausdruck nicht geschlossen")
-		.withErrorMsg("Hey wir waren gerade dabei einen Mathematischen Ausdruck zu parsen, es scheint als haettest du vergessen eine Klammer zu schliesen")
-		.url("www.k&n.de")
-		.create();
+.errWasFatal()
+		    .setErrorType("Mathematischer Ausdruck nicht geschlossen")
+		    .withErrorMsg("Hey wir waren gerade dabei einen Mathematischen Ausdruck zu parsen, es scheint als haettest du vergessen eine Klammer zu schliesen")
+		    .url("www.k&n.de")
+		    .create();
 
-	    Expr expr = expression(it);
-	    consume(TokenType.RPAREN, err, it);
-	    return new Expr.Grouping(expr);
-	}
-	return null; // should never be reached
+		Expr expr = parseExpr(it);
+		consume(TokenType.RPAREN, err, it);
+		return new Expr.Grouping(expr);
 	    }
-    // ===============================
-
-    // NOTE(Simon): this is the fundamental parsing function for our language, it should handle math, boolean and String calculating operations
-    // NOTE(Simon): Right now we use the "shunting yard" algorithm: https://de.wikipedia.org/wiki/Shunting-yard-Algorithmus
-    // NOTE(Simon): here is a straight forward reference implementation in javascript: https://www.esimovmiras.cc/articles/03-build-math-ast-parser/
-    // TODO(Simon): why do we have 2 nodes after parsing an expr
-    // TODO(Simon): implement function call parsing
-    public static Expr parseExpr(Iter<Token> it) {
-
-	var ops = new Stack<Token>();
-	var nodes = new Stack<Expr>();
-
-	while (it.hasNext()) {
-
-	    var current = it.next();
-
-	    if (current.getType() == TokenType.SEMICOLON) {
-		break;
-	    } else if (current.getType() == TokenType.NUMBERLITERAL || current.getType() == TokenType.SYMBOL) {
-		addOperandNode(nodes, current);
-	    } else if (current.getType() == TokenType.LPAREN) {
-		ops.push(current);
-	    } else if (current.getType() == TokenType.RPAREN) {
-		if (nodes.isEmpty()) {
-		    var err = new Report.Builder()
-			.errWasFatal()
-			.setErrorType("Mathematischer Ausdruck nicht geschlossen")
-			.withErrorMsg("Hey wir waren gerade dabei einen Mathematischen Ausdruck zu parsen, es scheint als haettest du vergessen eine Klammer zu schliesen")
-			.atToken(current)
-			.url("www.k&n.de")
-			.create();
-		    System.out.println(err);
-		err.sync();
-			}
-			while (!nodes.isEmpty() &&  !ops.isEmpty() && ops.peek().getType() != TokenType.LPAREN) {
-			    addOperatorNode(nodes, ops.pop());
-			}
-			ops.pop();
-		    }
-
-		    if (current.isOperator()) {
-			while (!ops.isEmpty() &&
-			       ops.peek().getPrecedence() > current.getPrecedence() ||
-			       (current.isLeftAssoziative() &&
-				ops.peek().getPrecedence() == current.getPrecedence() &&
-				current.getType() != TokenType.LPAREN)) {
-			    addOperatorNode(nodes, ops.pop());
-			}
-			ops.push(current);
-		    }
-		}
-		while (!ops.isEmpty()) {
-		    addOperatorNode(nodes, ops.pop());
-		}
-		return nodes.get(1);
-	    }
-
-    private static void addOperandNode(Stack<Expr> nodes, Token token) {
-	var ASTNode = new Expr.Literal(token.getLiteral());
-	nodes.push(ASTNode);
-    }
-
-    private static void addOperatorNode(Stack<Expr> nodes, Token token) {
-	var ASTNode = new Expr.Binary(nodes.pop(), token, nodes.pop());
-	nodes.push(ASTNode);
+	    return null; // should never be reached
     }
 
     // TODO(Simon): use our report system for error handling and warning
-    public static Stmt functionDecl(Iter<Token> it) {
+    // public static Stmt functionDecl(Iter<Token> it) {
 
-	var err = new Report.Builder()
-	    .errWasFatal()
-	    .setErrorType("Fehler beim parsen einer Funktion")
-	    .withErrorMsg("Wir waren gerade dabei eine funktion zu parsen als wir einen Fehler gefunden haben. Nach dem Fun Schluesselwort haben wir den namen der funktion erwartet!")
-	    .url("TODO") // TODO(Simon): add url and examples of correct function definition
-	    .create();
+    // 	var err = new Report.Builder()
+    // 	    .errWasFatal()
+    // 	    .setErrorT0.10/24
+///static ype("Fehler beim parsen einer Funktion")
+    // 	    .withErrorMsg("Wir waren gerade dabei eine funktion zu parsen als wir einen Fehler gefunden haben. Nach dem Fun Schluesselwort haben wir den namen der funktion erwartet!")
+    // 	    .url("TODO") // TODO(Simon): add url and examples of correct function definition
+    // 	    .create();
 
-	Token functionName = consume(TokenType.SYMBOL, err, it);
 	
-	consume(TokenType.LPAREN, err, it);
+    // 	consume(TokenType.LPAREN, err, it);
 
-	List args = new ArrayList<Stmt.FunctionDecl.Parameter>();
+    // 	List args = new ArrayList<Stmt.FunctionDecl.Parameter>();
 
 
-	while (it.peek().getType() != TokenType.RPAREN) {
-	    Token parameterName = consume(TokenType.SYMBOL, err, it);
-	    consume(TokenType.COLON, err, it);
-	    Token typeName = consume(TokenType.SYMBOL, err, it);
-	}
-	consume(TokenType.RPAREN, err, it);
+    // 	while (it.peek().getType() != TokenType.RPAREN) {
+    // 	    Token parameterName = consume(TokenType.SYMBOL, err, it);
+    // 	    consume(TokenType.COLON, err, it);
+    // 	    Token typeName = consume(TokenType.SYMBOL, err, it);
+    // 	}
+    // 	consume(TokenType.RPAREN, err, it);
 	
-	consume(TokenType.ARROW, err, it); // TODO(Simon): we could allow tuple return types in a later edition to the language
-	Token returnType = consume(TokenType.SYMBOL, err, it);  // HACK(Simon): for now only basic types should be used
+    // 	consume(TokenType.ARROW, err, it); // TODO(Simon): we could allow tuple return types in a later edition to the language
+    // 	Token returnType = consume(TokenType.SYMBOL, err, it);  // HACK(Simon): for now only basic types should be used
 
-	consume(TokenType.STARTBLOCK, err, it);
-	var body = parseBlock(it);
-	return new Stmt.FunctionDecl(functionName, args, returnType, body);
-    }
+    // 	consume(TokenType.STARTBLOCK, err, it);
+    // 	var body = parseBlock(it);
+    // 	return new Stmt.FunctionDecl(functionName, args, returnType, body);
+    // }
 
-    public static List<Stmt> parseBlock(Iter<Token> it) {
-	return null;
-    }
+    // public List<Stmt> parseBlock(Iter<Token> it) {
+    // 	return null;
+    // }
     
     
 
@@ -238,28 +174,30 @@ public class Parser {
 	return new Stmt.Import(libs);
     }
 
-    public static Stmt ifStmt(Iter<Token> it) {
+    // public static Stmt ifStmt(Iter<Token> it) {
 
-	var err = new Report.Builder()
-	    .errWasFatal()
-	    .setErrorType("Fehle beim parsen einer Verzweigung")
-	    .withErrorMsg("Mit dem wenn befehl kannst du entscheiden ob und wann eine bestimmte Stelle in deinem Programm ausgefuehrt wird!")
-	    .addExample(String.format("%s", "wenn foo > 0 {}"))
-	    .addExample(String.format("%s", "wenn 2 > 0 {}"))
-	    .url("TODO.de")
-	    .create();
+    // 	var err = new Report.Builder()
+    // 	    .errWasFatal()
+    // 	    .setErrorType("Fehle beim parsen einer Verzweigung")
+    // 	    .withErrorMsg("Mit dem wenn befehl kannst du entscheiden ob und wann eine bestimmte Stelle in deinem Programm ausgefuehrt wird!")
+    // 	    .addExample(String.format("%s", "wenn foo > 0 {}"))
+    // 	    .addExample(String.format("%s", "wenn 2 > 0 {}"))
+    // 	    .url("TODO.de")
+    // 	    .create();
 	
-	// NOTE("wenn" keyword is already identified)
-	Expr condition = parseExpr(it);
+    // 	// NOTE("wenn" keyword is already identified)
+    // 	Expr condition = parseExpr();
 
-	consume(TokenType.LBRACKET, err, it);
-	var block = parseBlock(it);
-	return new Stmt.If(condition, null, null);
-    }
+    // 	consume(TokenType.LBRACKET, err, it);
+    // 	var block = parseBlock(it);
+    // 	return new Stmt.If(condition, null, null);
+    // }
 
     public static Stmt parseStruct(Iter<Token> it) {
 	// NOTE(Simon): we arrive here after the Typ Keyword
 
+	it.next();
+	
 	var err = new Report.Builder()
 	    .errWasFatal()
 	    .setErrorType("Fehler beim parsen eines DatenTypes!")
@@ -272,10 +210,10 @@ public class Parser {
 	consume(TokenType.COLON, err, it);
 	var structName = consume(TokenType.SYMBOL, err, it);
 
-	consume(TokenType.LBRACKET, err, it);
+	consume(TokenType.STARTBLOCK, err, it);
 
 	var arguments = new ArrayList<Stmt.Class.Attribute>();
-	while (it.peek().getType() != TokenType.RBRACKET) {
+	while (it.peek().getType() != TokenType.ENDBLOCK) {
 
 	    Token varName = consume(TokenType.SYMBOL, err, it);
 	    consume(TokenType.COLON, err, it);
@@ -285,7 +223,7 @@ public class Parser {
 
 	    arguments.add(new Stmt.Class.Attribute(varName, typeName));
 	}
-	consume(TokenType.RBRACKET, err, it);
+	consume(TokenType.ENDBLOCK, err, it);
 
 	//TODO(Simon): After we parse an impl block should we associate the methods with the right class?
 	// Maybe do in seperate pass?
@@ -310,7 +248,7 @@ public class Parser {
 	if (it.peek().getType() != TokenType.VARDEF) {
 	    consume(TokenType.VARDEF, err, it);
 	} else if (it.peek().getType() == TokenType.COLON) {
-	    // Variable is typed
+	    // user provided type information, variable is typed
 	    consume(TokenType.COLON, err, it);
 	    typeName = consume(TokenType.SYMBOL, err, it);
 	    consume(TokenType.EQUALSIGN, err, it);
@@ -327,17 +265,18 @@ public class Parser {
 	err.sync();
 	return null; // unreachable code becase sync will throw an execption
     }
-
-    private static boolean matchAny(Iter<Token> it, TokenType... types) {
-	
+    
+    public static boolean matchAny(Iter<Token> it, TokenType... types) {
 	for (TokenType type : types) {
-	    if (check(type, it)) it.next();
-	    return true;
+	    if (check(type, it)) {
+			it.next();
+			return true;
+		}
 	}
 	return false;
     }
 
-    private static boolean check(TokenType type, Iter<Token> it) {
+    public static boolean check(TokenType type, Iter<Token> it) {
 	if (!it.hasNext()) return false;
 	return it.peek().getType() == type;
     }
