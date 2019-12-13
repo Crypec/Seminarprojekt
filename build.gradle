@@ -22,14 +22,14 @@ repositories {
 
 dependencies {
     // This dependency is used by the application.
-    compile 'com.google.guava:guava:28.1-jre'
-    compile 'com.google.code.gson:gson:2.8.6'
+    implementation 'com.google.guava:guava:28.1-jre'
+    implementation 'com.google.code.gson:gson:2.8.6'
 
     // color printing for nice error messages
-    compile "com.github.tomas-langer:chalk:1.0.2"
+    implementation "com.github.tomas-langer:chalk:1.0.2"
 
     // Use JUnit test framework
-    compile 'junit:junit:4.12'
+    implementation 'junit:junit:4.12'
 }
 
 jar {
@@ -48,6 +48,8 @@ application {
 
 tasks.withType(JavaCompile).each {
     it.options.compilerArgs.add('--enable-preview')
+    // add compiler checks for unchecked and unsafe operations
+    // it.options.compilerArgs.add('-Xlint:unchecked') 
 }
 //enable java 12 features for tests
 test {
