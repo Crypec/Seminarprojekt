@@ -3,6 +3,11 @@ package core;
 import util.*;
 import java.util.*;
 
+// TODO(Simon): add parsing for assingments
+// TODO(Simon): add parsing for function calls
+// TODO(Simon): finish parsing blocks
+
+
 // TODO(Simon): make err messages better and more descriptive. Maybe we should handle more cases with their own err msg
 
 public class Parser {
@@ -208,6 +213,22 @@ public class Parser {
 	return null;
     }
 
+    public static Stmt parseInput(Iter<Token> it) {
+
+	var err = new Report.Builder()
+	    .errWasFatal()
+	    .setErrorType("Fehler beim parsen eines Input stmts")
+	    .withErrorMsg("Hey wir waren gerade dabei einen Mathematischen Ausdruck zu parsen, es scheint als haettest du vergessen eine Klammer zu schliesen")
+	    .url("www.TODO.de")
+	    .create();
+
+	consume(TokenType.READINPUT, err, it);
+	consume(TokenType.LPAREN, err, it);
+	var msg = consume(TokenType.STRINGLITERAL, err, it);
+	consume(TokenType.RPAREN, err, it);
+	return new Stmt.Input(msg);
+    }
+
     public static Stmt parsePrint(Iter<Token> it) {
 
 	
@@ -219,23 +240,42 @@ public class Parser {
 	    .create();
 	
 	consume(TokenType.PRINT, err, it);
-	consuem(TokenType.LPAREN, err, it);
+	consume(TokenType.LPAREN, err, it);
+
 	var formatter = consume(TokenType.STRINGLITERAL, err, it); // TODO(Simon): we should really provide a good error if the formatter is missing
 
-
-	var output = new ArrayList();
+	var exprs = new ArrayList();
 	while (!check(TokenType.RPAREN, it)) {
 
 	    consume(TokenType.COMMA, err, it);
 
-	    // TODO(Simon): add checking for string literals
-	    output.add(consume(TokenType.SYMBOL, err, it));
+	    // TODO(Simon): add suport for printing structs
+	    exprs.add(parseExpr(it));
 	}
 	consume(TokenType.RPAREN, err, it);
+	
+
+	return new Stmt.Print(formatter, exprs);
     }
     
     public static Stmt parseWhileLoop(Iter<Token> it) {
-	return null;
+
+	var err = new Report.Builder()
+	    .errWasFatal()
+	    .setErrorType("Fehler beim parsen einer Solange schleife")
+	    .withErrorMsg("Um komplexe Programme zu vereinfachen kannst du deine eigenen Datentypen definieren. Das erlaubt dir Daten effizient miteinander abzuspichern")
+	    .addExample(String.format("%s", "Typ: Haus {}"))
+	    .addExample(String.format("%s", "Typ: Person {name :Text,\nalter: Zahl,\n}"))
+	    .url("TODO.de")
+	    .create();
+	consume(TokenType.WHILE, err, it);
+	var condition = parseExpr(it);
+	consume(TokenType.RPAREN, err, it);
+
+	var body = parseBlock(it);
+
+	return new Stmt.While(condition, body);
+
     }
 
     public static Stmt parseReturn(Iter<Token> it) {
@@ -249,8 +289,9 @@ public class Parser {
 	    .url("TODO.de")
 	    .create();
 
-	consume(TokenType.RETURN, err, it);
-	
+	var keyword = consume(TokenType.RETURN, err, it);
+	Expr expr = parseExpr(it);
+	return new Stmt.Return(keyword, expr);
     }
     
 
@@ -350,6 +391,8 @@ public class Parser {
 	return new Stmt.Class(structName, null, arguments);
     }
 
+    // TODO(Simon): add desugared increment in the body
+    // TODO(Simon): check if range for the loop is valid
     public static Stmt parseForLoop(Iter<Token> it) {
 
 	var err = new Report.Builder()
