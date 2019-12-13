@@ -1,5 +1,7 @@
 package util;
 
+import com.google.gson.*;
+
 import java.util.*;
 import java.util.stream.*;
 
@@ -28,10 +30,13 @@ public class Iter<T> implements Iterator {
     // peeks looks at the item directly under the cursor
     // which means peeking one item into the future
     public T peek() {
-	if (!this.hasNext()) {
-	    return null;
-	}
+	if (!this.hasNext()) return null;
 	return buffer[cursor];
+    }
+
+    public T peek(int offset) {
+	if (!this.hasNext()) return null;
+	return buffer[cursor + offset];
     }
 
     public void setBackOnePosition() {
@@ -52,5 +57,14 @@ public class Iter<T> implements Iterator {
 
     public int getCursor() {
 	return this.cursor;
+    }
+
+    @Override
+    public String toString() {
+	return new GsonBuilder()
+	    .setPrettyPrinting()
+	    .serializeNulls()
+	    .create()
+	    .toJson(this);
     }
 }

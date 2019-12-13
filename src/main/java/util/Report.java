@@ -7,6 +7,8 @@ import com.google.gson.*;
 
 public class Report {
 
+
+    // TODO(Simon): rename to somehting more generic, we use the same excpetion in the typechecking stage as well
     public class ParseError extends RuntimeException{}
 
     // if we encounter a fatal error while parsing we set this field to not execute corrupted code
@@ -83,7 +85,7 @@ public class Report {
     }
 
     public void setToken(Token t) {
-	this.token = token;
+	this.token = t;
     }
     
     

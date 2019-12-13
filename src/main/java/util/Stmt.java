@@ -85,7 +85,7 @@ public abstract class Stmt {
 	    }
 	}
 	
-	public FunctionDecl(Token name, List<FunctionDecl.Parameter> params, Token returnType, List<Stmt> body) {
+	public FunctionDecl(Token name, List<FunctionDecl.Parameter> params, Token returnType, Stmt body) {
 	    this.name = name;
 	    this.params = params;
 	    this.body = body;
@@ -99,7 +99,7 @@ public abstract class Stmt {
 	final Token name;
 	final Token returnType;
 	final List<FunctionDecl.Parameter> params;
-	final List<Stmt> body;
+	final Stmt body;
     }
 
     public static class If extends Stmt {
@@ -176,8 +176,9 @@ public abstract class Stmt {
 	
     }
 
-    static class While extends Stmt {
-	While(Expr condition, Stmt body) {
+    public static class While extends Stmt {
+
+	public While(Expr condition, Stmt body) {
 	    this.condition = condition;
 	    this.body = body;
 	}

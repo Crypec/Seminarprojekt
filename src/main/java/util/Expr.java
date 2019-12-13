@@ -6,7 +6,7 @@ import com.google.gson.*;
 public abstract class Expr {
 
     public interface Visitor<R> {
-	R visitAssignExpr(Assign expr);
+	R visitAssignExpr(Assign expr); // NOTE(Simon): I think this should be a stmt
 	R visitBinaryExpr(Binary expr);
 	R visitCallExpr(Call expr);
 	R visitGetExpr(Get expr);

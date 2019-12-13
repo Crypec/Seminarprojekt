@@ -5,18 +5,15 @@ package core;
 
 import util.*;
 
-import java.lang.*;
-
-
 public class App {
+
     public static void main(String... args) {
 
-	var sf = new SourceFile("./examples/example.zt");
-	var tokenStream = Lexer.tokenize(sf);
+	var tokenStream = Lexer.tokenize(new SourceFile("./examples/example.zt"));
 
-	var it = new Iter<Token>(tokenStream.toArray(new Token[0]));
-	//it.next();
-	//Parser.parseExpr(it);
-	long endTime = System.currentTimeMillis();
+	var it = new Iter(tokenStream.toArray(Token[]::new));
+	var ASTNode = Parser.parse(it);
+
+	System.out.println(ASTNode);
     }
 }

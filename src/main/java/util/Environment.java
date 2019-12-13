@@ -11,7 +11,6 @@ public class Environment {
 	    return values.get(name.getLexeme());
 	}
 	return null;
-	// TODO (Simon): throw runtime error if variable is not found in environment
+	// TODO (Simon): should we report a runtime error if the variable is not found, because we should theoretically do detect this during the typechecking phase
     }
-    
 }

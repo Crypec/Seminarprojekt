@@ -7,12 +7,11 @@ import java.util.*;
 public class SourceFile {
 
     private String filename;
-    private int line;
-    private Iter<String> lineIter;
+    private Iter<String> lines;
 
     public SourceFile(String filename) {
 	this.filename = filename;
-	this.lineIter = new Iter<String>(readFile(filename).toArray(new String[0]));
+	this.lines = new Iter<String>(readFile(filename).toArray(new String[0]));
     }
 
     private static ArrayList<String> readFile(String filename) {
@@ -33,10 +32,9 @@ public class SourceFile {
     }
 
     public Iter<String> getIter() {
-	return this.lineIter;
+	return this.lines;
     }
     
-
     public String getFilename() {
 	return this.filename;
     }

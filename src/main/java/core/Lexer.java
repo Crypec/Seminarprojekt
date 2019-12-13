@@ -12,7 +12,7 @@ public class Lexer {
     public static ArrayList<Token> tokenizeLine(Iter<Character> it,
 						String filename, int line) {
 
-	var tokenStream = new ArrayList<Token>();
+	var tokenStream = new ArrayList();
 	var sb = new StringBuilder();
 
 	// NOTE(Simon): These are trivially to compute if we ever encounter an
@@ -46,7 +46,7 @@ public class Lexer {
 		tokenStream.add(new Token.Builder()
 				.lexeme(stringLiteral)
 				.filename(filename)
-				.withType(TokenType.match(stringLiteral))
+				.withType(TokenType.STRINGLITERAL)
 				.line(line)
 				.build());
 	    } else if (Character.isDigit(c)) {
@@ -185,25 +185,23 @@ public class Lexer {
 
     public static Double parseNum(String str) { return Double.parseDouble(str); }
 
-    public static Character[] stringToCharArray(String line) {
-	var chars = new Character[line.length()];
-	for (int i = 0; i < line.length(); i++) {
-	    chars[i] = new Character(line.charAt(i));
-	}
-	return chars;
-    }
-
     public static ArrayList<Token> tokenize(SourceFile sf) {
-	var tokenStream = new ArrayList<Token>();
+	var tokenStream = new ArrayList();
 
 	while (sf.getIter().hasNext()) {
-	    var chars = stringToCharArray(sf.getIter().next());
-	    var it = new Iter<Character>(chars);
+
+	    var charArr = sf.getIter()
+		.next()
+		.chars()
+		.mapToObj(c -> (char) c)
+		.toArray(Character[]::new);
+
+	    var it = new Iter(charArr);
 	    tokenStream.addAll(tokenizeLine(it, sf.getFilename(), sf.getIter().getCursor()));
 	}
 	// TODO(Simon): Construct the metadata of the EOF token with the right
 	// values, after the last actual token from the tokenStream
-	tokenStream.add(new Token(TokenType.EOF));
+	//tokenStream.add(new Token(TokenType.EOF));
 	return tokenStream;
     }
 }

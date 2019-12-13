@@ -8,6 +8,7 @@ public enum TokenType {
     CLASS,
     WHILE,
     FOR,
+    BREAK,
     UNTIL,
     IF,
     ELSE,
@@ -18,11 +19,11 @@ public enum TokenType {
     READINPUT,
     PRINT,
 
-
+    // TODO(Simon): remove primitive types we could desugar them in the parser, this would save use the time to check them seperately in typechecking phase
     // primitive Types
-    STRINGTYPE,
-    NUMBERTYPE,
-    BOOLEANTYPE,
+    // STRINGTYPE,
+    // NUMBERTYPE,
+    // BOOLEANTYPE,
 
     STRINGLITERAL,
     NUMBERLITERAL,
@@ -81,17 +82,13 @@ public enum TokenType {
 	case "rückgabe" -> TokenType.RETURN;
 	case "Typ" -> TokenType.CLASS;
 	case "bis", ".." -> TokenType.UNTIL;
+	case "stop" -> TokenType.BREAK;
 
 	// Compiler native functions
 	case "#eingabe" -> TokenType.READINPUT;
 	case "#ausgabe" -> TokenType.PRINT;
 	case "#benutze" -> TokenType.IMPORT;
 
-	//basic types
-	// NOTE(Simon): Should we treat them as symbols 
-	case "Zahl" -> TokenType.NUMBERTYPE;
-	case "Text" -> TokenType.STRINGTYPE;
-	case "Bool" -> TokenType.BOOLEANTYPE;
 
 	//const declarations
 	// NOTE(Simon): Do we really need those?

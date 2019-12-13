@@ -13,13 +13,14 @@ public class Token {
     private Object literal;
     private MetaData meta;
     
-    public Token(String lexeme, MetaData meta) {
+    public Token(String lexeme, MetaData meta, TokenType type, Object literal) {
 	this.lexeme = lexeme;
 	this.meta = meta;
+	this.type = type;
+	this.literal = literal;
 
 	// NOTE(Simon): Do we really need this?
 	// NOTE(Simon): Because we also match Literals in the parser. We shouldn't be doing the same work twice.
-	System.out.println(this);
 	if (this.literal == null) {
 	    this.literal = switch (this.type) {
 	    case STRINGLITERAL -> lexeme;
@@ -73,10 +74,13 @@ public class Token {
 	    return this;
 	}
 
-	public Token build() {
-	    if (this.type == null) System.out.println(this);
+	public Builder withLiteral(Object literal) {
+		this.literal = literal;
+		return this;
+	}
 
-	    return new Token(this.lexeme, this.meta);
+	public Token build() {
+	    return new Token(this.lexeme, this.meta, this.type, this.literal);
 	}
     }
 
