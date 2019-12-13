@@ -1,11 +1,14 @@
+#benutze [
+	 "Basis",
+]
 
-
-
-fun Start() {
-    wenn fehler {
-    	 fmt::Ausgabe("da ist wohl etwas schief gelaufen")
-    }
+Typ: Adresse {
+      name: Text,
+      strasse: Text,
+      hausnummer: Zahl,
+      postleitzahl: Zahl,
 }
 
+fun test(i: Zahl) -> Zahl {
 
-2 + (4 * 2) / 20 - 20
+}
