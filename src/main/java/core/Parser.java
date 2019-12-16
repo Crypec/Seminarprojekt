@@ -31,7 +31,7 @@ public class Parser extends Iter<Token> {
 	}
     }
 
-    public List<Stmt> parse( ) {
+    public List<Stmt> parse() {
 
 	var ast = new ArrayList();
 
@@ -40,7 +40,7 @@ public class Parser extends Iter<Token> {
 
 	while (hasNext() && !check(TokenType.EOF)) {
 	    var stmt = switch (peek().getType()) {
-	    case CLASS: yield parseStruct();
+	    case CLASS: yield parseStructDecl();
 	    case FUNCTION: yield parseFunctionDecl();
 	    case SYMBOL: {
 		if (check(TokenType.COLON) || check(TokenType.VARDEF)) {
@@ -68,11 +68,11 @@ default: {
 	return ast;
     }
 
-    public Expr parseExpr( ) {
+    public Expr parseExpr() {
 	return equaly();
     }
 
-    private  Expr equaly( ) {
+    private  Expr equaly() {
 	Expr expr = comparison();
 
 	while (matchAny(TokenType.NOTEQUAL, TokenType.EQUALEQUAL)) {
@@ -83,7 +83,7 @@ default: {
 	return expr;
     }
 
-    private  Expr comparison( ) {
+    private  Expr comparison() {
 	Expr expr = addtion();
 
 	while (matchAny(TokenType.GREATER, TokenType.GREATEREQUAL, TokenType.LESS, TokenType.LESSEQUAL))  {
@@ -94,7 +94,7 @@ default: {
 	return expr;
     }
 
-    private  Expr addtion( ) {
+    private  Expr addtion() {
 	Expr expr = multiplication();
 
 	while (matchAny(TokenType.PLUS, TokenType.MINUS)) {
@@ -105,7 +105,7 @@ default: {
 	return expr;
     }
 
-    private  Expr multiplication( ) {
+    private  Expr multiplication() {
 	Expr expr = unary();
 
 	while (matchAny(TokenType.MULTIPLY, TokenType.DIVIDE)) {
@@ -116,7 +116,7 @@ default: {
 	return expr;
     }
 
-   private  Expr unary( ) {
+   private  Expr unary() {
        if (matchAny(TokenType.NOT, TokenType.MINUS)) {
 	   Token operator = previous();
 	   Expr right = unary();
@@ -125,7 +125,7 @@ default: {
        return primary();
     }
 
-    private  Expr primary( ) {
+    private  Expr primary() {
 	if (matchAny(TokenType.NULL)) return new Expr.Literal(null);
 	if (matchAny(TokenType.FALSE)) return new Expr.Literal(false);
 	if (matchAny(TokenType.TRUE)) return new Expr.Literal(true);
@@ -151,7 +151,7 @@ default: {
     }
 
     //TODO(Simon): use our report system for error handling and warning
-    public  Stmt parseFunctionDecl( ) {
+    public  Stmt parseFunctionDecl() {
 
 	next();
 	
@@ -187,7 +187,7 @@ default: {
 	return new Stmt.FunctionDecl(functionName, args, returnType, body);
     }
 
-    public  Stmt parseBlock( ) {
+    public  Stmt parseBlock() {
 
 	var err = new Report.Builder()
 	    .errWasFatal()
@@ -263,7 +263,7 @@ default: {
 	return new Stmt.Print(formatter, exprs);
     }
     
-    public  Stmt parseWhileLoop( ) {
+    public  Stmt parseWhileLoop() {
 
 	var err = new Report.Builder()
 	    .errWasFatal()
@@ -283,7 +283,7 @@ default: {
 
     }
 
-    public  Stmt parseReturn( ) {
+    public  Stmt parseReturn() {
 
 	var err = new Report.Builder()
 	    .errWasFatal()
@@ -312,7 +312,7 @@ default: {
      
       We use them to dertermine which files to parse next.
     */
-    public  Stmt parseImport( ) {
+    public  Stmt parseImport() {
 
 	next();
 	
@@ -337,7 +337,7 @@ default: {
 	return new Stmt.Import(libs);
     }
 
-    public  Stmt parseIfStmt( ) {
+    public  Stmt parseIfStmt() {
 
 	
 	var err = new Report.Builder()
@@ -358,7 +358,7 @@ default: {
 	return new Stmt.If(condion, null, null);
     }
 
-    public  Stmt parseStruct( ) {
+    public  Stmt parseStructDecl() {
 
 	// NOTE(Simon): we arrive here after the Typ Keyword
 	next();
@@ -398,7 +398,7 @@ default: {
 
     // TODO(Simon): add desugared increment in the body
     // TODO(Simon): check if range for the loop is valid
-    public  Stmt parseForLoop( ) {
+    public  Stmt parseForLoop() {
 
 	var err = new Report.Builder()
 	    .errWasFatal()
@@ -428,7 +428,7 @@ default: {
 	return new Stmt.While(condion, body);
     }
 
-    public  Stmt parseVarDef( ) {
+    public  Stmt parseVarDef() {
 
 
 	var err = new Report.Builder()
