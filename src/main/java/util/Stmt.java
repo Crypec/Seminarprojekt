@@ -61,7 +61,8 @@ public abstract class Stmt {
     }
 
     public static class Expression extends Stmt {
-	Expression(Expr expression) {
+
+	public Expression(Expr expression) {
 	    this.expression = expression;
 	}
 
@@ -178,7 +179,7 @@ public abstract class Stmt {
 	final Expr initializer;
     }
 
-    static class Assignment extends Stmt {
+    public static class Assignment extends Stmt {
 
 	public Assignment(Token name, Expr value) {
 	    this.name = name; 
