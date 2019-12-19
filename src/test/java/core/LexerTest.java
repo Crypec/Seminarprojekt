@@ -1,76 +1,297 @@
 package core;
 
+import com.google.common.collect.*;
+import java.util.*;
+import static org.junit.Assert.*;
+import org.junit.*;
+import util.*;
 
 public class LexerTest {
 
-    //  @Test
-    //  public void testTokenizeFunctionDecl() {
+    @Test
+    public void lexFunctionDecl() {
 
-    // 	String testDecl = "fun bar(x: Zahl, y: Zahl) -> Text";
+	String testcase = "fun test(x: Zahl, y: Text) -> Zahl {}";
 
-    // 	var tokenStream = Lexer.tokenize(new StringIterator(testDecl));
+	var charArr = testcase
+	    .chars()
+	    .mapToObj(c -> (char) c)
+	    .toArray(Character[]::new);
+	var actual = Lexer.tokenizeLine(new Iter(charArr), "funcionDeclTest", 0); // TODO(Simon): replace with real scanner
 
-    // 	var actual = new ArrayList<Token>();
-    // 	actual.add(new Token("fun"));
-    // 	actual.add(new Token("bar"));
-    // 	actual.add(new Token("("));
-    // 	actual.add(new Token("x"));
-    // 	actual.add(new Token(":"));
-    // 	actual.add(new Token("Zahl"));
-    // 	actual.add(new Token(","));
-    // 	actual.add(new Token("y"));
-    // 	actual.add(new Token(":"));
-    // 	actual.add(new Token("Zahl"));
-    // 	actual.add(new Token(")"));
-    // 	actual.add(new Token("->"));
-    // 	actual.add(new Token("Text"));
+	var expected = new ArrayList() {{
+	    add(TokenType.FUNCTION);
+	    add(TokenType.SYMBOL);
+	    add(TokenType.LPAREN);
+	    add(TokenType.SYMBOL);
+	    add(TokenType.COLON);
+	    add(TokenType.SYMBOL);
+	    add(TokenType.COMMA);
+	    add(TokenType.SYMBOL);
+	    add(TokenType.COLON);
+	    add(TokenType.SYMBOL);
+	    add(TokenType.RPAREN);
+	    add(TokenType.ARROW);
+	    add(TokenType.SYMBOL);
+	    add(TokenType.STARTBLOCK);
+	    add(TokenType.ENDBLOCK);
+	}};
+	assertListEqual(actual, expected);
+    }
 
-    // 	assertTrue(listEquals(tokenStream, actual));
-    //  }
-    //  @Test
-    //  public void testTokenizeVarDef() {
+    @Test
+    public void lexWhileLoop() {
 
-    // 	String testDecl = "foo: Text = \"Hello World\"";
-    // 	var tokenStream = Lexer.tokenize(new StringIterator(testDecl));
+	String testcase = "solange foo > 10 {}";
 
-    // 	var actual = new ArrayList<Token>();
+	var charArr = testcase
+	    .chars()
+	    .mapToObj(c -> (char) c)
+	    .toArray(Character[]::new);
+	var actual = Lexer.tokenizeLine(new Iter(charArr), "funcionDeclTest", 0); // TODO(Simon): replace with real scanner
 
-    // 	actual.add(new Token("foo"));
-    // 	actual.add(new Token(":"));
-    // 	actual.add(new Token("Text"));
-    // 	actual.add(new Token("="));
-    // 	actual.add(new Token("\"Hello World\""));
+	var expected = new ArrayList() {{
+	    add(TokenType.WHILE);
+	    add(TokenType.SYMBOL);
+	    add(TokenType.GREATER);
+	    add(TokenType.NUMBERLITERAL);
+	    add(TokenType.STARTBLOCK);
+	    add(TokenType.ENDBLOCK);
+	}};
+	assertListEqual(actual, expected);
+    }
 
-    // 	assertTrue(listEquals(tokenStream, actual));
-    //  }
+    @Test
+    public void lexeImport() {
 
-    //  @Test
-    //  public void testTokenizeWhileDecl() {
-    // 	String testDecl = "solange(x != 0) {}";
+	String testcase = """
+	    #benutze [
+		"Basis",
+		"Fmt",
+		      ]""";
 
-    // 	var tokenStream = Lexer.tokenize(new StringIterator(testDecl));
+	var charArr = testcase
+	    .chars()
+	    .mapToObj(c -> (char) c)
+	    .toArray(Character[]::new);
+	var actual = Lexer.tokenizeLine(new Iter(charArr), "funcionDeclTest", 0); // TODO(Simon): replace with real scanner
 
-    // 	var actual = new ArrayList<Token>();
+	var expected = new ArrayList() {{
+	    add(TokenType.IMPORT);
+	    add(TokenType.LBRACKET);
+	    add(TokenType.STRINGLITERAL);
+	    add(TokenType.COMMA);
+	    add(TokenType.STRINGLITERAL);
+	    add(TokenType.COMMA);
+	    add(TokenType.RBRACKET);
+	}};
+	assertListEqual(actual, expected);
+    }
 
-    // 	actual.add(new Token("solange"));
-    // 	actual.add(new Token("("));
-    // 	actual.add(new Token("x"));
-    // 	actual.add(new Token("!="));
-    // 	actual.add(new Token("0", TokenType.NUMBERLITERAL, 0));
-    // 	actual.add(new Token(")"));
-    // 	actual.add(new Token("{"));
-    // 	actual.add(new Token("}"));
+    @Test
+    public void lexExampleFunction() {
 
-    // 	assertTrue(listEquals(tokenStream, actual));
-    //  }
+	String testcase = """
+	    fun test(x: Bool) -> Text {
+	    wenn x {
+		rueckgabe "Hello World";
+	    } sonst wenn wahr {
+		a := 20;
+	    }
 
-    //  public static boolean listEquals(ArrayList<Token> given, ArrayList<Token> wanted) {
+	    solange a != 10 {
+		a = #eingabe("Gib eine Zahl ein")
+		wenn a == 10 {
+		    #ausgabe("{} ist die falsche Zahl", a)
+		}
+	    }
+	    rueckgabe "FOO BAR"
+	}
+	]""";
 
-    // 	if (given.size() != wanted.size()) return false;
+    var charArr = testcase
+	.chars()
+	.mapToObj(c -> (char) c)
+	.toArray(Character[]::new);
+	var actual = Lexer.tokenizeLine(new Iter(charArr), "funcionDeclTest", 0); // TODO(Simon): replace with real scanner
 
-    // 	for (int i = 0; i < wanted.size(); i++) {
-    // 	    if (given.get(i).getType() != wanted.get(i).getType()) return false;
-    // 	}
-    // 	return true;
-    // }
+	var expected = new ArrayList() {{
+	    add(TokenType.FUNCTION);
+	    add(TokenType.SYMBOL);
+	    add(TokenType.LPAREN);
+	    add(TokenType.SYMBOL);
+	    add(TokenType.COLON);
+	    add(TokenType.SYMBOL);
+	    add(TokenType.RPAREN);
+	    add(TokenType.ARROW);
+	    add(TokenType.SYMBOL);
+	    add(TokenType.STARTBLOCK);
+	    add(TokenType.IF);
+	    add(TokenType.SYMBOL);
+	    add(TokenType.STARTBLOCK);
+	    add(TokenType.RETURN);
+	    add(TokenType.STRINGLITERAL);
+	    add(TokenType.SEMICOLON);
+	    add(TokenType.ENDBLOCK);
+	    add(TokenType.ELSE);
+	    add(TokenType.IF);
+	    add(TokenType.TRUE);
+	    add(TokenType.STARTBLOCK);
+	    add(TokenType.SYMBOL);
+	    add(TokenType.VARDEF);
+	    add(TokenType.NUMBERLITERAL);
+	    add(TokenType.SEMICOLON);
+	    add(TokenType.ENDBLOCK);
+	    add(TokenType.WHILE);
+	    add(TokenType.SYMBOL);
+	    add(TokenType.NOTEQUAL);
+	    add(TokenType.NUMBERLITERAL);
+	    add(TokenType.STARTBLOCK);
+	    add(TokenType.SYMBOL);
+	    add(TokenType.EQUALSIGN);
+	    add(TokenType.READINPUT);
+	    add(TokenType.LPAREN);
+	    add(TokenType.STRINGLITERAL);
+	    add(TokenType.LPAREN);
+	    add(TokenType.IF);
+	    add(TokenType.SYMBOL);
+	    add(TokenType.EQUALEQUAL);
+	    add(TokenType.NUMBERLITERAL);
+	    add(TokenType.STARTBLOCK);
+	    add(TokenType.PRINT);
+	    add(TokenType.RPAREN);
+	    add(TokenType.STRINGLITERAL);
+	    add(TokenType.COMMA);
+	    add(TokenType.SYMBOL);
+	    add(TokenType.RPAREN);
+	    add(TokenType.ENDBLOCK);
+	    add(TokenType.ENDBLOCK);
+	    add(TokenType.RETURN);
+	    add(TokenType.STRINGLITERAL);
+	    add(TokenType.ENDBLOCK);
+	}};
+    assertListEqual(actual, expected);
+    }
+
+
+    @Test
+    public void lexVarDef() {
+
+	String testcase = """
+	    foo := "Hello" + "World"
+	    """;
+
+	var charArr = testcase
+	    .chars()
+	    .mapToObj(c -> (char) c)
+	    .toArray(Character[]::new);
+	var actual = Lexer.tokenizeLine(new Iter(charArr), "funcionDeclTest", 0); // TODO(Simon): replace with real scanner
+
+	var expected = new ArrayList() {{
+	    add(TokenType.SYMBOL);
+	    add(TokenType.VARDEF);
+	    add(TokenType.STRINGLITERAL);
+	    add(TokenType.PLUS);
+	    add(TokenType.STRINGLITERAL);
+	}};
+	assertListEqual(actual, expected);
+    }
+
+    @Test
+    public void lexTypeDecl() {
+
+	String testcase = """
+	    Typ: Adress {
+	    FirstName: Text,
+	    LastName: Text,
+	    Street: Text,
+	    HouseNumer: Zahl,
+	}
+	""";
+
+	var charArr = testcase
+	    .chars()
+	    .mapToObj(c -> (char) c)
+	    .toArray(Character[]::new);
+	var actual = Lexer.tokenizeLine(new Iter(charArr), "funcionDeclTest", 0); // TODO(Simon): replace with real scanner
+
+	var expected = new ArrayList() {{
+	    add(TokenType.CLASS);
+	    add(TokenType.COLON);
+	    add(TokenType.SYMBOL);
+	    add(TokenType.STARTBLOCK);
+	    add(TokenType.SYMBOL);
+	    add(TokenType.COLON);
+	    add(TokenType.SYMBOL);
+	    add(TokenType.COMMA);
+	    add(TokenType.SYMBOL);
+	    add(TokenType.COLON);
+	    add(TokenType.SYMBOL);
+	    add(TokenType.COMMA);
+	    add(TokenType.SYMBOL);
+	    add(TokenType.COLON);
+	    add(TokenType.SYMBOL);
+	    add(TokenType.COMMA);
+	    add(TokenType.SYMBOL);
+	    add(TokenType.COLON);
+	    add(TokenType.SYMBOL);
+	    add(TokenType.COMMA);
+	    add(TokenType.STARTBLOCK);
+	}};
+	assertListEqual(actual, expected);
+    }
+
+    @Test
+    public void lexAssingment() {
+
+	String testcase = "foo = (a + 3)*3";
+
+	var charArr = testcase
+	    .chars()
+	    .mapToObj(c -> (char) c)
+	    .toArray(Character[]::new);
+	var actual = Lexer.tokenizeLine(new Iter(charArr), "funcionDeclTest", 0); // TODO(Simon): replace with real scanner
+
+	var expected = new ArrayList() {{
+	    add(TokenType.SYMBOL);
+	    add(TokenType.EQUALSIGN);
+	    add(TokenType.LPAREN);
+	    add(TokenType.SYMBOL);
+	    add(TokenType.PLUS);
+	    add(TokenType.NUMBERLITERAL);
+	    add(TokenType.RPAREN);
+	    add(TokenType.MULTIPLY);
+	    add(TokenType.NUMBERLITERAL);
+	}};
+	assertListEqual(actual, expected);
+    }
+    @Test
+    public void lexForLoop() {
+
+	String testcase = "fuer i := 0..10 {}";
+
+	var charArr = testcase
+	    .chars()
+	    .mapToObj(c -> (char) c)
+	    .toArray(Character[]::new);
+	var actual = Lexer.tokenizeLine(new Iter(charArr), "funcionDeclTest", 0); // TODO(Simon): replace with real scanner
+
+	var expected = new ArrayList() {{
+	    add(TokenType.FOR);
+	    add(TokenType.SYMBOL);
+	    add(TokenType.NUMBERLITERAL);
+	    add(TokenType.UNTIL);
+	    add(TokenType.NUMBERLITERAL);
+	    add(TokenType.STARTBLOCK);
+	    add(TokenType.ENDBLOCK);
+	}};
+	assertListEqual(actual, expected);
+    }
+
+    public static void assertListEqual(List<Token> expected, List<TokenType> actual) {
+	assertTrue("length of expected != length of actual", expected.size() == actual.size());
+	var res = Streams.zip(expected.stream(), actual.stream(), (e, a) -> e.getType() != a)
+	    .anyMatch(x -> x);
+	assertFalse("expected TokenTypes != actual TokenTypes", res);
+    }
 }
