@@ -45,7 +45,7 @@ public class Parser extends Iter<Token> {
 		    yield parseStructDecl();
 		case FUNCTION:
 		    yield parseFunctionDecl();
-		case SYMBOL: {
+		case IDEN: {
 		    yield switch (peek(2).getType()) { // peek 2 Tokens into the future
 		    case COLON, VARDEF:
 			yield parseVarDef();
@@ -178,15 +178,15 @@ public class Parser extends Iter<Token> {
 	// function definion
 	.create();
 
-    Token functionName = consume(TokenType.SYMBOL, err);
+    Token functionName = consume(TokenType.IDEN, err);
     consume(TokenType.LPAREN, err);
 
     var args = new ArrayList();
 
     while (!check(TokenType.RPAREN)) {
-	Token varName = consume(TokenType.SYMBOL, err);
+	Token varName = consume(TokenType.IDEN, err);
 	consume(TokenType.COLON, err);
-	Token typeName = consume(TokenType.SYMBOL, err);
+	Token typeName = consume(TokenType.IDEN, err);
 	args.add(new Stmt.FunctionDecl.Parameter(varName, typeName));
     }
     consume(TokenType.RPAREN, err);
@@ -196,7 +196,7 @@ public class Parser extends Iter<Token> {
     // language
     if (!check(TokenType.RPAREN)) {
       consume(TokenType.ARROW, err);
-      returnType = consume(TokenType.SYMBOL, err);
+      returnType = consume(TokenType.IDEN, err);
     }
 
     consume(TokenType.STARTBLOCK, err);
@@ -219,7 +219,7 @@ public class Parser extends Iter<Token> {
 
     while (!check(TokenType.ENDBLOCK)) {
       var stmt = switch (peek().getType()) {
-      case SYMBOL:
+      case IDEN:
         yield parseVarDef();
       case IF:
         yield parseIfStmt();
@@ -416,17 +416,17 @@ public class Parser extends Iter<Token> {
             .create();
 
 	consume(TokenType.COLON, err);
-	var structName = consume(TokenType.SYMBOL, err);
+	var structName = consume(TokenType.IDEN, err);
 
 	consume(TokenType.STARTBLOCK, err);
 
 	var arguments = new ArrayList();
 	while (!check(TokenType.ENDBLOCK)) {
 
-	    Token varName = consume(TokenType.SYMBOL, err);
+	    Token varName = consume(TokenType.IDEN, err);
 	    consume(TokenType.COLON, err);
 
-	    Token typeName = consume(TokenType.SYMBOL, err);
+	    Token typeName = consume(TokenType.IDEN, err);
 	    consume(TokenType.COMMA, err);
 
 	    arguments.add(new Stmt.Class.Attribute(varName, typeName));
@@ -454,7 +454,7 @@ public Stmt parseForLoop() {
                   .create();
 
     consume(TokenType.FOR, err);
-    var loopVar = consume(TokenType.SYMBOL, err);
+    var loopVar = consume(TokenType.IDEN, err);
     consume(TokenType.VARDEF, err);
 
     var start = consume(TokenType.NUMBERLITERAL, err);
@@ -487,14 +487,14 @@ public Stmt parseForLoop() {
 
     // we assume that we peeked ahead to find the :=  Symbol
     Token typeName = null;
-    Token varName = consume(TokenType.SYMBOL, err);
+    Token varName = consume(TokenType.IDEN, err);
 
     if (peek().getType() != TokenType.VARDEF) {
       consume(TokenType.VARDEF, err);
     } else if (peek().getType() == TokenType.COLON) {
       // user provided type information, variable is typed
       consume(TokenType.COLON, err);
-      typeName = consume(TokenType.SYMBOL, err);
+      typeName = consume(TokenType.IDEN, err);
       consume(TokenType.EQUALSIGN, err);
     }
 

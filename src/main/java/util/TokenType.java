@@ -3,7 +3,7 @@ package util;
 public enum TokenType {
     // keywords
     IMPORT,
-    SYMBOL,
+    IDEN,
     FUNCTION,
     CLASS,
     WHILE,
@@ -141,7 +141,7 @@ public enum TokenType {
 	
 	case "%" -> TokenType.MODULO;
 
-	default -> TokenType.SYMBOL;
+	default -> TokenType.IDEN;
 	};
     }
 
