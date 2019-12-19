@@ -20,3 +20,4 @@ Tasks:
 		2. zuse start
 		3. zuse Filename
 		4. zuse installiere 
+		5. zuse update
