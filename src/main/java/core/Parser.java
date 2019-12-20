@@ -7,8 +7,7 @@ import util.*;
 // TODO(Simon): add parsing for function calls
 // TODO(Simon): finish parsing blocks
 
-// TODO(Simon): make err messages better and more descriptive. Maybe we should
-// handle more cases wh their own err msg
+// TODO(Simon): make err messages better and more descriptive. Maybe we should handle more cases with their own err msg
 public class Parser extends Iter<Token> {
 
     public Parser(Iter<Token> it) {
@@ -52,7 +51,7 @@ public class Parser extends Iter<Token> {
 		    case EQUALSIGN:
 			yield parseAssignment();
 		    default: yield null; // should be unrechable
-			    };
+		    };
 		}
 		default: {
 		    var err = new Report.Builder()
@@ -144,30 +143,30 @@ public class Parser extends Iter<Token> {
 	if (matchAny(TokenType.STRINGLITERAL, TokenType.NUMBERLITERAL)) {
 	    return new Expr.Literal(previous().getLiteral());
 	}
-	    if (matchAny(TokenType.LPAREN)) {
+	if (matchAny(TokenType.LPAREN)) {
 
-		var err =
-		    new Report.Builder()
-		    .errWasFatal()
-		    .setErrorType("Mathematischer Ausdruck nicht geschlossen")
-		    .withErrorMsg(
-				  "Hey wir waren gerade dabei einen Mathematischen Ausdruck zu parsen, es scheint als haettest du vergessen eine Klammer zu schliesen")
-		    .url("www.TODO.de")
-		    .create();
+	    var err =
+		new Report.Builder()
+		.errWasFatal()
+		.setErrorType("Mathematischer Ausdruck nicht geschlossen")
+		.withErrorMsg(
+			      "Hey wir waren gerade dabei einen Mathematischen Ausdruck zu parsen, es scheint als haettest du vergessen eine Klammer zu schliesen")
+		.url("www.TODO.de")
+		.create();
 
-		Expr expr = parseExpr();
-		consume(TokenType.RPAREN, err);
-		return new Expr.Grouping(expr);
-	    }
-	    // TODO(Simon): We should provide a better error for the user if the parens
+	    Expr expr = parseExpr();
+	    consume(TokenType.RPAREN, err);
+	    return new Expr.Grouping(expr);
+	}
+	// TODO(Simon): We should provide a better error for the user if the parens
 	// are not balanced
-    return null; // should never be reached
-  }
+	return null; // should never be reached
+    }
 
-  // TODO(Simon): use our report system for error handling and warning
-  public Stmt parseFunctionDecl() {
+    // TODO(Simon): use our report system for error handling and warning
+    public Stmt parseFunctionDecl() {
 
-    next();
+	next();
 
     var err =
         new Report.Builder()
@@ -370,7 +369,6 @@ public class Parser extends Iter<Token> {
 	while (!check(TokenType.RBRACKET)) {
 	    libs.add(consume(TokenType.STRINGLITERAL, err));
 	    consume(TokenType.COMMA, err);
-	    System.out.println("text");
 	}
 	consume(TokenType.RBRACKET, err);
 	return new Stmt.Import(libs);
