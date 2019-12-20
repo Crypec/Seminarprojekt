@@ -75,12 +75,12 @@ public enum TokenType {
 	    // keywords
 	case "fun" -> TokenType.FUNCTION;
 	case "solange" -> TokenType.WHILE;
-	case "für" -> TokenType.FOR;
+	case "für", "fuer" -> TokenType.FOR;
 	case "wenn" -> TokenType.IF;
 	case "sonst" -> TokenType.ELSE;
-	case "rückgabe" -> TokenType.RETURN;
+	case "rückgabe", "rueckgabe" -> TokenType.RETURN;
 	case "Typ" -> TokenType.CLASS;
-	case "bis", ".." -> TokenType.UNTIL;
+	case "bis" -> TokenType.UNTIL;
 	case "stop" -> TokenType.BREAK;
 
 	// Compiler native functions
