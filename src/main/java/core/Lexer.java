@@ -5,203 +5,164 @@ import util.*;
 
 public class Lexer {
 
-    // TODO(Simon): Right now the lexer does accept all chracters as valid input
-    // -> perhaps we should do some basic error reporting right in the lexer
-    // FIXME(Simon): check for tokens which are by definition composed of 2
-    // characters, for example == or the arrow operator. 
-    public static ArrayList<Token> tokenizeLine(Iter<Character> it,
-						String filename, int line) {
+    private final String fileName;
+    private final String source;
 
+    private int cursor = 0;
+    private int line = 1;
+    private int start = 0;
+
+    public Lexer(String source, String fileName) {
+	this.source = source;
+	this.fileName = fileName;
+    }
+
+    public List<Token> tokenize() {
 	var tokenStream = new ArrayList();
-	var sb = new StringBuilder();
+	while (this.hasNext()) {
+	    start = cursor;
 
-	// NOTE(Simon): These are trivially to compute if we ever encounter an
-	// error. Maybe we should only compute these if we have to do it for error
-	// handling?
-	int startPos = 0;
-	int endPos = 0;
-
-	while (it.hasNext()) {
-
-	    endPos += 1;
-	    Character c = it.next();
-
-	    if (c == ' ' || c == 9) { // check for tab (ASCII code 9)
-		if (sb.length() != 0) {
-		    tokenStream.add(new Token.Builder()
-				    .filename(filename)
-				    .withType(TokenType.match(sb.toString()))
-				    .line(line)
-				    .position(startPos, endPos)
-				    .lexeme(sb.toString())
-				    .build());
-		    startPos = endPos;
-		    sb.setLength(0); // clear StringBuilder
-		} else {
-		    continue; // if StringBuilder is empty we can just skip the whitespace
-		}
-	    } else if (c == '"') {
-		startPos = endPos;
-		String stringLiteral = getStringLiteral(it);
-		tokenStream.add(new Token.Builder()
-				.lexeme(stringLiteral)
-				.filename(filename)
-				.withType(TokenType.STRINGLITERAL)
-				.line(line)
-				.build());
-	    } else if (Character.isDigit(c)) {
-		if (sb.length() != 0) sb.append(c);
-		else {
-		    startPos = endPos;
-		    String strNum = Lexer.getNumLiteral(it, c);
-		    tokenStream.add(new Token.Builder()
-				    .lexeme(strNum)
-				    .withType(TokenType.match(strNum))
-				    .filename(filename)
-				    .line(line)
-				    .build());
-		    continue;
-		}
-	    } else if (c == '/' && it.peek() == '/') {
-		return tokenStream; // looks like we encountered a comment and can skip the rest of the line
-	    } else if (Token.isSingleCharToken(c)) {
-		if (sb.length() != 0) {
-		    tokenStream.add(new Token.Builder()
-				    .filename(filename)
-				    .withType(TokenType.match(sb.toString()))
-				    .line(line)
-				    .position(startPos, endPos)
-				    .lexeme(sb.toString())
-				    .build());
-		    tokenStream.add(new Token.Builder()
-				    .filename(filename)
-				    .withType(TokenType.match(Character.toString(c)))
-				    .line(line)
-				    .position(startPos, endPos)
-				    .lexeme(Character.toString(c))
-				    .build());
-		    startPos = endPos;
-		    sb.setLength(0);
-		} else {
-		    tokenStream.add(new Token.Builder()
-				    .filename(filename)
-				    .withType(TokenType.match(Character.toString(c)))
-				    .line(line)
-				    .position(startPos, endPos)
-				    .lexeme(Character.toString(c))
-				    .build());
-		    startPos = endPos;
-		}
-	    } else {
-		sb.append(c);
+	    var c = this.next();
+	    var token = switch (c) {
+	    case '(': yield buildToken(TokenType.LPAREN);
+	    case ')': yield buildToken(TokenType.RPAREN);
+	    case '{': yield buildToken(TokenType.STARTBLOCK);
+	    case '}': yield buildToken(TokenType.ENDBLOCK);
+	    case ',': yield buildToken(TokenType.COMMA);
+	    case ';': yield buildToken(TokenType.SEMICOLON);
+	    case ':': {
+		if (peek() == '=') yield buildToken(TokenType.VARDEF);
+		if (peek() == ':') yield buildToken(TokenType.COLONCOLON);
+		else buildToken(TokenType.COLON);
 	    }
-	}
-	if (sb.length() != 0) {
-	    tokenStream.add(new Token.Builder()
-			    .filename(filename)
-			    .withType(TokenType.match(sb.toString()))
-			    .line(line)
-			    .position(startPos, endPos)
-			    .lexeme(sb.toString())
-			    .build());
-	}
-
-	// FIXME(Simon): check if we really need to emit a semicolon
-	if (tokenStream.size() > 0) {
-	    //var excludeKeywords = new ArrayList<>(TokenType.IMPORT, TokenType.FUNCTION, TokenType.CLASS, TokenType.WHILE, TokenType.FOR, TokenType.UNTIL, TokenType.IF, TokenType.ELSE, TokenType.STARTBLOCK, TokenType.ENDBLOCK);
-
-	    boolean emitSemicolon = false;
-	    if (emitSemicolon) {
-		tokenStream.add(new Token.Builder()
-				.filename(filename)
-				.line(line)
-				.position(startPos + 1, endPos + 1)
-				.lexeme("AUTOMATISCH EINGEFUEGT")
-				.withType(TokenType.SEMICOLON)
-				.build());
+	    case '-': {
+		if (peek() == '>') yield buildToken(TokenType.ARROW);
 	    }
+	    case '+': yield buildToken(TokenType.PLUS);
+	    case '*': yield buildToken(TokenType.MULTIPLY);
+	    case '/': {
+		if (peek() == '/')
+		    while (peek() != '\n' && hasNext()) next();
+		else yield buildToken(TokenType.DIVIDE);
+	    }
+	    case '!': {
+		if (peek() == '=') yield buildToken(TokenType.NOTEQUAL);
+		else yield buildToken(TokenType.NOT);
+	    }
+	    case '=': {
+		if (peek() == '=')
+		    yield buildToken(TokenType.EQUALEQUAL);
+		if (peek() == '>') yield buildToken(TokenType.GREATEREQUAL);
+		if (peek() == '>') yield buildToken(TokenType.LESSEQUAL);
+		else yield buildToken(TokenType.EQUALSIGN);
+	    }
+	    case '>': {
+		if (peek() == '=') yield buildToken(TokenType.GREATEREQUAL);
+		else yield buildToken(TokenType.GREATER);
+	    }
+	    case '<': {
+		if (peek() == '=') yield buildToken(TokenType.LESSEQUAL);
+		else yield buildToken(TokenType.LESS);
+	    }
+	    case '"': yield getStringLiteral();
+	    case '\r', '\t': yield null;
+	    case '\n': line++; yield null;
+	    default: {
+		if (Character.isDigit(c))
+		    yield getNumLiteral();
+		if (Character.isLetter(c))
+		    yield getIden();
+		else
+		    yield null; // TODO(Simon): report error if invalid char is found
+	    }
+	    };
 	}
 
-
-	return tokenStream;
+	return null;
     }
 
-    // FIXME(Simon): this can fail if string is initalized as empty
-    /*
-      a : Text = ""; //this would fail in the current implementation
-    */
-    public static String getStringLiteral(Iter<Character> it) {
-	var sb = new StringBuilder();
-	sb.append('"');
-	while (it.hasNext()) {
-	    var c = it.next();
-	    if (c == '"') {
-		sb.append(c);
-		break;
-	    } else {
-		sb.append(c);
-	    }
-	}
-	return sb.toString();
+    public Token getIden() {
+	while (Character.isDigit(peek()) || Character.isLetter(peek()))
+	    next();
+	String iden = source.substring(start, cursor);
+	return buildToken(TokenType.match(iden));
     }
 
-    public static boolean emitSemicolon(List<Token> tokenStream) {
-	boolean emitEOE = false;
-	// for (Token t : tokenStream) {
-	//     emitEOE |= endOFExprTokenNeeded(t);
-	// }
-	return emitEOE;
+    public Token getStringLiteral() {
+	while (peek() != '"' && hasNext()) {
+	    if (peek() == '\n')
+		line++;
+	    next();
+	}
+
+	// TODO(Simon):
+	if (!hasNext()) {
+
+	    var errLocation = new Token.Builder()
+		.filename(fileName)
+		.withType(TokenType.STRINGLITERAL)
+		.lexeme(source.substring(start, cursor))
+		.position(start, cursor)
+		.build();
+
+	    var err =
+		new Report.Builder()
+		.errWasFatal()
+		.setErrorType("Text nicht beendet")
+		.withErrorMsg(
+			      "Es scheint als haettest du vergessen einen Text block zu schliessen.")
+		.url("www.TODO.de")
+		.atToken(errLocation)
+		.create();
+	    System.out.println(err);
+	    return null;
+	}
+	next();
+
+	String literal = source.substring(start + 1, cursor - 1);
+	return buildToken(TokenType.STRINGLITERAL, literal);
     }
 
-    /*
-      Right now numeric value can look like this:
+    public Token getNumLiteral() {
+	while (Character.isDigit(peek()))
+	    next();
 
-      foo: Zahl = 12'323,23
-
-      we only skip underscores, internally every number gets represented as a
-      64bit float we can think about using some other representation for numbers
-      in the future maybe DEC64 would be nice: http://www.dec64.com/
-    */
-    public static String getNumLiteral(Iter<Character> it, Character firstDigit) {
-
-	var sb = new StringBuilder();
-	sb.append(firstDigit);
-
-	while (it.hasNext()) {
-
-	    var c = it.next();
-
-	    if (Character.isDigit(c)) {
-		sb.append(c);
-	    } else if (c == ',') {
-		sb.append('.');
-	    } else {
-		it.setBackOnePosition();
-		break;
-	    }
+	if (peek() == '.' && Character.isDigit(peekNext())) {
+	    next();
+	    while (Character.isDigit(peek()))
+		next();
 	}
-	return sb.toString();
+	Double literal = Double.parseDouble(source.substring(start, cursor));
+	return buildToken(TokenType.NUMBERLITERAL, literal);
     }
 
-    public static Double parseNum(String str) { return Double.parseDouble(str); }
+    public static Double parseNum(String strNum) {
+	return Double.parseDouble(strNum);
+    }
 
-    public static ArrayList<Token> tokenize(SourceFile sf) {
-	var tokenStream = new ArrayList();
+    public boolean hasNext() { return this.source.length() >= cursor; }
 
-	while (sf.getIter().hasNext()) {
+    public char next() { return this.source.charAt(cursor++); }
 
-	    var charArr = sf.getIter()
-		.next()
-		.chars()
-		.mapToObj(c -> (char) c)
-		.toArray(Character[]::new);
+    public char peek() {
+	if (!hasNext()) return '\0';
+	return source.charAt(cursor);
+    }
 
-	    var it = new Iter(charArr);
-	    tokenStream.addAll(tokenizeLine(it, sf.getFilename(), sf.getIter().getCursor()));
-	}
-	// TODO(Simon): Construct the metadata of the EOF token with the right
-	// values, after the last actual token from the tokenStream
-	//tokenStream.add(new Token(TokenType.EOF));
-	return tokenStream;
+    public char peekNext() {
+	if (cursor + 1 >= source.length()) return '\0';
+	return this.source.charAt(cursor++);
+    }
+
+    private Token buildToken(TokenType type) { return buildToken(type, null); }
+
+    private Token buildToken(TokenType type, Object literal) {
+	return new Token.Builder()
+	    .filename(fileName)
+	    .lexeme(source.substring(start, cursor))
+	    .position(start, cursor)
+	    .withType(type)
+	    .withLiteral(literal)
+	    .build();
     }
 }
