@@ -17,7 +17,7 @@ public class Iter<T> implements Iterator {
     public Iter() {}
 
     public boolean hasNext() {
-	return buffer.length >= cursor;
+	return buffer.length > cursor;
     }
 
 
