@@ -13,6 +13,7 @@ public abstract class Stmt {
 	R visitFunctionStmt(FunctionDecl stmt);
 	R visitIfStmt(If stmt);
 	R visitPrintStmt(Print stmt);
+	R visitInputStmt(Input stmt);
 	R visitReturnStmt(Return stmt);
 	R visitVarDefStmt(VarDef stmt);
 	R visitAssignmentStmt(Assignment stmt);
@@ -60,7 +61,8 @@ public abstract class Stmt {
     }
 
     public static class Expression extends Stmt {
-	Expression(Expr expression) {
+
+	public Expression(Expr expression) {
 	    this.expression = expression;
 	}
 
@@ -118,20 +120,37 @@ public abstract class Stmt {
 	final Stmt elseBranch;
     }
 
-    static class Print extends Stmt {
-	Print(Expr expression) {
-	    this.expression = expression;
+    public static class Print extends Stmt {
+
+	public Print(Token formatter, List<Expr> expressions) {
+	    this.expressions = expressions;
+	    this.formatter = formatter;
 	}
 
 	<R> R accept(Visitor<R> visitor) {
 	    return visitor.visitPrintStmt(this);
 	}
 
-	final Expr expression;
+	final List<Expr> expressions;
+	final Token formatter;
     }
 
-    static class Return extends Stmt {
-	Return(Token keyword, Expr value) {
+
+    public static class Input extends Stmt {
+
+	public Input(Token message) {
+	    this.message = message;
+	}
+
+	<R> R accept(Visitor<R> visitor) {
+	    return visitor.visitInputStmt(this);
+	}
+
+	final Token message;
+    }
+
+    public static class Return extends Stmt {
+	public Return(Token keyword, Expr value) {
 	    this.keyword = keyword;
 	    this.value = value;
 	}
@@ -160,7 +179,7 @@ public abstract class Stmt {
 	final Expr initializer;
     }
 
-    static class Assignment extends Stmt {
+    public static class Assignment extends Stmt {
 
 	public Assignment(Token name, Expr value) {
 	    this.name = name; 

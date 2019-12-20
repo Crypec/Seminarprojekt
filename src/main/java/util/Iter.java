@@ -14,10 +14,12 @@ public class Iter<T> implements Iterator {
     public Iter(T[] buffer) {
 	this.buffer = buffer;
     }
+    public Iter() {}
 
     public boolean hasNext() {
-	return buffer.length > cursor;
+	return buffer.length >= cursor;
     }
+
 
     public T previous() {
 	return buffer[cursor -1];
@@ -35,6 +37,8 @@ public class Iter<T> implements Iterator {
     }
 
     public T peek(int offset) {
+	if (offset < 0) return null;
+	offset -= 1; // because the cursor is already at the peek postion you need to peek at least 2 items into the future to get a different item from the normal peek
 	if (!this.hasNext()) return null;
 	return buffer[cursor + offset];
     }
@@ -53,6 +57,10 @@ public class Iter<T> implements Iterator {
 
     public T[] getBuffer() {
 	return this.buffer;
+    }
+
+    public void setBuffer(T[] buffer) {
+	this.buffer = buffer;
     }
 
     public int getCursor() {
