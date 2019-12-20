@@ -36,6 +36,73 @@ public class LexerTest {
     }
 
     @Test
+    public void lexMathExpr() {
+
+	String testcase = "a / (-2*3+(x))";
+
+	var actual = new Lexer(testcase, "LEX_TEST_MATH_EXPR").tokenize();
+
+	var expected = new ArrayList() {{
+	    add(TokenType.IDEN);
+	    add(TokenType.DIVIDE);
+	    add(TokenType.LPAREN);
+	    add(TokenType.MINUS);
+	    add(TokenType.NUMBERLITERAL);
+	    add(TokenType.MULTIPLY);
+	    add(TokenType.NUMBERLITERAL);
+	    add(TokenType.PLUS);
+	    add(TokenType.LPAREN);
+	    add(TokenType.IDEN);
+	    add(TokenType.RPAREN);
+	    add(TokenType.RPAREN);
+	}};
+	assertListEqual(actual, expected);
+    }
+
+    @Test
+    public void lexNullAssignment() {
+
+	String testcase = "foo = #null;";
+
+	var actual = new Lexer(testcase, "LEX_TEST_NULL_ASSIGNMENT").tokenize();
+
+	var expected = new ArrayList() {{
+	    add(TokenType.IDEN);
+	    add(TokenType.EQUALSIGN);
+	    add(TokenType.NULL);
+	    add(TokenType.SEMICOLON);
+	}};
+	assertListEqual(actual, expected);
+    }
+
+    @Test
+    public void lexBoolExpr() {
+
+	String testcase = "((!x und y) oder (x und !y))";
+
+	var actual = new Lexer(testcase, "LEX_TEST_BOOL_EXPR").tokenize();
+
+	var expected = new ArrayList() {{
+	    add(TokenType.LPAREN);
+	    add(TokenType.LPAREN);
+	    add(TokenType.NOT);
+	    add(TokenType.IDEN);
+	    add(TokenType.AND);
+	    add(TokenType.IDEN);
+	    add(TokenType.RPAREN);
+	    add(TokenType.OR);
+	    add(TokenType.LPAREN);
+	    add(TokenType.IDEN);
+	    add(TokenType.AND);
+	    add(TokenType.NOT);
+	    add(TokenType.IDEN);
+	    add(TokenType.RPAREN);
+	    add(TokenType.RPAREN);
+	}};
+	assertListEqual(actual, expected);
+    }
+
+    @Test
     public void lexWhileLoop() {
 
 	String testcase = "solange foo > 10 {}";
@@ -78,24 +145,24 @@ public class LexerTest {
     @Test
     public void lexExampleFunction() {
 
-	String testcase = """
-	    fun test(x: Bool) -> Text {
-	    wenn x {
-		rueckgabe "Hello World";
-	    } sonst wenn wahr {
-		a := 20;
-	    }
-
-	    solange a != 10 {
-		a = #eingabe("Gib eine Zahl ein")
-		wenn a == 10 {
-		    #ausgabe("{} ist die falsche Zahl", a)
+	    String testcase = """
+		fun test(x: Bool) -> Text {
+		wenn x {
+		    rueckgabe "Hello World";
+		} sonst wenn wahr {
+		    a := 20;
 		}
+
+		solange a != 10 {
+		    a = #eingabe("Gib eine Zahl ein")
+			wenn a == 10 {
+			#ausgabe("{} ist die falsche Zahl", a)
+		    }
+		}
+		rueckgabe "FOO BAR"
 	    }
-	    rueckgabe "FOO BAR"
-	}
-	""";
-	var actual = new Lexer(testcase, "LEX_TEST_EXAMPLE_FUNCTION").tokenize();
+	    """;
+	    var actual = new Lexer(testcase, "LEX_TEST_EXAMPLE_FUNCTION").tokenize();
 
 	var expected = new ArrayList() {{
 	    add(TokenType.FUNCTION);
