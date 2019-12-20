@@ -16,5 +16,6 @@ public class App {
 	String source = new String(Files.readAllBytes(Paths.get(path)));
 
 	var tokenStream = new Lexer(source, path).tokenize();
+	System.out.println(tokenStream);
     }
 }
