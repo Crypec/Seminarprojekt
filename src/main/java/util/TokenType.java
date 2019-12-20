@@ -28,6 +28,8 @@ public enum TokenType {
     STRINGLITERAL,
     NUMBERLITERAL,
 
+    COLONCOLON,
+
     // single char tokens
     STARTBLOCK,
     ENDBLOCK,
@@ -120,6 +122,7 @@ public enum TokenType {
 	case ":=" -> TokenType.VARDEF;
 
 	case "->" -> TokenType.ARROW;
+	case "::" -> TokenType.COLONCOLON;
 	
 	//other single char tokens
 	case "{" -> TokenType.STARTBLOCK;
