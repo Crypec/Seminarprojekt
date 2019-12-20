@@ -8,8 +8,8 @@ import core.Lexer;
 public class Token {
 
     // also these fields should't be public :D
-    private String lexeme;
     private TokenType type;
+    private String lexeme;
     private Object literal;
     private MetaData meta;
     
@@ -18,18 +18,6 @@ public class Token {
 	this.meta = meta;
 	this.type = type;
 	this.literal = literal;
-
-	// NOTE(Simon): Do we really need this?
-	// NOTE(Simon): Because we also match Literals in the parser. We shouldn't be doing the same work twice.
-	if (this.literal == null) {
-	    this.literal = switch (this.type) {
-	    case STRINGLITERAL -> lexeme;
-	    case NUMBERLITERAL -> Lexer.parseNum(lexeme);
-	    case TRUE -> true;
-	    case FALSE -> false; 
-	    default -> null;
-	    };
-	}
     }
 
     public Token(TokenType type) {
@@ -44,10 +32,9 @@ public class Token {
 	private String lexeme;
 	private TokenType type;
 	private Object literal = null;
-	private MetaData meta;
+	private MetaData meta = new MetaData();
 
 	public Builder filename(String filename) {
-	    this.meta = new MetaData();
 	    this.meta.setFilename(filename);
 	    return this;
 	}
@@ -100,9 +87,7 @@ public class Token {
 	this.meta = meta;
     }
     
-    public TokenType getType() {
-	return this.type;
-    }
+    public TokenType getType() { return this.type; }
     
     public Object getLiteral() { return this.literal; }
 
