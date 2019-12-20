@@ -13,26 +13,22 @@ public class LexerTest {
 
 	String testcase = "fun test(x: Zahl, y: Text) -> Zahl {}";
 
-	var charArr = testcase
-	    .chars()
-	    .mapToObj(c -> (char) c)
-	    .toArray(Character[]::new);
-	var actual = Lexer.tokenizeLine(new Iter(charArr), "funcionDeclTest", 0); // TODO(Simon): replace with real scanner
+	var actual = new Lexer(testcase, "LEX_TEST_FUNCTIONDECL").tokenize();
 
 	var expected = new ArrayList() {{
 	    add(TokenType.FUNCTION);
-	    add(TokenType.SYMBOL);
+	    add(TokenType.IDEN);
 	    add(TokenType.LPAREN);
-	    add(TokenType.SYMBOL);
+	    add(TokenType.IDEN);
 	    add(TokenType.COLON);
-	    add(TokenType.SYMBOL);
+	    add(TokenType.IDEN);
 	    add(TokenType.COMMA);
-	    add(TokenType.SYMBOL);
+	    add(TokenType.IDEN);
 	    add(TokenType.COLON);
-	    add(TokenType.SYMBOL);
+	    add(TokenType.IDEN);
 	    add(TokenType.RPAREN);
 	    add(TokenType.ARROW);
-	    add(TokenType.SYMBOL);
+	    add(TokenType.IDEN);
 	    add(TokenType.STARTBLOCK);
 	    add(TokenType.ENDBLOCK);
 	}};
@@ -43,16 +39,11 @@ public class LexerTest {
     public void lexWhileLoop() {
 
 	String testcase = "solange foo > 10 {}";
-
-	var charArr = testcase
-	    .chars()
-	    .mapToObj(c -> (char) c)
-	    .toArray(Character[]::new);
-	var actual = Lexer.tokenizeLine(new Iter(charArr), "funcionDeclTest", 0); // TODO(Simon): replace with real scanner
+	var actual = new Lexer(testcase, "LEX_TEST_WHILE_LOOP").tokenize();
 
 	var expected = new ArrayList() {{
 	    add(TokenType.WHILE);
-	    add(TokenType.SYMBOL);
+	    add(TokenType.IDEN);
 	    add(TokenType.GREATER);
 	    add(TokenType.NUMBERLITERAL);
 	    add(TokenType.STARTBLOCK);
@@ -70,11 +61,7 @@ public class LexerTest {
 		"Fmt",
 		      ]""";
 
-	var charArr = testcase
-	    .chars()
-	    .mapToObj(c -> (char) c)
-	    .toArray(Character[]::new);
-	var actual = Lexer.tokenizeLine(new Iter(charArr), "funcionDeclTest", 0); // TODO(Simon): replace with real scanner
+	var actual = new Lexer(testcase, "LEX_IMPORT").tokenize();
 
 	var expected = new ArrayList() {{
 	    add(TokenType.IMPORT);
@@ -107,27 +94,22 @@ public class LexerTest {
 	    }
 	    rueckgabe "FOO BAR"
 	}
-	]""";
-
-    var charArr = testcase
-	.chars()
-	.mapToObj(c -> (char) c)
-	.toArray(Character[]::new);
-	var actual = Lexer.tokenizeLine(new Iter(charArr), "funcionDeclTest", 0); // TODO(Simon): replace with real scanner
+	""";
+	var actual = new Lexer(testcase, "LEX_TEST_EXAMPLE_FUNCTION").tokenize();
 
 	var expected = new ArrayList() {{
 	    add(TokenType.FUNCTION);
-	    add(TokenType.SYMBOL);
+	    add(TokenType.IDEN);
 	    add(TokenType.LPAREN);
-	    add(TokenType.SYMBOL);
+	    add(TokenType.IDEN);
 	    add(TokenType.COLON);
-	    add(TokenType.SYMBOL);
+	    add(TokenType.IDEN);
 	    add(TokenType.RPAREN);
 	    add(TokenType.ARROW);
-	    add(TokenType.SYMBOL);
+	    add(TokenType.IDEN);
 	    add(TokenType.STARTBLOCK);
 	    add(TokenType.IF);
-	    add(TokenType.SYMBOL);
+	    add(TokenType.IDEN);
 	    add(TokenType.STARTBLOCK);
 	    add(TokenType.RETURN);
 	    add(TokenType.STRINGLITERAL);
@@ -137,32 +119,32 @@ public class LexerTest {
 	    add(TokenType.IF);
 	    add(TokenType.TRUE);
 	    add(TokenType.STARTBLOCK);
-	    add(TokenType.SYMBOL);
+	    add(TokenType.IDEN);
 	    add(TokenType.VARDEF);
 	    add(TokenType.NUMBERLITERAL);
 	    add(TokenType.SEMICOLON);
 	    add(TokenType.ENDBLOCK);
 	    add(TokenType.WHILE);
-	    add(TokenType.SYMBOL);
+	    add(TokenType.IDEN);
 	    add(TokenType.NOTEQUAL);
 	    add(TokenType.NUMBERLITERAL);
 	    add(TokenType.STARTBLOCK);
-	    add(TokenType.SYMBOL);
+	    add(TokenType.IDEN);
 	    add(TokenType.EQUALSIGN);
 	    add(TokenType.READINPUT);
 	    add(TokenType.LPAREN);
 	    add(TokenType.STRINGLITERAL);
-	    add(TokenType.LPAREN);
+	    add(TokenType.RPAREN);
 	    add(TokenType.IF);
-	    add(TokenType.SYMBOL);
+	    add(TokenType.IDEN);
 	    add(TokenType.EQUALEQUAL);
 	    add(TokenType.NUMBERLITERAL);
 	    add(TokenType.STARTBLOCK);
 	    add(TokenType.PRINT);
-	    add(TokenType.RPAREN);
+	    add(TokenType.LPAREN);
 	    add(TokenType.STRINGLITERAL);
 	    add(TokenType.COMMA);
-	    add(TokenType.SYMBOL);
+	    add(TokenType.IDEN);
 	    add(TokenType.RPAREN);
 	    add(TokenType.ENDBLOCK);
 	    add(TokenType.ENDBLOCK);
@@ -171,7 +153,7 @@ public class LexerTest {
 	    add(TokenType.ENDBLOCK);
 	}};
     assertListEqual(actual, expected);
-    }
+}
 
 
     @Test
@@ -180,15 +162,10 @@ public class LexerTest {
 	String testcase = """
 	    foo := "Hello" + "World"
 	    """;
-
-	var charArr = testcase
-	    .chars()
-	    .mapToObj(c -> (char) c)
-	    .toArray(Character[]::new);
-	var actual = Lexer.tokenizeLine(new Iter(charArr), "funcionDeclTest", 0); // TODO(Simon): replace with real scanner
+	var actual = new Lexer(testcase, "LEX_TEST_VAR_DEF").tokenize();
 
 	var expected = new ArrayList() {{
-	    add(TokenType.SYMBOL);
+	    add(TokenType.IDEN);
 	    add(TokenType.VARDEF);
 	    add(TokenType.STRINGLITERAL);
 	    add(TokenType.PLUS);
@@ -208,35 +185,31 @@ public class LexerTest {
 	    HouseNumer: Zahl,
 	}
 	""";
+	var actual = new Lexer(testcase, "LEX_TEST_TYPEDECL").tokenize();
 
-	var charArr = testcase
-	    .chars()
-	    .mapToObj(c -> (char) c)
-	    .toArray(Character[]::new);
-	var actual = Lexer.tokenizeLine(new Iter(charArr), "funcionDeclTest", 0); // TODO(Simon): replace with real scanner
 
 	var expected = new ArrayList() {{
 	    add(TokenType.CLASS);
 	    add(TokenType.COLON);
-	    add(TokenType.SYMBOL);
+	    add(TokenType.IDEN);
 	    add(TokenType.STARTBLOCK);
-	    add(TokenType.SYMBOL);
+	    add(TokenType.IDEN);
 	    add(TokenType.COLON);
-	    add(TokenType.SYMBOL);
+	    add(TokenType.IDEN);
 	    add(TokenType.COMMA);
-	    add(TokenType.SYMBOL);
+	    add(TokenType.IDEN);
 	    add(TokenType.COLON);
-	    add(TokenType.SYMBOL);
+	    add(TokenType.IDEN);
 	    add(TokenType.COMMA);
-	    add(TokenType.SYMBOL);
+	    add(TokenType.IDEN);
 	    add(TokenType.COLON);
-	    add(TokenType.SYMBOL);
+	    add(TokenType.IDEN);
 	    add(TokenType.COMMA);
-	    add(TokenType.SYMBOL);
+	    add(TokenType.IDEN);
 	    add(TokenType.COLON);
-	    add(TokenType.SYMBOL);
+	    add(TokenType.IDEN);
 	    add(TokenType.COMMA);
-	    add(TokenType.STARTBLOCK);
+	    add(TokenType.ENDBLOCK);
 	}};
 	assertListEqual(actual, expected);
     }
@@ -245,18 +218,13 @@ public class LexerTest {
     public void lexAssingment() {
 
 	String testcase = "foo = (a + 3)*3";
-
-	var charArr = testcase
-	    .chars()
-	    .mapToObj(c -> (char) c)
-	    .toArray(Character[]::new);
-	var actual = Lexer.tokenizeLine(new Iter(charArr), "funcionDeclTest", 0); // TODO(Simon): replace with real scanner
+	var actual = new Lexer(testcase, "LEX_TEST_ASSIGNMENT").tokenize();
 
 	var expected = new ArrayList() {{
-	    add(TokenType.SYMBOL);
+	    add(TokenType.IDEN);
 	    add(TokenType.EQUALSIGN);
 	    add(TokenType.LPAREN);
-	    add(TokenType.SYMBOL);
+	    add(TokenType.IDEN);
 	    add(TokenType.PLUS);
 	    add(TokenType.NUMBERLITERAL);
 	    add(TokenType.RPAREN);
@@ -268,17 +236,14 @@ public class LexerTest {
     @Test
     public void lexForLoop() {
 
-	String testcase = "fuer i := 0..10 {}";
+	String testcase = "fuer i := 0 bis 10 {}";
 
-	var charArr = testcase
-	    .chars()
-	    .mapToObj(c -> (char) c)
-	    .toArray(Character[]::new);
-	var actual = Lexer.tokenizeLine(new Iter(charArr), "funcionDeclTest", 0); // TODO(Simon): replace with real scanner
+	var actual = new Lexer(testcase, "LEX_TEST_FOR_LOOP").tokenize();
 
 	var expected = new ArrayList() {{
 	    add(TokenType.FOR);
-	    add(TokenType.SYMBOL);
+	    add(TokenType.IDEN);
+	    add(TokenType.VARDEF);
 	    add(TokenType.NUMBERLITERAL);
 	    add(TokenType.UNTIL);
 	    add(TokenType.NUMBERLITERAL);
@@ -288,10 +253,17 @@ public class LexerTest {
 	assertListEqual(actual, expected);
     }
 
-    public static void assertListEqual(List<Token> expected, List<TokenType> actual) {
+    public static void assertListEqual(List<Token> actual, List<TokenType> expected) {
 	assertTrue("length of expected != length of actual", expected.size() == actual.size());
-	var res = Streams.zip(expected.stream(), actual.stream(), (e, a) -> e.getType() != a)
+	var res = Streams.zip(expected.stream(), actual.stream(), (a, e) -> e.getType() != a)
 	    .anyMatch(x -> x);
 	assertFalse("expected TokenTypes != actual TokenTypes", res);
+    }
+public static void diffPrintList(List<Token> actual, List<TokenType> expected) {
+    for (int i = 0; i < actual.size(); i++) {
+	if (actual.get(i).getType() != expected.get(i)) {
+	    System.out.printf("[DIFF] :: actual token with type %s at index %d, does not mactch expected type %s %n", actual.get(i).getType(), i, expected.get(i));
+	}
+    }
     }
 }
