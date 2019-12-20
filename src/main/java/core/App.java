@@ -16,6 +16,7 @@ public class App {
 	String source = new String(Files.readAllBytes(Paths.get(path)));
 
 	var tokenStream = new Lexer(source, path).tokenize();
+	var ASTNode = new Parser(new Iter(tokenStream.toArray(Token[]::new))).parse();
 	System.out.println(tokenStream);
     }
 }
