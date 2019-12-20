@@ -33,49 +33,45 @@ public class Lexer {
 	    case ',': yield buildToken(TokenType.COMMA);
 	    case ';': yield buildToken(TokenType.SEMICOLON);
 	    case ':': {
-		if (peek() == '=') yield buildToken(TokenType.VARDEF);
-		if (peek() == ':') yield buildToken(TokenType.COLONCOLON);
-		else buildToken(TokenType.COLON);
+		if (match('=')) yield buildToken(TokenType.VARDEF);
+		if (match(':')) yield buildToken(TokenType.COLONCOLON);
+		else yield buildToken(TokenType.COLON);
 	    }
 	    case '-': {
-		if (peek() == '>') yield buildToken(TokenType.ARROW);
+		if (match('>')) yield buildToken(TokenType.ARROW);
 		else yield buildToken(TokenType.MINUS);
 	    }
 	    case '+': yield buildToken(TokenType.PLUS);
 	    case '*': yield buildToken(TokenType.MULTIPLY);
 	    case '/': {
-		if (peek() == '/')
-		    while (peek() != '\n' && hasNext()) next();
+		if (match('/')) while (peek() != '\n' && hasNext()) next();
 		else yield buildToken(TokenType.DIVIDE);
 	    }
 	    case '!': {
-		if (peek() == '=') yield buildToken(TokenType.NOTEQUAL);
+		if (match('=')) yield buildToken(TokenType.NOTEQUAL);
 		else yield buildToken(TokenType.NOT);
 	    }
 	    case '=': {
-		if (peek() == '=')
-		    yield buildToken(TokenType.EQUALEQUAL);
-		if (peek() == '>') yield buildToken(TokenType.GREATEREQUAL);
-		if (peek() == '>') yield buildToken(TokenType.LESSEQUAL);
+		if (match('=')) yield buildToken(TokenType.EQUALEQUAL);
+		if (match('>')) yield buildToken(TokenType.GREATEREQUAL);
+		if (match('>')) yield buildToken(TokenType.LESSEQUAL);
 		else yield buildToken(TokenType.EQUALSIGN);
 	    }
 	    case '>': {
-		if (peek() == '=') yield buildToken(TokenType.GREATEREQUAL);
+		if (match('=')) yield buildToken(TokenType.GREATEREQUAL);
 		else yield buildToken(TokenType.GREATER);
 	    }
 	    case '<': {
-		if (peek() == '=') yield buildToken(TokenType.LESSEQUAL);
+		if (match('=')) yield buildToken(TokenType.LESSEQUAL);
 		else yield buildToken(TokenType.LESS);
 	    }
 	    case '"': yield getStringLiteral();
 	    case ' ', '\r', '\t': yield null; // skip all whitespace
 	    case '\n': line++; yield null;
 	    default: {
-		if (Character.isDigit(c))
-		    yield getNumLiteral();
-		if (Character.isLetter(c) || peek() == '#') yield getIden(); // check for hashtag because compiler internal functions are prefixed with a hashtag
-		else
-		    yield null; // TODO(Simon): report error if invalid char is found
+		if (Character.isDigit(c)) yield getNumLiteral();
+		if (Character.isLetter(c) || c == '#') yield getIden(); // check for hashtag because compiler internal functions are prefixed with a hashtag
+		else yield null; // TODO(Simon): report error if invalid char is found
 	    }
 	    };
 	    if (token != null) tokenStream.add(token);
@@ -106,8 +102,7 @@ public class Lexer {
 		.position(start, cursor)
 		.build();
 
-	    var err =
-		new Report.Builder()
+	    var err = new Report.Builder()
 		.errWasFatal()
 		.setErrorType("Text nicht beendet")
 		.withErrorMsg("Es scheint als haettest du vergessen einen Text block zu schliessen.")
@@ -124,8 +119,7 @@ public class Lexer {
     }
 
     public Token getNumLiteral() {
-	while (Character.isDigit(peek()))
-	    next();
+	while (Character.isDigit(peek())) next();
 
 	if (peek() == '.' && Character.isDigit(peekNext())) {
 	    next();
@@ -151,6 +145,13 @@ public class Lexer {
     public char peekNext() {
 	if (cursor + 1 >= source.length()) return '\0';
 	return this.source.charAt(cursor++);
+    }
+
+    public boolean match(char expected) {
+	if (!hasNext()) return false;
+	if (source.charAt(cursor) != expected) return false;
+	next();
+	return true;
     }
 
     private Token buildToken(TokenType type) { return buildToken(type, null); }
