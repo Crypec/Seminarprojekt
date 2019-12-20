@@ -9,8 +9,8 @@ public class Lexer {
     private final String source;
 
     private int cursor = 0;
-    private int line = 1;
     private int start = 0;
+    private int line = 1;
 
     public Lexer(String source, String fileName) {
 	this.source = source;
@@ -26,6 +26,8 @@ public class Lexer {
 	    var token = switch (c) {
 	    case '(': yield buildToken(TokenType.LPAREN);
 	    case ')': yield buildToken(TokenType.RPAREN);
+	    case '[': yield buildToken(TokenType.LBRACKET);
+	    case ']': yield buildToken(TokenType.RBRACKET);
 	    case '{': yield buildToken(TokenType.STARTBLOCK);
 	    case '}': yield buildToken(TokenType.ENDBLOCK);
 	    case ',': yield buildToken(TokenType.COMMA);
@@ -65,25 +67,23 @@ public class Lexer {
 		else yield buildToken(TokenType.LESS);
 	    }
 	    case '"': yield getStringLiteral();
-	    case '\r', '\t': yield null;
+	    case ' ', '\r', '\t': yield null; // skip all whitespace
 	    case '\n': line++; yield null;
 	    default: {
 		if (Character.isDigit(c))
 		    yield getNumLiteral();
-		if (Character.isLetter(c))
-		    yield getIden();
+		if (Character.isLetter(c)) yield getIden();
 		else
 		    yield null; // TODO(Simon): report error if invalid char is found
 	    }
 	    };
+	    if (token != null) tokenStream.add(token);
 	}
-
-	return null;
+	return tokenStream;
     }
 
     public Token getIden() {
-	while (Character.isDigit(peek()) || Character.isLetter(peek()))
-	    next();
+	while (Character.isDigit(peek()) || Character.isLetter(peek())) next();
 	String iden = source.substring(start, cursor);
 	return buildToken(TokenType.match(iden));
     }
@@ -109,8 +109,7 @@ public class Lexer {
 		new Report.Builder()
 		.errWasFatal()
 		.setErrorType("Text nicht beendet")
-		.withErrorMsg(
-			      "Es scheint als haettest du vergessen einen Text block zu schliessen.")
+		.withErrorMsg("Es scheint als haettest du vergessen einen Text block zu schliessen.")
 		.url("www.TODO.de")
 		.atToken(errLocation)
 		.create();
@@ -119,7 +118,7 @@ public class Lexer {
 	}
 	next();
 
-	String literal = source.substring(start + 1, cursor - 1);
+	String literal = source.substring(start +1, cursor - 1);
 	return buildToken(TokenType.STRINGLITERAL, literal);
     }
 
@@ -129,8 +128,7 @@ public class Lexer {
 
 	if (peek() == '.' && Character.isDigit(peekNext())) {
 	    next();
-	    while (Character.isDigit(peek()))
-		next();
+	    while (Character.isDigit(peek())) next();
 	}
 	Double literal = Double.parseDouble(source.substring(start, cursor));
 	return buildToken(TokenType.NUMBERLITERAL, literal);
@@ -140,7 +138,7 @@ public class Lexer {
 	return Double.parseDouble(strNum);
     }
 
-    public boolean hasNext() { return this.source.length() >= cursor; }
+    public boolean hasNext() { return this.source.length() > cursor; }
 
     public char next() { return this.source.charAt(cursor++); }
 
