@@ -71,9 +71,6 @@ public enum TokenType {
     MODULO;
 
     public static TokenType match(String s) {
-	if (isNumeric(s)) {
-	    return TokenType.NUMBERLITERAL;
-	}
 	return switch (s) {
 	    // keywords
 	case "fun" -> TokenType.FUNCTION;
@@ -91,12 +88,11 @@ public enum TokenType {
 	case "#ausgabe" -> TokenType.PRINT;
 	case "#benutze" -> TokenType.IMPORT;
 
-
 	//const declarations
 	// NOTE(Simon): Do we really need those?
 	case "konst" -> TokenType.CONST;
 
-	case "#NULL" -> TokenType.NULL;
+	case "#null" -> TokenType.NULL;
 
 	//boolean operations
 	case "wahr" -> TokenType.TRUE;

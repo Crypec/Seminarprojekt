@@ -39,6 +39,7 @@ public class Lexer {
 	    }
 	    case '-': {
 		if (peek() == '>') yield buildToken(TokenType.ARROW);
+		else yield buildToken(TokenType.MINUS);
 	    }
 	    case '+': yield buildToken(TokenType.PLUS);
 	    case '*': yield buildToken(TokenType.MULTIPLY);
@@ -72,7 +73,7 @@ public class Lexer {
 	    default: {
 		if (Character.isDigit(c))
 		    yield getNumLiteral();
-		if (Character.isLetter(c)) yield getIden();
+		if (Character.isLetter(c) || peek() == '#') yield getIden(); // check for hashtag because compiler internal functions are prefixed with a hashtag
 		else
 		    yield null; // TODO(Simon): report error if invalid char is found
 	    }
