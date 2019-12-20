@@ -83,35 +83,6 @@ public class Token {
 	    return new Token(this.lexeme, this.meta, this.type, this.literal);
 	}
     }
-
-
-    public static boolean isSingleCharToken(char s) {
-	return switch (s) {
-	case '{', '}', '(', ')', '[', ']', '.', '+', '*', '%', '<', ':', ',' -> true;
-	default  -> false;
-	};
-    }
-
-    public static boolean isDoubleCharToken(char s) {
-	return switch (s) {
-	case '-', ':', '=', '!', '<', '>' -> true;
-	default -> false;
-	};
-    }
-
-    public static boolean endOfExprTokenNeeded(Token token) {
-	return switch (token.getType()) {
-	case WHILE, FOR, FUNCTION, IF, ELSE -> false; 
-	default -> true;
-	};
-    }
-
-    public static boolean validForExpr(Token t) {
-	return switch(t.type) {
-	case NUMBERLITERAL, STRINGLITERAL, TRUE, FALSE, PLUS, MINUS, MULTIPLY, DIVIDE, AND, OR, NOT -> true;
-	default -> false;
-	};
-    }
     
     public void setType(TokenType type) {
 	this.type = type;
@@ -132,12 +103,6 @@ public class Token {
     public TokenType getType() {
 	return this.type;
     }
-
-    public static void printAll(List<Token> tokenStream) {
-	for (Token t : tokenStream) {
-	    System.out.println(t);
-	}
-    }
     
     public Object getLiteral() { return this.literal; }
 
@@ -145,32 +110,6 @@ public class Token {
 
     public MetaData getMeta() { return this.meta; }
 
-    public boolean equals(Token t) {
-	return t.type == t.getType();
-    }
-
-    // TODO(Simon): add operator precedence of boolean operators
-    public int getPrecedence() {
-	return switch (this.type) {
-	case MULTIPLY, DIVIDE -> 3;
-	case PLUS, MINUS -> 2;
-	default -> 0;
-	};
-    }
-
-    // Add operators for boolean operations
-    public boolean isOperator() {
-	return switch (this.type) {
-	case MULTIPLY, DIVIDE, PLUS, MINUS -> true;
-	default -> false;
-	};
-    }
-
-    // NOTE(Simon): check if the "NOT" operator is left assozioative
-    public boolean isLeftAssoziative() {
-	return false;
-    }
-    
     @Override
     public String toString() {
 	return new GsonBuilder()
