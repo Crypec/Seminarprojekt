@@ -4,16 +4,19 @@
 package core;
 
 import util.*;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 public class App {
 
-    public static void main(String... args) {
+    public static void main(String... args) throws IOException {
 
-	var tokenStream = Lexer.tokenize(new SourceFile("./examples/example.zt"));
+	String path = "./examples/example.zt";
+	String source = new String(Files.readAllBytes(Paths.get(path)));
 
-	var it = new Iter(tokenStream.toArray(Token[]::new));
-	var ASTNode = Parser.parse(it);
-
-	System.out.println(ASTNode);
+	var tokenStream = new Lexer(source, path).tokenize();
+	var ASTNode = new Parser(new Iter(tokenStream.toArray(Token[]::new))).parse();
+	System.out.println(tokenStream);
     }
 }
