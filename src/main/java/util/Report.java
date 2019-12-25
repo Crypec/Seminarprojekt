@@ -18,6 +18,7 @@ public class Report {
 
     private String errType;
     private String errMsg;
+
     private List<String> examples;
     private Token token;
 
