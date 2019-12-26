@@ -88,6 +88,10 @@ public class Report {
     public void setToken(Token t) {
 	this.token = t;
     }
+
+    public void setErrorMsg(String errMsg) {
+	this.errMsg = errMsg;
+    }
     
     
     // if we encounter an error during the parsing stage we can use the following exception to restore state and continue parsing till the end
