@@ -6,9 +6,13 @@
  * User Manual available at https://docs.gradle.org/5.5.1-20190724234647+0000/userguide/tutorial_java_projects.html
  */
 
+
 plugins {
     // Apply the java plugin to add support for Java
     id 'java'
+	
+	//
+    id "com.adarshr.test-logger" version "2.0.0"
 
     // Apply the application plugin to add support for building a CLI application
     id 'application'
@@ -53,12 +57,29 @@ tasks.withType(JavaCompile).each {
 }
 //enable java 12 features for tests
 test {
-    testLogging {
-	showStandardStreams = true
-    }
+}
+test {
+    testLogging.showStandardStreams = true
     jvmArgs(['--enable-preview'])
 }
 
 run {
     jvmArgs(['--enable-preview'])
+}
+testlogger {
+    theme 'mocha-parallel'
+    showExceptions true
+    showStackTraces true
+    showFullStackTraces false
+    showCauses true
+    slowThreshold 2000
+    showSummary true
+    showSimpleNames false
+    showPassed true
+    showSkipped true
+    showFailed true
+    showStandardStreams true
+    showPassedStandardStreams true
+    showSkippedStandardStreams true
+    showFailedStandardStreams true
 }

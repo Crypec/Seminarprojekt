@@ -14,10 +14,12 @@ public class Iter<T> implements Iterator {
     public Iter(T[] buffer) {
 	this.buffer = buffer;
     }
+    public Iter() {}
 
     public boolean hasNext() {
 	return buffer.length > cursor;
     }
+
 
     public T previous() {
 	return buffer[cursor -1];
@@ -55,6 +57,10 @@ public class Iter<T> implements Iterator {
 
     public T[] getBuffer() {
 	return this.buffer;
+    }
+
+    public void setBuffer(T[] buffer) {
+	this.buffer = buffer;
     }
 
     public int getCursor() {

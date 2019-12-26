@@ -28,6 +28,8 @@ public enum TokenType {
     STRINGLITERAL,
     NUMBERLITERAL,
 
+    COLONCOLON,
+
     // single char tokens
     STARTBLOCK,
     ENDBLOCK,
@@ -69,19 +71,16 @@ public enum TokenType {
     MODULO;
 
     public static TokenType match(String s) {
-	if (isNumeric(s)) {
-	    return TokenType.NUMBERLITERAL;
-	}
 	return switch (s) {
 	    // keywords
 	case "fun" -> TokenType.FUNCTION;
 	case "solange" -> TokenType.WHILE;
-	case "für" -> TokenType.FOR;
+	case "für", "fuer" -> TokenType.FOR;
 	case "wenn" -> TokenType.IF;
 	case "sonst" -> TokenType.ELSE;
-	case "rückgabe" -> TokenType.RETURN;
+	case "rückgabe", "rueckgabe" -> TokenType.RETURN;
 	case "Typ" -> TokenType.CLASS;
-	case "bis", ".." -> TokenType.UNTIL;
+	case "bis" -> TokenType.UNTIL;
 	case "stop" -> TokenType.BREAK;
 
 	// Compiler native functions
@@ -89,12 +88,11 @@ public enum TokenType {
 	case "#ausgabe" -> TokenType.PRINT;
 	case "#benutze" -> TokenType.IMPORT;
 
-
 	//const declarations
 	// NOTE(Simon): Do we really need those?
 	case "konst" -> TokenType.CONST;
 
-	case "#NULL" -> TokenType.NULL;
+	case "#null" -> TokenType.NULL;
 
 	//boolean operations
 	case "wahr" -> TokenType.TRUE;
@@ -120,6 +118,7 @@ public enum TokenType {
 	case ":=" -> TokenType.VARDEF;
 
 	case "->" -> TokenType.ARROW;
+	case "::" -> TokenType.COLONCOLON;
 	
 	//other single char tokens
 	case "{" -> TokenType.STARTBLOCK;
