@@ -164,7 +164,7 @@ public class Parser extends Iter<Token> {
     }
 
     // TODO(Simon): use our report system for error handling and warning
-    public Stmt parseFunctionDecl() {
+    public Stmt.FunctionDecl parseFunctionDecl() {
 
 	next();
 
@@ -198,12 +198,11 @@ public class Parser extends Iter<Token> {
 	    returnType = consume(TokenType.IDEN, err);
 	}
 
-	consume(TokenType.STARTBLOCK, err);
 	var body = parseBlock();
 	return new Stmt.FunctionDecl(functionName, args, returnType, body);
     }
 
-    public Stmt parseBlock() {
+    public Stmt.Block parseBlock() {
 
 	var err = new Report.Builder()
 	    .errWasFatal()
@@ -214,57 +213,63 @@ public class Parser extends Iter<Token> {
 
 	consume(TokenType.STARTBLOCK, err);
 
-	var stms = new ArrayList();
+	var stmts = new ArrayList();
 
 	while (!check(TokenType.ENDBLOCK)) {
 	    var stmt = switch (peek().getType()) {
-	    case IDEN:
-	    yield parseVarDef();
-	    case IF:
-	    yield parseIfStmt();
-	    case FOR:
-	    yield parseForLoop();
-	    case WHILE:
-	    yield parseWhileLoop();
-	    case PRINT:
-	    yield parsePrint();
-	    case READINPUT:
-	    yield parseInput();
-	    case RETURN:
-	    yield parseReturn();
-	    case BREAK:
+	    case IDEN: yield parseVarDef();
+	    case IF: yield parseIfStmt();
+	    case FOR: yield parseForLoop();
+	    case WHILE: yield parseWhileLoop();
+	    case PRINT: yield parsePrint();
+	    case READINPUT: yield parseInput();
+	    case RETURN: yield parseReturn();
+	    case BREAK: yield parseBreak();
 	    default:
 	    yield null;
 	    };
+	    stmts.add(stmt);
 	}
 
 	consume(TokenType.ENDBLOCK, err);
-	return null;
+	return new Stmt.Block(stmts);
     }
 
-    public Stmt parseInput() {
+    public Stmt.Break parseBreak() {
+	var err = new Report.Builder()
+	    .errWasFatal()
+	    .setErrorType("Fehler beim parsen eines stop stmts")
+	    .withErrorMsg("Der Stopp befehl erlaubt dir eine Schleife zu verlassen")
+	    .url("www.TODO.de")
+	    .create();
+	var location = consume(TokenType.BREAK, err);
+	consume(TokenType.SEMICOLON, err, "Semicolon erwartet");
+	return new Stmt.Break(location);
+    }
+
+    public Stmt.Input parseInput() {
 
 	var err =
 	    new Report.Builder()
-            .errWasFatal()
-            .setErrorType("Fehler beim parsen eines Input stmts")
-            .withErrorMsg(
+	    .errWasFatal()
+	    .setErrorType("Fehler beim parsen eines Input stmts")
+	    .withErrorMsg(
 			  "Hey wir waren gerade dabei einen Mathematischen Ausdruck zu parsen, es scheint als haettest du vergessen eine Klammer zu schliesen")
-            .url("www.TODO.de")
-            .create();
+	    .url("www.TODO.de")
+	.create();
 
-	consume(TokenType.READINPUT, err);
-	consume(TokenType.LPAREN, err);
-	var msg = consume(TokenType.STRINGLITERAL, err);
-	consume(TokenType.RPAREN, err);
-	return new Stmt.Input(msg);
-    }
+    consume(TokenType.READINPUT, err);
+    consume(TokenType.LPAREN, err);
+    var msg = consume(TokenType.STRINGLITERAL, err);
+    consume(TokenType.RPAREN, err);
+    return new Stmt.Input(msg);
+}
 
-    public Stmt parseAssignment() {
+    public Stmt.Assignment parseAssignment() {
 	return null;
     }
 
-    public Stmt parsePrint() {
+    public Stmt.Print parsePrint() {
 
 	var err =
 	    new Report.Builder()
@@ -291,11 +296,12 @@ public class Parser extends Iter<Token> {
 	    exprs.add(parseExpr());
 	}
 	consume(TokenType.RPAREN, err);
+	consume(TokenType.SEMICOLON, err, "Nach einem ausgabe ausdruck haben wir ein Semicolon erwartet!");
 
 	return new Stmt.Print(formatter, exprs);
     }
 
-    public Stmt parseWhileLoop() {
+    public Stmt.While parseWhileLoop() {
 
 	var err =
 	    new Report.Builder()
@@ -317,7 +323,7 @@ public class Parser extends Iter<Token> {
 	return new Stmt.While(condion, body);
     }
 
-    public Stmt parseReturn() {
+    public Stmt.Return parseReturn() {
 
 	var err =
 	    new Report.Builder()
@@ -348,7 +354,7 @@ public class Parser extends Iter<Token> {
 
       We use them to dertermine which files to parse next.
     */
-    public Stmt parseImport() {
+    public Stmt.Import parseImport() {
 
 	next();
 
@@ -374,7 +380,7 @@ public class Parser extends Iter<Token> {
 	return new Stmt.Import(libs);
     }
 
-    public Stmt parseIfStmt() {
+    public Stmt.If parseIfStmt() {
 
 	var err =
 	    new Report.Builder()
@@ -396,7 +402,7 @@ public class Parser extends Iter<Token> {
 	return new Stmt.If(condion, null, null);
     }
 
-    public Stmt parseStructDecl() {
+    public Stmt.Class parseStructDecl() {
 
 	// NOTE(Simon): we arrive here after the Typ Keyword
 	next();
@@ -439,7 +445,7 @@ public class Parser extends Iter<Token> {
 
     // TODO(Simon): add desugared increment in the body
     // TODO(Simon): check if range for the loop is valid
-    public Stmt parseForLoop() {
+    public Stmt.While parseForLoop() {
 
 	var err = new Report.Builder()
 	    .errWasFatal()
@@ -470,7 +476,7 @@ public class Parser extends Iter<Token> {
 	return new Stmt.While(condion, body);
     }
 
-    public Stmt parseVarDef() {
+    public Stmt.VarDef parseVarDef() {
 
 	var err =
 	    new Report.Builder()
@@ -484,16 +490,16 @@ public class Parser extends Iter<Token> {
             .create();
 
 	// we assume that we peeked ahead to find the :=  Symbol
-	Token typeName = null;
 	Token varName = consume(TokenType.IDEN, err);
 
-	if (peek().getType() != TokenType.VARDEF) {
+	Token typeName = null;
+	if (check(TokenType.VARDEF)) {
 	    consume(TokenType.VARDEF, err);
-	} else if (peek().getType() == TokenType.COLON) {
+	} else if (check(TokenType.COLON)) {
 	    // user provided type information, variable is typed
-	    consume(TokenType.COLON, err);
-	    typeName = consume(TokenType.IDEN, err);
-	    consume(TokenType.EQUALSIGN, err);
+	consume(TokenType.COLON, err);
+	typeName = consume(TokenType.IDEN, err);
+	consume(TokenType.EQUALSIGN, err);
 	}
 
 	Expr value = parseExpr();
@@ -505,6 +511,16 @@ public class Parser extends Iter<Token> {
 	if (check(type))
 	    return next();
 	err.setToken(next());
+	System.out.println(err);
+	err.sync();
+	return null; // unreachable code becase sync will throw an execption
+    }
+
+    private Token consume(TokenType type, Report err, String errMsg) {
+	if (check(type))
+	    return next();
+	err.setToken(next());
+	err.setErrorMsg(errMsg);
 	System.out.println(err);
 	err.sync();
 	return null; // unreachable code becase sync will throw an execption
