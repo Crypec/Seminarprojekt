@@ -75,7 +75,6 @@ public class Emitter implements Stmt.Visitor<String> {
     public String visitImportStmt(Stmt.Import importStmt) {
 	return null;
     }
-
     public String visitInputStmt(Stmt.Import input) {
 	return null;
     }

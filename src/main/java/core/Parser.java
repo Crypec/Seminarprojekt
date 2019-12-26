@@ -191,8 +191,7 @@ public class Parser extends Iter<Token> {
 	consume(TokenType.RPAREN, err);
 
 	Token returnType = null;
-	// TODO(Simon): we could allow tuple return types in a later edion to the
-	// language
+	// TODO(Simon): we could allow tuple return types in a later edion of the language
 	if (!check(TokenType.RPAREN)) {
 	    consume(TokenType.ARROW, err);
 	    returnType = consume(TokenType.IDEN, err);
@@ -495,9 +494,9 @@ public class Parser extends Iter<Token> {
 	    consume(TokenType.VARDEF, err);
 	} else if (check(TokenType.COLON)) {
 	    // user provided type information, variable is typed
-	    consume(TokenType.COLON, err);
-	    typeName = consume(TokenType.IDEN, err);
-	    consume(TokenType.EQUALSIGN, err);
+	consume(TokenType.COLON, err);
+	typeName = consume(TokenType.IDEN, err);
+	consume(TokenType.EQUALSIGN, err);
 	}
 
 	Expr value = parseExpr();
@@ -506,7 +505,8 @@ public class Parser extends Iter<Token> {
     }
 
     private Token consume(TokenType type, Report err) {
-	if (check(type)) return next();
+	if (check(type))
+	    return next();
 	err.setToken(next());
 	System.out.println(err);
 	err.sync();
@@ -514,7 +514,8 @@ public class Parser extends Iter<Token> {
     }
 
     private Token consume(TokenType type, Report err, String errMsg) {
-	if (check(type)) return next();
+	if (check(type))
+	    return next();
 	err.setToken(next());
 	err.setErrorMsg(errMsg);
 	System.out.println(err);
@@ -533,15 +534,8 @@ public class Parser extends Iter<Token> {
     }
 
     public boolean check(TokenType type) {
-	if (!hasNext()) {
+	if (!hasNext())
 	    return false;
-	}
 	return peek().getType() == type;
     }
-
-  public boolean check(TokenType type) {
-    if (!hasNext())
-      return false;
-    return peek().getType() == type;
-  }
 }

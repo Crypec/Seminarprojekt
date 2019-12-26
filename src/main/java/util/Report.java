@@ -18,6 +18,7 @@ public class Report {
 
     private String errType;
     private String errMsg;
+
     private List<String> examples;
     private Token token;
 
@@ -86,6 +87,10 @@ public class Report {
 
     public void setToken(Token t) {
 	this.token = t;
+    }
+
+    public void setErrorMsg(String errMsg) {
+	this.errMsg = errMsg;
     }
     
     
