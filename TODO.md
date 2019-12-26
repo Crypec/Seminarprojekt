@@ -20,4 +20,9 @@ Tasks:
 		2. zuse start
 		3. zuse Filename
 		4. zuse installiere 
+<<<<<<< HEAD
 		5. zuse update
+=======
+
+We could use slf4j MessageFormatter for pretty Printing to stdout
+>>>>>>> feature/cpp_emitter

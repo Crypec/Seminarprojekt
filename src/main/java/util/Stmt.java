@@ -6,7 +6,7 @@ import com.google.gson.*;
 
 public abstract class Stmt {
 
-    interface Visitor<R> {
+    public interface Visitor<R> {
 	R visitBlockStmt(Block stmt);
 	R visitClassStmt(Class stmt);
 	R visitExpressionStmt(Expression stmt);
@@ -26,7 +26,7 @@ public abstract class Stmt {
 	    this.statements = statements;
 	}
 
-	<R> R accept(Visitor<R> visitor) {
+	public <R> R accept(Visitor<R> visitor) {
 	    return visitor.visitBlockStmt(this);
 	}
 	final List<Stmt> statements;
@@ -35,29 +35,30 @@ public abstract class Stmt {
     public static class Class extends Stmt {
 
 	public static class Attribute {
-	    private Token varName;
-	    private Token typeName;
+	    public Token fieldName;
+	    public Token typeName;
 
-	    public Attribute(Token varName, Token typeName) {
-		this.varName = varName;
+	    public Attribute(Token fieldName, Token typeName) {
+		this.fieldName = fieldName;
 		this.typeName = typeName;
 	    }
 	}
 
 	public Class(Token name, 
 		     List<FunctionDecl> methods, List<Attribute> attributes) {
+
 	    this.name = name;
 	    this.methods = methods;
 	    this.attributes = attributes;
 	}
 
-	<R> R accept(Visitor<R> visitor) {
+	public <R> R accept(Visitor<R> visitor) {
 	    return visitor.visitClassStmt(this);
 	}
 
-	final Token name;
-	final List<Attribute> attributes;
-	final List<FunctionDecl> methods;
+	public final Token name;
+	public final List<Attribute> attributes;
+	public final List<FunctionDecl> methods;
     }
 
     public static class Expression extends Stmt {
@@ -66,7 +67,7 @@ public abstract class Stmt {
 	    this.expression = expression;
 	}
 
-	<R> R accept(Visitor<R> visitor) {
+	public <R> R accept(Visitor<R> visitor) {
 	    return visitor.visitExpressionStmt(this);
 	}
 
@@ -94,14 +95,14 @@ public abstract class Stmt {
 	    this.returnType = returnType;
 	}
 	
-	<R> R accept(Visitor<R> visitor) {
+	public <R> R accept(Visitor<R> visitor) {
 	    return visitor.visitFunctionStmt(this);
 	}
 
-	final Token name;
-	final Token returnType;
-	final List<FunctionDecl.Parameter> params;
-	final Stmt body;
+	public final Token name;
+	public final Token returnType;
+	public final List<FunctionDecl.Parameter> params;
+	public final Stmt body;
     }
 
     public static class If extends Stmt {
@@ -111,7 +112,7 @@ public abstract class Stmt {
 	    this.elseBranch = elseBranch;
 	}
 
-	<R> R accept(Visitor<R> visitor) {
+	public <R> R accept(Visitor<R> visitor) {
 	    return visitor.visitIfStmt(this);
 	}
 
@@ -121,13 +122,12 @@ public abstract class Stmt {
     }
 
     public static class Print extends Stmt {
-
 	public Print(Token formatter, List<Expr> expressions) {
 	    this.expressions = expressions;
 	    this.formatter = formatter;
 	}
 
-	<R> R accept(Visitor<R> visitor) {
+	public <R> R accept(Visitor<R> visitor) {
 	    return visitor.visitPrintStmt(this);
 	}
 
@@ -155,7 +155,7 @@ public abstract class Stmt {
 	    this.value = value;
 	}
 
-	<R> R accept(Visitor<R> visitor) {
+	public <R> R accept(Visitor<R> visitor) {
 	    return visitor.visitReturnStmt(this);
 	}
 
@@ -163,6 +163,19 @@ public abstract class Stmt {
 	final Expr value;
     }
 
+    /*
+      The  operator for variable defintions allows you to specify a new variable, which can be used later.
+      By default you dont have to specify the type of a variable, the compiler is going to figure it for you. 
+
+      Example: 
+      foo := (10 + 3)
+      
+      If you want to explicatly specify the type of a variable you can do this using the following syntax:
+
+      bar: Text = "Hello World"
+      
+      it differs from the assingment operator which is just a = (equalsign) that it shadows the old variable and its type
+    */
     public static class VarDef extends Stmt {
 	public VarDef(Token name, Token typeName, Expr initializer) {
 	    this.name = name;
@@ -170,7 +183,7 @@ public abstract class Stmt {
 	    this.initializer = initializer;
 	}
 
-	<R> R accept(Visitor<R> visitor) {
+	public <R> R accept(Visitor<R> visitor) {
 	    return visitor.visitVarDefStmt(this);
 	}
 
@@ -189,7 +202,7 @@ public abstract class Stmt {
 	final Token name;
 	final Expr value;
 
-	<R> R accept(Visitor<R> visitor) {
+	public <R> R accept(Visitor<R> visitor) {
 	    return visitor.visitAssignmentStmt(this);
 	}
 	
@@ -202,7 +215,7 @@ public abstract class Stmt {
 	    this.body = body;
 	}
 
-	<R> R accept(Visitor<R> visitor) {
+	public <R> R accept(Visitor<R> visitor) {
 	    return visitor.visitWhileStmt(this);
 	}
 
@@ -218,13 +231,13 @@ public abstract class Stmt {
 	    this.libs = libs;
 	}
 
-	<R> R accept(Visitor<R> visitor) {
+	public <R> R accept(Visitor<R> visitor) {
 	    return visitor.visitImportStmt(this);
 	}
     }
 
 
-    abstract <R> R accept(Visitor<R> visitor);
+    public abstract <R> R accept(Visitor<R> visitor);
 
     @Override
     public String toString() {

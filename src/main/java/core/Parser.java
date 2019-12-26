@@ -164,107 +164,112 @@ public class Parser extends Iter<Token> {
     }
 
     // TODO(Simon): use our report system for error handling and warning
-    public Stmt parseFunctionDecl() {
+    public Stmt.FunctionDecl parseFunctionDecl() {
 
 	next();
 
-    var err =
-        new Report.Builder()
+	var err =
+	    new Report.Builder()
             .errWasFatal()
             .setErrorType("Fehler beim parsen einer Funktion")
             .withErrorMsg("Wir waren gerade dabei eine funktion zu parsen als wir einen Fehler gefunden haben. Nach dem Fun Schluesselwort haben wir den namen der funktion erwartet!")
-	.url("TODO") // TODO(Simon): add url and examples of correct
-	// function definion
+	    .url("TODO") // TODO(Simon): add url and examples of correct
+	    // function definion
+	    .create();
+
+	Token functionName = consume(TokenType.IDEN, err);
+	consume(TokenType.LPAREN, err);
+
+	var args = new ArrayList();
+
+	while (!check(TokenType.RPAREN)) {
+	    Token varName = consume(TokenType.IDEN, err);
+	    consume(TokenType.COLON, err);
+	    Token typeName = consume(TokenType.IDEN, err);
+	    args.add(new Stmt.FunctionDecl.Parameter(varName, typeName));
+	}
+	consume(TokenType.RPAREN, err);
+
+	Token returnType = null;
+	// TODO(Simon): we could allow tuple return types in a later edion to the
+	// language
+	if (!check(TokenType.RPAREN)) {
+	    consume(TokenType.ARROW, err);
+	    returnType = consume(TokenType.IDEN, err);
+	}
+
+	var body = parseBlock();
+	return new Stmt.FunctionDecl(functionName, args, returnType, body);
+    }
+
+    public Stmt.Block parseBlock() {
+
+	var err = new Report.Builder()
+	    .errWasFatal()
+	    .setErrorType("Block nicht begrenzt")
+	    .withErrorMsg("Fehler beim parsen eines Blocks")
+	    .url("www.TODO.de")
+	    .create();
+
+	consume(TokenType.STARTBLOCK, err);
+
+	var stmts = new ArrayList();
+
+	while (!check(TokenType.ENDBLOCK)) {
+	    var stmt = switch (peek().getType()) {
+	    case IDEN: yield parseVarDef();
+	    case IF: yield parseIfStmt();
+	    case FOR: yield parseForLoop();
+	    case WHILE: yield parseWhileLoop();
+	    case PRINT: yield parsePrint();
+	    case READINPUT: yield parseInput();
+	    case RETURN: yield parseReturn();
+	    case BREAK: yield parseBreak();
+	    default:
+	    yield null;
+	    };
+	    stmts.add(stmt);
+	}
+
+	consume(TokenType.ENDBLOCK, err);
+	return new Stmt.Block(stmts);
+    }
+
+    public Stmt.Break parseBreak() {
+	var err = new Report.Builder()
+	    .errWasFatal()
+	    .setErrorType("Fehler beim parsen eines stop stmts")
+	    .withErrorMsg("Der Stopp befehl erlaubt dir eine Schleife zu verlassen")
+	    .url("www.TODO.de")
+	    .create();
+	var location = consume(TokenType.BREAK, err);
+	consume(TokenType.SEMICOLON, err, "Semicolon erwartet");
+	return new Stmt.Break(location);
+    }
+
+    public Stmt.Input parseInput() {
+
+	var err =
+	    new Report.Builder()
+	    .errWasFatal()
+	    .setErrorType("Fehler beim parsen eines Input stmts")
+	    .withErrorMsg(
+			  "Hey wir waren gerade dabei einen Mathematischen Ausdruck zu parsen, es scheint als haettest du vergessen eine Klammer zu schliesen")
+	    .url("www.TODO.de")
 	.create();
-
-    Token functionName = consume(TokenType.IDEN, err);
-    consume(TokenType.LPAREN, err);
-
-    var args = new ArrayList();
-
-    while (!check(TokenType.RPAREN)) {
-	Token varName = consume(TokenType.IDEN, err);
-	consume(TokenType.COLON, err);
-	Token typeName = consume(TokenType.IDEN, err);
-	args.add(new Stmt.FunctionDecl.Parameter(varName, typeName));
-    }
-    consume(TokenType.RPAREN, err);
-
-    Token returnType = null;
-    // TODO(Simon): we could allow tuple return types in a later edion to the
-    // language
-    if (!check(TokenType.RPAREN)) {
-      consume(TokenType.ARROW, err);
-      returnType = consume(TokenType.IDEN, err);
-    }
-
-    consume(TokenType.STARTBLOCK, err);
-    var body = parseBlock();
-    return new Stmt.FunctionDecl(functionName, args, returnType, body);
-  }
-
-  public Stmt parseBlock() {
-
-    var err = new Report.Builder()
-                  .errWasFatal()
-                  .setErrorType("Block nicht begrenzt")
-                  .withErrorMsg("Fehler beim parsen eines Blocks")
-                  .url("www.TODO.de")
-                  .create();
-
-    consume(TokenType.STARTBLOCK, err);
-
-    var stms = new ArrayList();
-
-    while (!check(TokenType.ENDBLOCK)) {
-      var stmt = switch (peek().getType()) {
-      case IDEN:
-        yield parseVarDef();
-      case IF:
-        yield parseIfStmt();
-      case FOR:
-        yield parseForLoop();
-      case WHILE:
-        yield parseWhileLoop();
-      case PRINT:
-        yield parsePrint();
-      case READINPUT:
-        yield parseInput();
-      case RETURN:
-        yield parseReturn();
-      case BREAK:
-      default:
-        yield null;
-      };
-    }
-
-    consume(TokenType.ENDBLOCK, err);
-    return null;
-  }
-
-  public Stmt parseInput() {
-
-    var err =
-        new Report.Builder()
-            .errWasFatal()
-            .setErrorType("Fehler beim parsen eines Input stmts")
-            .withErrorMsg(
-                "Hey wir waren gerade dabei einen Mathematischen Ausdruck zu parsen, es scheint als haettest du vergessen eine Klammer zu schliesen")
-            .url("www.TODO.de")
-            .create();
 
     consume(TokenType.READINPUT, err);
     consume(TokenType.LPAREN, err);
     var msg = consume(TokenType.STRINGLITERAL, err);
     consume(TokenType.RPAREN, err);
     return new Stmt.Input(msg);
-  }
+}
 
-    public Stmt parseAssignment() {
+    public Stmt.Assignment parseAssignment() {
 	return null;
     }
 
-    public Stmt parsePrint() {
+    public Stmt.Print parsePrint() {
 
 	var err =
 	    new Report.Builder()
@@ -291,11 +296,12 @@ public class Parser extends Iter<Token> {
 	    exprs.add(parseExpr());
 	}
 	consume(TokenType.RPAREN, err);
+	consume(TokenType.SEMICOLON, err, "Nach einem ausgabe ausdruck haben wir ein Semicolon erwartet!");
 
 	return new Stmt.Print(formatter, exprs);
     }
 
-    public Stmt parseWhileLoop() {
+    public Stmt.While parseWhileLoop() {
 
 	var err =
 	    new Report.Builder()
@@ -317,7 +323,7 @@ public class Parser extends Iter<Token> {
 	return new Stmt.While(condion, body);
     }
 
-    public Stmt parseReturn() {
+    public Stmt.Return parseReturn() {
 
 	var err =
 	    new Report.Builder()
@@ -348,7 +354,7 @@ public class Parser extends Iter<Token> {
 
       We use them to dertermine which files to parse next.
     */
-    public Stmt parseImport() {
+    public Stmt.Import parseImport() {
 
 	next();
 
@@ -374,7 +380,7 @@ public class Parser extends Iter<Token> {
 	return new Stmt.Import(libs);
     }
 
-    public Stmt parseIfStmt() {
+    public Stmt.If parseIfStmt() {
 
 	var err =
 	    new Report.Builder()
@@ -396,7 +402,7 @@ public class Parser extends Iter<Token> {
 	return new Stmt.If(condion, null, null);
     }
 
-    public Stmt parseStructDecl() {
+    public Stmt.Class parseStructDecl() {
 
 	// NOTE(Simon): we arrive here after the Typ Keyword
 	next();
@@ -439,86 +445,99 @@ public class Parser extends Iter<Token> {
 
     // TODO(Simon): add desugared increment in the body
     // TODO(Simon): check if range for the loop is valid
-public Stmt parseForLoop() {
+    public Stmt.While parseForLoop() {
 
-    var err = new Report.Builder()
-                  .errWasFatal()
-                  .setErrorType("Fehler beim parsen einer fuer schleife")
-                  .withErrorMsg(
-                      "Schleifen erlauben es dir Code mehrmals auszufuerhren")
-                  .addExample(String.format("%s", "variablen_name := Wert"))
-                  .addExample(String.format("%s", "test := (4 + 2)"))
-                  .url("TODO.de")
-                  .create();
+	var err = new Report.Builder()
+	    .errWasFatal()
+	    .setErrorType("Fehler beim parsen einer fuer schleife")
+	    .withErrorMsg(
+			  "Schleifen erlauben es dir Code mehrmals auszufuerhren")
+	    .addExample(String.format("%s", "variablen_name := Wert"))
+	    .addExample(String.format("%s", "test := (4 + 2)"))
+	    .url("TODO.de")
+	    .create();
 
-    consume(TokenType.FOR, err);
-    var loopVar = consume(TokenType.IDEN, err);
-    consume(TokenType.VARDEF, err);
+	consume(TokenType.FOR, err);
+	var loopVar = consume(TokenType.IDEN, err);
+	consume(TokenType.VARDEF, err);
 
-    var start = consume(TokenType.NUMBERLITERAL, err);
-    consume(TokenType.UNTIL, err);
-    var end = consume(TokenType.NUMBERLITERAL, err);
+	var start = consume(TokenType.NUMBERLITERAL, err);
+	consume(TokenType.UNTIL, err);
+	var end = consume(TokenType.NUMBERLITERAL, err);
 
-    var left = new Expr.Literal(start);
-    var right = new Expr.Literal(end);
+	var left = new Expr.Literal(start);
+	var right = new Expr.Literal(end);
 
-    var operator = new Token(TokenType.LESSEQUAL);
-    var condion = new Expr.Binary(left, operator, right);
+	var operator = new Token(TokenType.LESSEQUAL);
+	var condion = new Expr.Binary(left, operator, right);
 
-    var body = parseBlock();
+	var body = parseBlock();
 
-    return new Stmt.While(condion, body);
-  }
+	return new Stmt.While(condion, body);
+    }
 
-  public Stmt parseVarDef() {
+    public Stmt.VarDef parseVarDef() {
 
-    var err =
-        new Report.Builder()
+	var err = new Report.Builder()
             .errWasFatal()
             .setErrorType("Fehler beim parsen einer Variablen Defintion")
-            .withErrorMsg(
-                "Mhilfe von Variablen kannst du Daten im Laufe deines Programmes speichern um diese an einem spaetern Zepunkt wieder zu verwenden")
+            .withErrorMsg("Mithilfe von Variablen kannst du Daten im Laufe deines Programmes speichern um diese an einem spaetern Zepunkt wieder zu verwenden")
             .addExample(String.format("%s", "variablen_name := Wert"))
             .addExample(String.format("%s", "test := (4 + 2)"))
             .url("TODO.de")
             .create();
 
-    // we assume that we peeked ahead to find the :=  Symbol
-    Token typeName = null;
-    Token varName = consume(TokenType.IDEN, err);
+	// we assume that we peeked ahead to find the :=  Symbol
+	Token varName = consume(TokenType.IDEN, err);
 
-    if (peek().getType() != TokenType.VARDEF) {
-      consume(TokenType.VARDEF, err);
-    } else if (peek().getType() == TokenType.COLON) {
-      // user provided type information, variable is typed
-      consume(TokenType.COLON, err);
-      typeName = consume(TokenType.IDEN, err);
-      consume(TokenType.EQUALSIGN, err);
+	Token typeName = null;
+	if (check(TokenType.VARDEF)) {
+	    consume(TokenType.VARDEF, err);
+	} else if (check(TokenType.COLON)) {
+	    // user provided type information, variable is typed
+	    consume(TokenType.COLON, err);
+	    typeName = consume(TokenType.IDEN, err);
+	    consume(TokenType.EQUALSIGN, err);
+	}
+
+	Expr value = parseExpr();
+	consume(TokenType.SEMICOLON, err);
+	return new Stmt.VarDef(varName, typeName, value);
     }
 
-    Expr value = parseExpr();
-    consume(TokenType.SEMICOLON, err);
-    return new Stmt.VarDef(varName, typeName, value);
-  }
-
-  private Token consume(TokenType type, Report err) {
-    if (check(type))
-      return next();
-    err.setToken(next());
-    System.out.println(err);
-    err.sync();
-    return null; // unreachable code becase sync will throw an execption
-  }
-
-  public boolean matchAny(TokenType... types) {
-    for (TokenType type : types) {
-      if (check(type)) {
-        next();
-        return true;
-      }
+    private Token consume(TokenType type, Report err) {
+	if (check(type)) return next();
+	err.setToken(next());
+	System.out.println(err);
+	err.sync();
+	return null; // unreachable code becase sync will throw an execption
     }
-    return false;
-  }
+
+    private Token consume(TokenType type, Report err, String errMsg) {
+	if (check(type)) return next();
+	err.setToken(next());
+	err.setErrorMsg(errMsg);
+	System.out.println(err);
+	err.sync();
+	return null; // unreachable code becase sync will throw an execption
+    }
+
+    public boolean matchAny(TokenType... types) {
+	for (TokenType type : types) {
+	    if (check(type)) {
+		next();
+		return true;
+	    }
+	}
+	return false;
+    }
+
+    public boolean check(TokenType type) {
+	if (!hasNext()) {
+	    return false;
+	}
+	return peek().getType() == type;
+    }
 
   public boolean check(TokenType type) {
     if (!hasNext())

@@ -20,18 +20,6 @@ public abstract class Expr {
 	R visitVariableExpr(Variable expr);
     }
 
-    /*
-      The assignment operator allows you to specify a new variable, which can be used later.
-      By default you dont have to specify the type of a variable, the compiler is going to figure it for you. 
-
-      Example: 
-      foo := (10 + 3)
-      
-      If you want to explicatly specify the type of a variable you can do this using the following syntax:
-
-      bar: Text = "Hello World"
-
-    */
     public static class Assign extends Expr {
 
 	public Token name;
