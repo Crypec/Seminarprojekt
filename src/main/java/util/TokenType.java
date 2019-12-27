@@ -92,7 +92,7 @@ public enum TokenType {
 	// NOTE(Simon): Do we really need those?
 	case "konst" -> TokenType.CONST;
 
-	case "#null" -> TokenType.NULL;
+	case "#Null" -> TokenType.NULL;
 
 	//boolean operations
 	case "wahr" -> TokenType.TRUE;
