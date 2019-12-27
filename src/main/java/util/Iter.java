@@ -36,11 +36,11 @@ public class Iter<T> implements Iterator {
 	return buffer[cursor];
     }
 
-    public T peek(int offset) {
-	if (offset < 0) return null;
-	offset -= 1; // because the cursor is already at the peek postion you need to peek at least 2 items into the future to get a different item from the normal peek
-	if (!this.hasNext()) return null;
-	return buffer[cursor + offset];
+    public T peekNext() {
+	if (cursor +1 > buffer.length) {
+	    return null;
+	}
+	return buffer[cursor +1];
     }
 
     public void setBackOnePosition() {
