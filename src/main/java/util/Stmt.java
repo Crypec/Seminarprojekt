@@ -2,6 +2,8 @@ package util;
 
 import java.util.List;
 
+import lombok.*;
+
 import com.google.gson.*;
 
 public abstract class Stmt {
@@ -13,59 +15,43 @@ public abstract class Stmt {
 	R visitFunctionStmt(FunctionDecl stmt);
 	R visitIfStmt(If stmt);
 	R visitPrintStmt(Print stmt);
-	R visitInputStmt(Input stmt);
 	R visitReturnStmt(Return stmt);
 	R visitVarDefStmt(VarDef stmt);
 	R visitAssignmentStmt(Assignment stmt);
 	R visitWhileStmt(While stmt);
+	R visitBreakStmt(Break stmt);
 	R visitImportStmt(Import stmt);
     }
 
+    @Getter @Setter @AllArgsConstructor
     public static class Block extends Stmt {
-	Block(List<Stmt> statements) {
-	    this.statements = statements;
-	}
 
 	public <R> R accept(Visitor<R> visitor) {
 	    return visitor.visitBlockStmt(this);
 	}
-	final List<Stmt> statements;
+	private final List<Stmt> statements;
     }
 
+    @Getter @Setter @AllArgsConstructor
     public static class Class extends Stmt {
-
+	
+	@Getter @Setter @AllArgsConstructor
 	public static class Attribute {
-	    public Token fieldName;
-	    public Token typeName;
-
-	    public Attribute(Token fieldName, Token typeName) {
-		this.fieldName = fieldName;
-		this.typeName = typeName;
-	    }
-	}
-
-	public Class(Token name, 
-		     List<FunctionDecl> methods, List<Attribute> attributes) {
-
-	    this.name = name;
-	    this.methods = methods;
-	    this.attributes = attributes;
+	    private final Token fieldName;
+	    private final Token typeName;
 	}
 
 	public <R> R accept(Visitor<R> visitor) {
 	    return visitor.visitClassStmt(this);
 	}
 
-	public final Token name;
-	public final List<Attribute> attributes;
-	public final List<FunctionDecl> methods;
+	private final Token name;
+	private final List<Attribute> attributes;
+	private final List<FunctionDecl> methods;
     }
 
+    @Getter @Setter @AllArgsConstructor
     public static class Expression extends Stmt {
-
-	public Expression(Expr expression) {
-	    this.expression = expression;
-	}
 
 	public <R> R accept(Visitor<R> visitor) {
 	    return visitor.visitExpressionStmt(this);
@@ -74,93 +60,60 @@ public abstract class Stmt {
 	final Expr expression;
     }
 
-
-    // TODO(Simon): add attribute to check if function is static on type
+    @Getter @Setter @AllArgsConstructor
     public static class FunctionDecl extends Stmt {
 
+	@Getter @Setter @AllArgsConstructor
 	public static class Parameter {
-	    public Token varName;
-	    public Token typeName;
-
-	    public Parameter(Token varName, Token typeName) {
-		this.varName = varName;
-		this.typeName = typeName;
-	    }
-	}
-	
-	public FunctionDecl(Token name, List<FunctionDecl.Parameter> params, Token returnType, Stmt body) {
-	    this.name = name;
-	    this.params = params;
-	    this.body = body;
-	    this.returnType = returnType;
+	    private final Token varName;
+	    private final Token typeName;
 	}
 	
 	public <R> R accept(Visitor<R> visitor) {
 	    return visitor.visitFunctionStmt(this);
 	}
 
-	public final Token name;
-	public final Token returnType;
-	public final List<FunctionDecl.Parameter> params;
-	public final Stmt body;
+	private final Token name;
+	private final Token returnType;
+	private final List<FunctionDecl.Parameter> params;
+	private final Stmt.Block body;
     }
 
+    @Getter @Setter @AllArgsConstructor
     public static class If extends Stmt {
-	public If(Expr condition, Stmt thenBranch, Stmt elseBranch) {
-	    this.condition = condition;
-	    this.thenBranch = thenBranch;
-	    this.elseBranch = elseBranch;
-	}
 
 	public <R> R accept(Visitor<R> visitor) {
 	    return visitor.visitIfStmt(this);
 	}
 
 	final Expr condition;
-	final Stmt thenBranch;
-	final Stmt elseBranch;
+	final Stmt.Block body;
+	final Stmt.If thenBranch;
+	final Stmt.If elseBranch;
     }
 
+    @Getter @Setter @AllArgsConstructor
     public static class Print extends Stmt {
-	public Print(Token formatter, List<Expr> expressions) {
-	    this.expressions = expressions;
-	    this.formatter = formatter;
-	}
 
 	public <R> R accept(Visitor<R> visitor) {
 	    return visitor.visitPrintStmt(this);
 	}
 
-	final List<Expr> expressions;
-	final Token formatter;
+	private final Token formatter;
+	private final List<Expr> expressions;
     }
 
 
-    public static class Input extends Stmt {
 
-	public Input(Token message) {
-	    this.message = message;
-	}
-
-	<R> R accept(Visitor<R> visitor) {
-	    return visitor.visitInputStmt(this);
-	}
-
-	final Token message;
-    }
-
+    @Getter @Setter @AllArgsConstructor
     public static class Return extends Stmt {
-	public Return(Token keyword, Expr value) {
-	    this.keyword = keyword;
-	    this.value = value;
-	}
 
 	public <R> R accept(Visitor<R> visitor) {
 	    return visitor.visitReturnStmt(this);
 	}
 
-	final Token keyword;
-	final Expr value;
+	private final Token keyword;
+	public final Expr value;
     }
 
     /*
@@ -176,31 +129,23 @@ public abstract class Stmt {
       
       it differs from the assingment operator which is just a = (equalsign) that it shadows the old variable and its type
     */
+    @Getter @Setter @AllArgsConstructor
     public static class VarDef extends Stmt {
-	public VarDef(Token name, Token typeName, Expr initializer) {
-	    this.name = name;
-	    this.typeName = typeName;
-	    this.initializer = initializer;
-	}
 
 	public <R> R accept(Visitor<R> visitor) {
 	    return visitor.visitVarDefStmt(this);
 	}
 
-	final Token name;
-	final Token typeName;
-	final Expr initializer;
+	private final Token name;
+	private final Token typeName;
+	private final Expr initializer;
     }
 
+    @Getter @Setter @AllArgsConstructor
     public static class Assignment extends Stmt {
 
-	public Assignment(Token name, Expr value) {
-	    this.name = name; 
-	    this.value = value;
-	}
-
-	final Token name;
-	final Expr value;
+	private final Token varName;
+	private final Expr value;
 
 	public <R> R accept(Visitor<R> visitor) {
 	    return visitor.visitAssignmentStmt(this);
@@ -208,12 +153,8 @@ public abstract class Stmt {
 	
     }
 
+    @Getter @Setter @AllArgsConstructor
     public static class While extends Stmt {
-
-	public While(Expr condition, Stmt body) {
-	    this.condition = condition;
-	    this.body = body;
-	}
 
 	public <R> R accept(Visitor<R> visitor) {
 	    return visitor.visitWhileStmt(this);
@@ -223,13 +164,20 @@ public abstract class Stmt {
 	final Stmt body;
     }
 
+    @Getter @Setter @AllArgsConstructor
+    public static class Break extends Stmt {
+
+	public <R> R accept(Visitor<R> visitor) {
+	    return visitor.visitBreakStmt(this);
+	}
+
+	private final Token location;
+    }
+
+    @Getter @Setter @AllArgsConstructor
     public static class Import extends Stmt {
 
-	List<Token> libs;
-
-	public Import(List<Token> libs) {
-	    this.libs = libs;
-	}
+	private final List<Token> libs;
 
 	public <R> R accept(Visitor<R> visitor) {
 	    return visitor.visitImportStmt(this);
