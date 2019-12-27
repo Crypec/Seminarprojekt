@@ -3,7 +3,6 @@ package core;
 import java.util.*;
 import util.*;
 
-// TODO(Simon): add parsing for assingments
 // TODO(Simon): add parsing for function calls
 // TODO(Simon): finish parsing blocks
 
@@ -44,15 +43,7 @@ public class Parser extends Iter<Token> {
 		    yield parseStructDecl();
 		case FUNCTION:
 		    yield parseFunctionDecl();
-		case IDEN: {
-		    yield switch (peek(2).getType()) { // peek 2 Tokens into the future
-		    case COLON, VARDEF:
-			yield parseVarDef();
-		    case EQUALSIGN:
-			yield parseAssignment();
-		    default: yield null; // should be unrechable
-		    };
-		}
+		case IDEN: yield parseVarDef();
 		default: {
 		    var err = new Report.Builder()
                         .errWasFatal()
@@ -143,14 +134,13 @@ public class Parser extends Iter<Token> {
 	if (matchAny(TokenType.STRINGLITERAL, TokenType.NUMBERLITERAL)) {
 	    return new Expr.Literal(previous().getLiteral());
 	}
+
 	if (matchAny(TokenType.LPAREN)) {
 
-	    var err =
-		new Report.Builder()
+	    var err = new Report.Builder()
 		.errWasFatal()
 		.setErrorType("Mathematischer Ausdruck nicht geschlossen")
-		.withErrorMsg(
-			      "Hey wir waren gerade dabei einen Mathematischen Ausdruck zu parsen, es scheint als haettest du vergessen eine Klammer zu schliesen")
+		.withErrorMsg("Hey wir waren gerade dabei einen Mathematischen Ausdruck zu parsen, es scheint als haettest du vergessen eine Klammer zu schliesen")
 		.url("www.TODO.de")
 		.create();
 
@@ -180,25 +170,27 @@ public class Parser extends Iter<Token> {
 	Token functionName = consume(TokenType.IDEN, err);
 	consume(TokenType.LPAREN, err);
 
-	var args = new ArrayList();
+	var params = new ArrayList();
 
 	while (!check(TokenType.RPAREN)) {
 	    Token varName = consume(TokenType.IDEN, err);
 	    consume(TokenType.COLON, err);
 	    Token typeName = consume(TokenType.IDEN, err);
-	    args.add(new Stmt.FunctionDecl.Parameter(varName, typeName));
+	    params.add(new Stmt.FunctionDecl.Parameter(varName, typeName));
+	    if (check(TokenType.RPAREN)) break;
+	    consume(TokenType.COMMA, err);
 	}
 	consume(TokenType.RPAREN, err);
 
 	Token returnType = null;
 	// TODO(Simon): we could allow tuple return types in a later edion of the language
-	if (!check(TokenType.RPAREN)) {
+	if (!check(TokenType.STARTBLOCK)) {
 	    consume(TokenType.ARROW, err);
 	    returnType = consume(TokenType.IDEN, err);
 	}
 
 	var body = parseBlock();
-	return new Stmt.FunctionDecl(functionName, args, returnType, body);
+	return new Stmt.FunctionDecl(functionName, returnType, params, body);
     }
 
     public Stmt.Block parseBlock() {
@@ -216,18 +208,20 @@ public class Parser extends Iter<Token> {
 
 	while (!check(TokenType.ENDBLOCK)) {
 	    var stmt = switch (peek().getType()) {
-	    case IDEN: yield parseVarDef();
-	    case IF: yield parseIfStmt();
+	    case IDEN: {
+		if (checkNext(TokenType.VARDEF)) yield parseVarDef();
+		if (checkNext(TokenType.COLON)) yield parseVarDef();
+		else if (checkNext(TokenType.EQUALSIGN)) yield parseAssignment();
+	    }
+	    case IF: yield parseIf();
 	    case FOR: yield parseForLoop();
 	    case WHILE: yield parseWhileLoop();
 	    case PRINT: yield parsePrint();
-	    case READINPUT: yield parseInput();
 	    case RETURN: yield parseReturn();
 	    case BREAK: yield parseBreak();
-	    default:
-	    yield null;
+	    default: yield null;
 	    };
-	    stmts.add(stmt);
+	    if (stmt != null) stmts.add(stmt);
 	}
 
 	consume(TokenType.ENDBLOCK, err);
@@ -246,7 +240,7 @@ public class Parser extends Iter<Token> {
 	return new Stmt.Break(location);
     }
 
-    public Stmt.Input parseInput() {
+    public Expr.Input parseInput() {
 
 	var err =
 	    new Report.Builder()
@@ -261,11 +255,22 @@ public class Parser extends Iter<Token> {
     consume(TokenType.LPAREN, err);
     var msg = consume(TokenType.STRINGLITERAL, err);
     consume(TokenType.RPAREN, err);
-    return new Stmt.Input(msg);
-}
+    return new Expr.Input(msg);
+    }
 
     public Stmt.Assignment parseAssignment() {
-	return null;
+
+	var err = new Report.Builder()
+            .errWasFatal()
+            .setErrorType("Fehler beim parsen einer Zuweisung")
+            .withErrorMsg("Der = operator erlaubt es dir den in einer variablen gespeicherten Wert zu aendern!")
+            .url("www.TODO.de")
+            .create();
+	var varName = consume(TokenType.IDEN, err);
+	consume(TokenType.EQUALSIGN, err);
+	var expr = parseExpr();
+	consume(TokenType.SEMICOLON, err, "Semicolon erwartet");
+	return new Stmt.Assignment(varName, expr);
     }
 
     public Stmt.Print parsePrint() {
@@ -274,8 +279,7 @@ public class Parser extends Iter<Token> {
 	    new Report.Builder()
             .errWasFatal()
             .setErrorType("Mathematischer Ausdruck nicht geschlossen")
-            .withErrorMsg(
-			  "Hey wir waren gerade dabei einen Mathematischen Ausdruck zu parsen, es scheint als haettest du vergessen eine Klammer zu schliesen")
+            .withErrorMsg("Hey wir waren gerade dabei einen Mathematischen Ausdruck zu parsen, es scheint als haettest du vergessen eine Klammer zu schliesen")
             .url("www.TODO.de")
             .create();
 
@@ -324,12 +328,10 @@ public class Parser extends Iter<Token> {
 
     public Stmt.Return parseReturn() {
 
-	var err =
-	    new Report.Builder()
+	var err = new Report.Builder()
             .errWasFatal()
-            .setErrorType("Fehler beim parsen eines DatenTypes!")
-            .withErrorMsg(
-			  "Um komplexe Programme zu vereinfachen kannst du deine eigenen Datentypen definieren. Das erlaubt dir Daten effizient meinander abzuspichern")
+            .setErrorType("Fehler beim parsen eines rueckgabe Befehls")
+            .withErrorMsg("Um komplexe Programme zu vereinfachen kannst du deine eigenen Datentypen definieren. Das erlaubt dir Daten effizient meinander abzuspichern")
             .addExample(String.format("%s", "Typ: Haus {}"))
             .addExample(String.format(
 				      "%s", "Typ: Person {name :Text,\nalter: Zahl,\n}"))
@@ -338,6 +340,7 @@ public class Parser extends Iter<Token> {
 
 	var keyword = consume(TokenType.RETURN, err);
 	Expr expr = parseExpr();
+	consume(TokenType.SEMICOLON, err, "Semicolon nach Mathematischem Ausdruck erwartet");
 	return new Stmt.Return(keyword, expr);
     }
 
@@ -360,10 +363,8 @@ public class Parser extends Iter<Token> {
 	var err =
 	    new Report.Builder()
             .errWasFatal()
-            .setErrorType(
-			  "Wir sind uns nicht ganz sicher welche Bibolotheken du meinst!")
-            .withErrorMsg(
-			  "M dem '#benutze' Befehl kannst du andere Datein und externe Bibilotheken in deinem Programm benuzten.")
+            .setErrorType("Wir sind uns nicht ganz sicher welche Bibolotheken du meinst!")
+            .withErrorMsg("M dem '#benutze' Befehl kannst du andere Datein und externe Bibilotheken in deinem Programm benuzten.")
             .addExample(String.format("%s", "#benutze ['Mathe', 'Eingabe']"))
             .url("TODO.de")
             .create();
@@ -379,26 +380,26 @@ public class Parser extends Iter<Token> {
 	return new Stmt.Import(libs);
     }
 
-    public Stmt.If parseIfStmt() {
+    public Stmt.If parseIf() {
 
-	var err =
-	    new Report.Builder()
+	var err = new Report.Builder()
             .errWasFatal()
             .setErrorType("Fehle beim parsen einer Verzweigung")
-            .withErrorMsg(
-			  "M dem wenn befehl kannst du entscheiden ob und wann eine bestimmte Stelle in deinem Programm ausgefuehrt wird!")
+            .withErrorMsg("Mit dem wenn befehl kannst du entscheiden ob und wann eine bestimmte Stelle in deinem Programm ausgefuehrt wird!")
             .addExample(String.format("%s", "wenn foo > 0 {}"))
             .addExample(String.format("%s", "wenn 2 > 0 {}"))
             .url("TODO.de")
             .create();
 
 	consume(TokenType.IF, err);
-
-	// NOTE("wenn" keyword is already identified)
 	Expr condion = parseExpr();
 
-	var block = parseBlock();
-	return new Stmt.If(condion, null, null);
+	var body = parseBlock();
+	
+	Stmt elseIFBranch = null;
+	Stmt elseBranch = null;
+
+	return new Stmt.If(condion, body, null, null);
     }
 
     public Stmt.Class parseStructDecl() {
@@ -413,8 +414,7 @@ public class Parser extends Iter<Token> {
             .withErrorMsg(
 			  "Um komplexe Programme zu vereinfachen kannst du deine eigenen Datentypen definieren. Das erlaubt dir Daten effizient meinander abzuspichern")
             .addExample(String.format("%s", "Typ: Haus {}"))
-            .addExample(String.format(
-				      "%s", "Typ: Person {name :Text,\nalter: Zahl,\n}"))
+            .addExample(String.format("%s", "Typ: Person {name :Text,\nalter: Zahl,\n}"))
             .url("TODO.de")
             .create();
 
@@ -439,7 +439,7 @@ public class Parser extends Iter<Token> {
 	// TODO(Simon): After we parse an impl block should we associate the methods
 	// wh the right class?
 	// Maybe do in seperate pass?
-	return new Stmt.Class(structName, null, arguments);
+	return new Stmt.Class(structName, arguments, null);
     }
 
     // TODO(Simon): add desugared increment in the body
@@ -449,8 +449,7 @@ public class Parser extends Iter<Token> {
 	var err = new Report.Builder()
 	    .errWasFatal()
 	    .setErrorType("Fehler beim parsen einer fuer schleife")
-	    .withErrorMsg(
-			  "Schleifen erlauben es dir Code mehrmals auszufuerhren")
+	    .withErrorMsg("Schleifen erlauben es dir Code mehrmals auszufuerhren")
 	    .addExample(String.format("%s", "variablen_name := Wert"))
 	    .addExample(String.format("%s", "test := (4 + 2)"))
 	    .url("TODO.de")
@@ -532,10 +531,11 @@ public class Parser extends Iter<Token> {
 	}
 	return false;
     }
+    public boolean checkNext(TokenType type) {
+	return peekNext().getType() == type;
+    }
 
     public boolean check(TokenType type) {
-	if (!hasNext())
-	    return false;
 	return peek().getType() == type;
     }
 }
