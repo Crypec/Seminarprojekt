@@ -95,11 +95,13 @@ public class Lexer {
 	// TODO(Simon):
 	if (!hasNext()) {
 
-	    var errLocation = new Token.Builder()
-		.filename(fileName)
-		.withType(TokenType.STRINGLITERAL)
+	    var errLocation = Token.builder()
+		.type(TokenType.STRINGLITERAL)
 		.lexeme(source.substring(start, cursor))
-		.position(start, cursor)
+		.fileName(fileName)
+		.line(line)
+		.start(start)
+		.end(cursor)
 		.build();
 
 	    var err = new Report.Builder()
@@ -114,7 +116,7 @@ public class Lexer {
 	}
 	next();
 
-	String literal = source.substring(start +1, cursor - 1);
+	String literal = source.substring(start, cursor);
 	return buildToken(TokenType.STRINGLITERAL, literal);
     }
 
@@ -157,12 +159,14 @@ public class Lexer {
     private Token buildToken(TokenType type) { return buildToken(type, null); }
 
     private Token buildToken(TokenType type, Object literal) {
-	return new Token.Builder()
-	    .filename(fileName)
+	return Token.builder()
+	    .type(type)
 	    .lexeme(source.substring(start, cursor))
-	    .position(start, cursor)
-	    .withType(type)
-	    .withLiteral(literal)
+	    .fileName(fileName)
+	    .line(line)
+	    .start(start)
+	    .end(cursor)
+	    .literal(literal)
 	    .build();
     }
 }
