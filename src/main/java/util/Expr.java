@@ -37,7 +37,7 @@ public abstract class Expr {
     // 	}
     // }
 
-    @Getter @Setter @AllArgsConstructor
+    @Getter @Setter @AllArgsConstructor @EqualsAndHashCode(callSuper=true)
     public static class Binary extends Expr {
 
 	public Expr left;
@@ -49,7 +49,7 @@ public abstract class Expr {
 	}
     }
 
-    @Getter @Setter @AllArgsConstructor
+    @Getter @Setter @AllArgsConstructor @EqualsAndHashCode(callSuper=true)
     public static class Call extends Expr {
 
 	public Expr callee;
@@ -62,7 +62,7 @@ public abstract class Expr {
     }
 
 
-    @Getter @Setter @AllArgsConstructor
+    @Getter @Setter @AllArgsConstructor @EqualsAndHashCode(callSuper=true)
     public static class Get extends Expr {
 
 	private Expr object;
@@ -73,7 +73,7 @@ public abstract class Expr {
 	}
     }
 
-    @Getter @Setter @AllArgsConstructor
+    @Getter @Setter @AllArgsConstructor @EqualsAndHashCode(callSuper=true)
     public static class Grouping extends Expr {
 
 	private final Expr expression;
@@ -83,7 +83,7 @@ public abstract class Expr {
 	}
     }
 
-    @Getter @Setter @AllArgsConstructor
+    @Getter @Setter @AllArgsConstructor @EqualsAndHashCode(callSuper=true)
     public static class Literal extends Expr {
 
 	private final Object value;
@@ -93,7 +93,7 @@ public abstract class Expr {
 	}
     }
 
-    @Getter @Setter @AllArgsConstructor
+    @Getter @Setter @AllArgsConstructor @EqualsAndHashCode(callSuper=true)
     public static class Logical extends Expr {
 
 	private final Expr left;
@@ -106,7 +106,7 @@ public abstract class Expr {
 
     }
 
-    @Getter @Setter @AllArgsConstructor
+    @Getter @Setter @AllArgsConstructor @EqualsAndHashCode(callSuper=true)
     public static class Set extends Expr {
 	
 	private final Expr object;
@@ -119,7 +119,7 @@ public abstract class Expr {
 
     }
 
-    @Getter @Setter @AllArgsConstructor
+    @Getter @Setter @AllArgsConstructor @EqualsAndHashCode(callSuper=true)
     public static class This extends Expr {
 
 	private final Token keyword;
@@ -129,7 +129,7 @@ public abstract class Expr {
 	}
     }
 
-    @Getter @Setter @AllArgsConstructor
+    @Getter @Setter @AllArgsConstructor @EqualsAndHashCode(callSuper=true)
     public static class Unary extends Expr {
 
 	private final Token operator;
@@ -140,7 +140,7 @@ public abstract class Expr {
 	}
     }
 
-    @Getter @Setter @AllArgsConstructor
+    @Getter @Setter @AllArgsConstructor @EqualsAndHashCode(callSuper=true)
     public static class Input extends Expr {
 
 	private final Token message;
@@ -150,7 +150,7 @@ public abstract class Expr {
 	}
     }
 
-    @Getter @Setter @AllArgsConstructor
+    @Getter @Setter @AllArgsConstructor @EqualsAndHashCode(callSuper=true)
     public static class Variable extends Expr {
 
 	private final Token name;

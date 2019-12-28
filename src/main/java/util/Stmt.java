@@ -23,7 +23,7 @@ public abstract class Stmt {
 	R visitImportStmt(Import stmt);
     }
 
-    @Getter @Setter @AllArgsConstructor
+    @Getter @Setter @AllArgsConstructor @EqualsAndHashCode(callSuper=true)
     public static class Block extends Stmt {
 
 	public <R> R accept(Visitor<R> visitor) {
@@ -32,10 +32,10 @@ public abstract class Stmt {
 	private final List<Stmt> statements;
     }
 
-    @Getter @Setter @AllArgsConstructor
+    @Getter @Setter @AllArgsConstructor @EqualsAndHashCode(callSuper=true)
     public static class Class extends Stmt {
 	
-	@Getter @Setter @AllArgsConstructor
+	@Getter @Setter @AllArgsConstructor @EqualsAndHashCode
 	public static class Attribute {
 	    private final Token fieldName;
 	    private final Token typeName;
@@ -50,7 +50,7 @@ public abstract class Stmt {
 	private final List<FunctionDecl> methods;
     }
 
-    @Getter @Setter @AllArgsConstructor
+    @Getter @Setter @AllArgsConstructor @EqualsAndHashCode(callSuper=true)
     public static class Expression extends Stmt {
 
 	public <R> R accept(Visitor<R> visitor) {
@@ -60,10 +60,10 @@ public abstract class Stmt {
 	final Expr expression;
     }
 
-    @Getter @Setter @AllArgsConstructor
+    @Getter @Setter @AllArgsConstructor @EqualsAndHashCode(callSuper=true)
     public static class FunctionDecl extends Stmt {
 
-	@Getter @Setter @AllArgsConstructor
+	@Getter @Setter @AllArgsConstructor @EqualsAndHashCode
 	public static class Parameter {
 	    private final Token varName;
 	    private final Token typeName;
@@ -79,7 +79,7 @@ public abstract class Stmt {
 	private final Stmt.Block body;
     }
 
-    @Getter @Setter @AllArgsConstructor
+    @Getter @Setter @AllArgsConstructor @EqualsAndHashCode(callSuper=true)
     public static class If extends Stmt {
 
 	public <R> R accept(Visitor<R> visitor) {
@@ -92,7 +92,7 @@ public abstract class Stmt {
 	final Stmt.If elseBranch;
     }
 
-    @Getter @Setter @AllArgsConstructor
+    @Getter @Setter @AllArgsConstructor @EqualsAndHashCode(callSuper=true)
     public static class Print extends Stmt {
 
 	public <R> R accept(Visitor<R> visitor) {
@@ -105,7 +105,7 @@ public abstract class Stmt {
 
 
 
-    @Getter @Setter @AllArgsConstructor
+    @Getter @Setter @AllArgsConstructor @EqualsAndHashCode(callSuper=true)
     public static class Return extends Stmt {
 
 	public <R> R accept(Visitor<R> visitor) {
@@ -129,7 +129,7 @@ public abstract class Stmt {
       
       it differs from the assingment operator which is just a = (equalsign) that it shadows the old variable and its type
     */
-    @Getter @Setter @AllArgsConstructor
+    @Getter @Setter @AllArgsConstructor @EqualsAndHashCode(callSuper=true)
     public static class VarDef extends Stmt {
 
 	public <R> R accept(Visitor<R> visitor) {
@@ -141,7 +141,7 @@ public abstract class Stmt {
 	private final Expr initializer;
     }
 
-    @Getter @Setter @AllArgsConstructor
+    @Getter @Setter @AllArgsConstructor @EqualsAndHashCode(callSuper=true)
     public static class Assignment extends Stmt {
 
 	private final Token varName;
@@ -153,7 +153,7 @@ public abstract class Stmt {
 	
     }
 
-    @Getter @Setter @AllArgsConstructor
+    @Getter @Setter @AllArgsConstructor @EqualsAndHashCode(callSuper=true)
     public static class While extends Stmt {
 
 	public <R> R accept(Visitor<R> visitor) {
@@ -164,7 +164,7 @@ public abstract class Stmt {
 	final Stmt body;
     }
 
-    @Getter @Setter @AllArgsConstructor
+    @Getter @Setter @AllArgsConstructor @EqualsAndHashCode(callSuper=true)
     public static class Break extends Stmt {
 
 	public <R> R accept(Visitor<R> visitor) {
@@ -174,7 +174,7 @@ public abstract class Stmt {
 	private final Token location;
     }
 
-    @Getter @Setter @AllArgsConstructor
+    @Getter @Setter @AllArgsConstructor @EqualsAndHashCode(callSuper=true)
     public static class Import extends Stmt {
 
 	private final List<Token> libs;
