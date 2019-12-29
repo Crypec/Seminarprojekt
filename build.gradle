@@ -32,8 +32,9 @@ dependencies {
     // This dependency is used by the application.
     implementation 'com.google.guava:guava:28.1-jre'
     implementation 'com.google.code.gson:gson:2.8.6'
-
+    implementation 'org.javers:javers-core:5.8.7'
     // color printing for nice error messages
+    implementation "org.slf4j:slf4j-simple:1.6.1"
     implementation "com.github.tomas-langer:chalk:1.0.2"
 
     // Use JUnit test framework
@@ -71,7 +72,7 @@ run {
     jvmArgs(['--enable-preview'])
 }
 testlogger {
-    theme 'mocha-parallel'
+    theme 'mocha'
     showExceptions true
     showStackTraces true
     showFullStackTraces false
