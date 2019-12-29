@@ -40,9 +40,9 @@ public abstract class Expr {
     @Getter @Setter @AllArgsConstructor @EqualsAndHashCode(callSuper=true)
     public static class Binary extends Expr {
 
-	public Expr left;
-	public Token operator;
-	public Expr right;
+	private Expr left;
+	private Token operator;
+	private Expr right;
 
 	public <R> R accept(Visitor<R> visitor) {
 	    return visitor.visitBinaryExpr(this);
