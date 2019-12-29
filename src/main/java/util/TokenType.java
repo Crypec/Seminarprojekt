@@ -81,7 +81,7 @@ public enum TokenType {
 	case "rückgabe", "rueckgabe" -> TokenType.RETURN;
 	case "Typ" -> TokenType.CLASS;
 	case "bis" -> TokenType.UNTIL;
-	case "stop" -> TokenType.BREAK;
+	case "stopp" -> TokenType.BREAK;
 
 	// Compiler native functions
 	case "#eingabe" -> TokenType.READINPUT;
