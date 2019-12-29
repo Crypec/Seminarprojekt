@@ -6,10 +6,9 @@ import java.util.*;
 import lombok.*;
 import core.Lexer;
 
-@Getter @Setter @AllArgsConstructor @Builder
+@Getter @Setter @Builder @AllArgsConstructor @EqualsAndHashCode
 public class Token {
 
-    // also these fields should't be public :D
     private TokenType type;
     private String lexeme;
     private Object literal;
@@ -24,7 +23,6 @@ public class Token {
 	this.type = type;
     }
 
-    
     @Override
     public String toString() {
 	return new GsonBuilder()
