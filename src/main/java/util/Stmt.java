@@ -1,4 +1,4 @@
-package util;
+package util;;
 
 import java.util.List;
 
@@ -36,9 +36,9 @@ public abstract class Stmt {
     public static class Class extends Stmt {
 	
 	@Getter @Setter @AllArgsConstructor @EqualsAndHashCode
-	public static class Attribute {
-	    private final Token fieldName;
-	    private final Token typeName;
+	public static class Member {
+	    private final Token name;
+	    private final Token type;
 	}
 
 	public <R> R accept(Visitor<R> visitor) {
@@ -46,7 +46,7 @@ public abstract class Stmt {
 	}
 
 	private final Token name;
-	private final List<Attribute> attributes;
+	private final List<Member> members;
 	private final List<FunctionDecl> methods;
     }
 
@@ -65,8 +65,8 @@ public abstract class Stmt {
 
 	@Getter @Setter @AllArgsConstructor @EqualsAndHashCode
 	public static class Parameter {
-	    private final Token varName;
-	    private final Token typeName;
+	    private final Token name;
+	    private final Token type;
 	}
 	
 	public <R> R accept(Visitor<R> visitor) {
@@ -74,8 +74,8 @@ public abstract class Stmt {
 	}
 
 	private final Token name;
+	private final List<FunctionDecl.Parameter> parameters;
 	private final Token returnType;
-	private final List<FunctionDecl.Parameter> params;
 	private final Stmt.Block body;
     }
 
@@ -112,7 +112,7 @@ public abstract class Stmt {
 	    return visitor.visitReturnStmt(this);
 	}
 
-	private final Token keyword;
+	private final Token location;
 	public final Expr value;
     }
 
@@ -137,7 +137,7 @@ public abstract class Stmt {
 	}
 
 	private final Token name;
-	private final Token typeName;
+	private final Token type;
 	private final Expr initializer;
     }
 
@@ -161,7 +161,7 @@ public abstract class Stmt {
 	}
 
 	final Expr condition;
-	final Stmt body;
+	final Stmt.Block body;
     }
 
     @Getter @Setter @AllArgsConstructor @EqualsAndHashCode(callSuper=true)
