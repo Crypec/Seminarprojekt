@@ -1,4 +1,4 @@
-package core.test;
+package core;
 
 import com.google.common.collect.*;
 import java.util.*;
@@ -79,7 +79,7 @@ public class Lexing {
     @Test
     public void lexNullAssignment() {
 
-	String testcase = "foo = #null;";
+	String testcase = "foo = #Null;";
 
 	var actual = new Lexer(testcase, "LEX_TEST_NULL_ASSIGNMENT").tokenize();
 
