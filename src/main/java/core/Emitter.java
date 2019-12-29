@@ -24,9 +24,9 @@ public class Emitter implements Stmt.Visitor<String>, Expr.Visitor<String> {
 
 	var sb = new StringBuilder();
 
-	for (var attrb : classStmt.getAttributes()) {
-	    String type = resolveType(attrb.getTypeName());
-	    String def = String.format("    %s %s;%n", type, attrb.getFieldName().getLexeme());
+	for (var member : classStmt.getMembers()) {
+	    String type = resolveType(member.getType());
+	    String def = String.format("    %s %s;%n", type, member.getName().getLexeme());
 	    sb.append(def);
 	}
 
@@ -64,9 +64,9 @@ public class Emitter implements Stmt.Visitor<String>, Expr.Visitor<String> {
     public String visitFunctionStmt(Stmt.FunctionDecl func) {
 
 	var sb = new StringBuilder();
-	for (var param : func.getParams()) {
-	    var cppType = resolveType(param.getTypeName());
-	    sb.append(String.format("%s &%s, ", cppType, param.getVarName().getLexeme()));
+	for (var param : func.getParameters()) {
+	    var cppType = resolveType(param.getType());
+	    sb.append(String.format("%s &%s, ", cppType, param.getName().getLexeme()));
 	}
 	// remove trailing comma for last function paramater
 	if (sb.length() > 1) sb.setLength(sb.length() -2);
@@ -104,7 +104,7 @@ public class Emitter implements Stmt.Visitor<String>, Expr.Visitor<String> {
     @Override
     public String visitVarDefStmt(Stmt.VarDef varDef) {
 
-	String varType = varDef.getTypeName() == null? "auto": varDef.getTypeName().getLexeme();
+	String varType = varDef.getType() == null? "auto": resolveType(varDef.getType());
 	var expr = varDef.getInitializer().accept(this);
 	return String.format("%s %s = %s;", varType, varDef.getName().getLexeme(), expr);
     }
@@ -139,7 +139,7 @@ public class Emitter implements Stmt.Visitor<String>, Expr.Visitor<String> {
 
     @Override
     public String visitBinaryExpr(Expr.Binary binary) {
-	return String.format("%s %s %s", binary.left.accept(this) , binary.operator.getLexeme(), binary.right.accept(this));
+	return String.format("%s %s %s", binary.getLeft().accept(this) , binary.getOperator().getLexeme(), binary.getRight().accept(this));
     }
 
     @Override
