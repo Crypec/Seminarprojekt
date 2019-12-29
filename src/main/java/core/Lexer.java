@@ -37,6 +37,10 @@ public class Lexer {
 		if (match(':')) yield buildToken(TokenType.COLONCOLON);
 		else yield buildToken(TokenType.COLON);
 	    }
+	    case '.': {
+		if (match('.')) yield buildToken(TokenType.UNTIL); // NOTE(Simon): Does currently not because of the way we parse numbers the first dot gets consumed by the getNum function
+		else yield buildToken(TokenType.DOT);
+	    }
 	    case '-': {
 		if (match('>')) yield buildToken(TokenType.ARROW);
 		else yield buildToken(TokenType.MINUS);
@@ -104,13 +108,13 @@ public class Lexer {
 		.end(cursor)
 		.build();
 
-	    var err = new Report.Builder()
-		.errWasFatal()
-		.setErrorType("Text nicht beendet")
-		.withErrorMsg("Es scheint als haettest du vergessen einen Text block zu schliessen.")
+	    var err = Report.builder()
+		.wasFatal(true)
+		.errType("Text nicht beendet")
+		.errMsg("Es scheint als haettest du vergessen einen Text block zu schliessen.")
 		.url("www.TODO.de")
-		.atToken(errLocation)
-		.create();
+		.token(errLocation)
+		.build();
 	    System.out.println(err);
 	    return null;
 	}
@@ -151,9 +155,12 @@ public class Lexer {
 
     public boolean match(char expected) {
 	if (!hasNext()) return false;
-	if (source.charAt(cursor) != expected) return false;
-	next();
-	return true;
+	if (source.charAt(cursor) != expected) {
+	    return false;  
+	}  else {
+	    next();
+	    return true;
+	}
     }
 
     private Token buildToken(TokenType type) { return buildToken(type, null); }
