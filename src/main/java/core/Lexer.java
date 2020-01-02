@@ -130,6 +130,8 @@ public class Lexer {
 	if (peek() == '.' && Character.isDigit(peekNext())) {
 	    next();
 	    while (Character.isDigit(peek())) next();
+	} else if (peek() == '.' && peekNext() == '.') {
+	    //FIXME(Simon): return until iterator and num
 	}
 	Double literal = Double.parseDouble(source.substring(start, cursor));
 	return buildToken(TokenType.NUMBERLITERAL, literal);
