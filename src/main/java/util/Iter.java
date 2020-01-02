@@ -20,7 +20,6 @@ public class Iter<T> implements Iterator {
 	return buffer.length > cursor;
     }
 
-
     public T previous() {
 	return buffer[cursor -1];
     }
