@@ -6,13 +6,13 @@ public enum TokenType {
     IDEN,
     FUNCTION,
     CLASS,
+    SELF,
     WHILE,
     FOR,
     BREAK,
     UNTIL,
     IF,
     ELSE,
-    CONST,
     RETURN,
 
     // Compiler native functions
@@ -80,6 +80,7 @@ public enum TokenType {
 	case "sonst" -> TokenType.ELSE;
 	case "rückgabe", "rueckgabe" -> TokenType.RETURN;
 	case "Typ" -> TokenType.CLASS;
+	case "selbst" -> TokenType.SELF;
 	case "bis" -> TokenType.UNTIL;
 	case "stopp" -> TokenType.BREAK;
 
@@ -87,10 +88,6 @@ public enum TokenType {
 	case "#eingabe" -> TokenType.READINPUT;
 	case "#ausgabe" -> TokenType.PRINT;
 	case "#benutze" -> TokenType.IMPORT;
-
-	//const declarations
-	// NOTE(Simon): Do we really need those?
-	case "konst" -> TokenType.CONST;
 
 	case "#Null" -> TokenType.NULL;
 
