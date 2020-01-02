@@ -62,9 +62,7 @@ tasks.withType(JavaCompile).each {
 }
 //enable java 12 features for tests
 test {
-}
-test {
-    testLogging.showStandardStreams = true
+    ignoreFailures = true
     jvmArgs(['--enable-preview'])
 }
 
