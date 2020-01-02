@@ -318,9 +318,49 @@ public class Lexing {
 	assertListEqual(actual, expected);
     }
     @Test
-    public void lexForLoop() {
+    public void lexForLoopLiteralIter() {
 
 	String testcase = "fuer i := 0 bis 10 {}";
+
+	var actual = new Lexer(testcase, "LEX_TEST_FOR_LOOP").tokenize();
+
+	var expected = new ArrayList() {{
+	    add(TokenType.FOR);
+	    add(TokenType.IDEN);
+	    add(TokenType.VARDEF);
+	    add(TokenType.NUMBERLITERAL);
+	    add(TokenType.UNTIL);
+	    add(TokenType.NUMBERLITERAL);
+	    add(TokenType.STARTBLOCK);
+	    add(TokenType.ENDBLOCK);
+	}};
+	assertListEqual(actual, expected);
+    }
+
+    @Test
+    public void lexForLoopDotIterWithWhiteSpace() {
+
+	String testcase = "fuer i := 0 .. 10 {}";
+
+	var actual = new Lexer(testcase, "LEX_TEST_FOR_LOOP").tokenize();
+
+	var expected = new ArrayList() {{
+	    add(TokenType.FOR);
+	    add(TokenType.IDEN);
+	    add(TokenType.VARDEF);
+	    add(TokenType.NUMBERLITERAL);
+	    add(TokenType.UNTIL);
+	    add(TokenType.NUMBERLITERAL);
+	    add(TokenType.STARTBLOCK);
+	    add(TokenType.ENDBLOCK);
+	}};
+	assertListEqual(actual, expected);
+    }
+
+    @Test
+    public void lexForLoopDotIterWithNoWhiteSpace() {
+
+	String testcase = "fuer i := 0..10 {}";
 
 	var actual = new Lexer(testcase, "LEX_TEST_FOR_LOOP").tokenize();
 
