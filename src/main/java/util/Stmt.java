@@ -1,30 +1,30 @@
 package util;;
 
 import java.util.List;
+import java.io.Serializable;
 
 import lombok.*;
 
 import com.google.gson.*;
 
-public abstract class Stmt {
+public abstract class Stmt implements Serializable {
 
     public interface Visitor<R> {
 	R visitBlockStmt(Block stmt);
-	R visitClassStmt(Class stmt);
+	R visitStructDeclStmt(StructDecl stmt);
 	R visitExpressionStmt(Expression stmt);
 	R visitFunctionStmt(FunctionDecl stmt);
 	R visitIfStmt(If stmt);
 	R visitPrintStmt(Print stmt);
 	R visitReturnStmt(Return stmt);
 	R visitVarDefStmt(VarDef stmt);
-	R visitAssignmentStmt(Assignment stmt);
 	R visitWhileStmt(While stmt);
 	R visitBreakStmt(Break stmt);
 	R visitImportStmt(Import stmt);
     }
 
     @Getter @Setter @AllArgsConstructor @EqualsAndHashCode(callSuper=true)
-    public static class Block extends Stmt {
+    public static class Block extends Stmt implements Serializable {
 
 	public <R> R accept(Visitor<R> visitor) {
 	    return visitor.visitBlockStmt(this);
@@ -33,7 +33,7 @@ public abstract class Stmt {
     }
 
     @Getter @Setter @AllArgsConstructor @EqualsAndHashCode(callSuper=true)
-    public static class Class extends Stmt {
+    public static class StructDecl extends Stmt implements Serializable {
 	
 	@Getter @Setter @AllArgsConstructor @EqualsAndHashCode
 	public static class Member {
@@ -42,7 +42,7 @@ public abstract class Stmt {
 	}
 
 	public <R> R accept(Visitor<R> visitor) {
-	    return visitor.visitClassStmt(this);
+	    return visitor.visitStructDeclStmt(this);
 	}
 
 	private final Token name;
@@ -51,7 +51,7 @@ public abstract class Stmt {
     }
 
     @Getter @Setter @AllArgsConstructor @EqualsAndHashCode(callSuper=true)
-    public static class Expression extends Stmt {
+    public static class Expression extends Stmt implements Serializable {
 
 	public <R> R accept(Visitor<R> visitor) {
 	    return visitor.visitExpressionStmt(this);
@@ -61,7 +61,7 @@ public abstract class Stmt {
     }
 
     @Getter @Setter @AllArgsConstructor @EqualsAndHashCode(callSuper=true)
-    public static class FunctionDecl extends Stmt {
+    public static class FunctionDecl extends Stmt implements Serializable {
 
 	@Getter @Setter @AllArgsConstructor @EqualsAndHashCode
 	public static class Parameter {
@@ -80,7 +80,7 @@ public abstract class Stmt {
     }
 
     @Getter @Setter @AllArgsConstructor @EqualsAndHashCode(callSuper=true)
-    public static class If extends Stmt {
+    public static class If extends Stmt implements Serializable {
 
 	public <R> R accept(Visitor<R> visitor) {
 	    return visitor.visitIfStmt(this);
@@ -93,7 +93,7 @@ public abstract class Stmt {
     }
 
     @Getter @Setter @AllArgsConstructor @EqualsAndHashCode(callSuper=true)
-    public static class Print extends Stmt {
+    public static class Print extends Stmt implements Serializable {
 
 	public <R> R accept(Visitor<R> visitor) {
 	    return visitor.visitPrintStmt(this);
@@ -106,7 +106,7 @@ public abstract class Stmt {
 
 
     @Getter @Setter @AllArgsConstructor @EqualsAndHashCode(callSuper=true)
-    public static class Return extends Stmt {
+    public static class Return extends Stmt implements Serializable {
 
 	public <R> R accept(Visitor<R> visitor) {
 	    return visitor.visitReturnStmt(this);
@@ -130,7 +130,7 @@ public abstract class Stmt {
       it differs from the assingment operator which is just a = (equalsign) that it shadows the old variable and its type
     */
     @Getter @Setter @AllArgsConstructor @EqualsAndHashCode(callSuper=true)
-    public static class VarDef extends Stmt {
+    public static class VarDef extends Stmt implements Serializable {
 
 	public <R> R accept(Visitor<R> visitor) {
 	    return visitor.visitVarDefStmt(this);
@@ -142,19 +142,7 @@ public abstract class Stmt {
     }
 
     @Getter @Setter @AllArgsConstructor @EqualsAndHashCode(callSuper=true)
-    public static class Assignment extends Stmt {
-
-	private final Token varName;
-	private final Expr value;
-
-	public <R> R accept(Visitor<R> visitor) {
-	    return visitor.visitAssignmentStmt(this);
-	}
-	
-    }
-
-    @Getter @Setter @AllArgsConstructor @EqualsAndHashCode(callSuper=true)
-    public static class While extends Stmt {
+    public static class While extends Stmt implements Serializable {
 
 	public <R> R accept(Visitor<R> visitor) {
 	    return visitor.visitWhileStmt(this);
@@ -165,7 +153,7 @@ public abstract class Stmt {
     }
 
     @Getter @Setter @AllArgsConstructor @EqualsAndHashCode(callSuper=true)
-    public static class Break extends Stmt {
+    public static class Break extends Stmt implements Serializable {
 
 	public <R> R accept(Visitor<R> visitor) {
 	    return visitor.visitBreakStmt(this);
@@ -175,7 +163,7 @@ public abstract class Stmt {
     }
 
     @Getter @Setter @AllArgsConstructor @EqualsAndHashCode(callSuper=true)
-    public static class Import extends Stmt {
+    public static class Import extends Stmt implements Serializable {
 
 	private final List<Token> libs;
 
@@ -189,7 +177,7 @@ public abstract class Stmt {
 
     @Override
     public String toString() {
-	return new GsonBuilder()
+	return this.getClass() + new GsonBuilder()
 	    .setPrettyPrinting()
 	    .serializeNulls()
 	    .create()

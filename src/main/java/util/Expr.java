@@ -1,10 +1,11 @@
 package util;
 
 import java.util.List;
+import java.io.Serializable;
 import lombok.*;
 import com.google.gson.*;
 
-public abstract class Expr {
+public abstract class Expr implements Serializable {
 
     public interface Visitor<R> {
 	R visitBinaryExpr(Binary expr);
@@ -12,33 +13,29 @@ public abstract class Expr {
 	R visitGetExpr(Get expr);
 	R visitGroupingExpr(Grouping expr);
 	R visitLiteralExpr(Literal expr);
-	R visitLogicalExpr(Logical expr);
 	R visitSetExpr(Set expr);
-	R visitThisExpr(This expr);
+	R visitSelfExpr(Self expr);
 	R visitUnaryExpr(Unary expr);
 	R visitVariableExpr(Variable expr);
 	R visitInputExpr(Input expr);
+	R visitAssignExpr(Assign expr);
     }
 
-    // public static class Assign extends Expr {
+    @Getter @Setter @AllArgsConstructor @EqualsAndHashCode(callSuper=true)
+    public static class Assign extends Expr implements Serializable {
 
-    // 	public Token name;
-    // 	public Expr value;
+	private final Token name;
+	private final Expr value;
 
-    // 	public Token type = null; // use for later in typechecker
+	private Token type = null; // use for later in typechecker
 
-    // 	public Assign(Token name, Expr value) {
-    // 	    this.name = name;
-    // 	    this.value = value;
-    // 	}
-
-    // 	<R> R accept(Visitor<R> visitor) {
-    // 	    return visitor.visitAssignExpr(this);
-    // 	}
-    // }
+	public <R> R accept(Visitor<R> visitor) {
+	    return visitor.visitAssignExpr(this);
+	}
+    }
 
     @Getter @Setter @AllArgsConstructor @EqualsAndHashCode(callSuper=true)
-    public static class Binary extends Expr {
+    public static class Binary extends Expr implements Serializable {
 
 	private Expr left;
 	private Token operator;
@@ -50,7 +47,7 @@ public abstract class Expr {
     }
 
     @Getter @Setter @AllArgsConstructor @EqualsAndHashCode(callSuper=true)
-    public static class Call extends Expr {
+    public static class Call extends Expr implements Serializable {
 
 	public Expr callee;
 	public Token paren;
@@ -63,7 +60,7 @@ public abstract class Expr {
 
 
     @Getter @Setter @AllArgsConstructor @EqualsAndHashCode(callSuper=true)
-    public static class Get extends Expr {
+    public static class Get extends Expr implements Serializable {
 
 	private Expr object;
 	private Token name;
@@ -74,7 +71,7 @@ public abstract class Expr {
     }
 
     @Getter @Setter @AllArgsConstructor @EqualsAndHashCode(callSuper=true)
-    public static class Grouping extends Expr {
+    public static class Grouping extends Expr implements Serializable {
 
 	private final Expr expression;
 
@@ -84,7 +81,7 @@ public abstract class Expr {
     }
 
     @Getter @Setter @AllArgsConstructor @EqualsAndHashCode(callSuper=true)
-    public static class Literal extends Expr {
+    public static class Literal extends Expr implements Serializable {
 
 	private final Object value;
 
@@ -94,20 +91,7 @@ public abstract class Expr {
     }
 
     @Getter @Setter @AllArgsConstructor @EqualsAndHashCode(callSuper=true)
-    public static class Logical extends Expr {
-
-	private final Expr left;
-	private final Token operator;
-	private final Expr right;
-
-	public <R> R accept(Visitor<R> visitor) {
-	    return visitor.visitLogicalExpr(this);
-	}
-
-    }
-
-    @Getter @Setter @AllArgsConstructor @EqualsAndHashCode(callSuper=true)
-    public static class Set extends Expr {
+    public static class Set extends Expr implements Serializable {
 	
 	private final Expr object;
 	private final Token name;
@@ -120,17 +104,17 @@ public abstract class Expr {
     }
 
     @Getter @Setter @AllArgsConstructor @EqualsAndHashCode(callSuper=true)
-    public static class This extends Expr {
+    public static class Self extends Expr implements Serializable {
 
 	private final Token keyword;
 
 	public <R> R accept(Visitor<R> visitor) {
-	    return visitor.visitThisExpr(this);
+	    return visitor.visitSelfExpr(this);
 	}
     }
 
     @Getter @Setter @AllArgsConstructor @EqualsAndHashCode(callSuper=true)
-    public static class Unary extends Expr {
+    public static class Unary extends Expr implements Serializable {
 
 	private final Token operator;
 	private final Expr right;
@@ -141,7 +125,7 @@ public abstract class Expr {
     }
 
     @Getter @Setter @AllArgsConstructor @EqualsAndHashCode(callSuper=true)
-    public static class Input extends Expr {
+    public static class Input extends Expr implements Serializable {
 
 	private final Token message;
 
@@ -151,7 +135,7 @@ public abstract class Expr {
     }
 
     @Getter @Setter @AllArgsConstructor @EqualsAndHashCode(callSuper=true)
-    public static class Variable extends Expr {
+    public static class Variable extends Expr implements Serializable {
 
 	private final Token name;
 
@@ -163,7 +147,7 @@ public abstract class Expr {
 
     @Override
     public String toString() {
-	return new GsonBuilder()
+	return this.getClass().toString() + new GsonBuilder()
 	    .setPrettyPrinting()
 	    .serializeNulls()
 	    .create()
