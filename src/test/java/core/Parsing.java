@@ -71,8 +71,10 @@ public class Parsing {
 	String testcase = "foo = 2;";
 	var tokenStream = new Lexer(testcase, "PARSE_TEST_ASSIGNMENT").tokenize();
 
-	var assingmentNode = new Parser(new Iter(tokenStream.toArray(Token[]::new))).parseAssignment();
-	assertEquals(assingmentNode.getVarName(), tokenStream.get(0));
+	var assignmentNode = new Parser(new Iter(tokenStream.toArray(Token[]::new))).parseExprStmt();
+
+	var name = ((Expr.Assign)assignmentNode.getExpression()).getName(); // No it's fine, no reason to hate java!?!
+	assertEquals(name, tokenStream.get(0));
     }
 
     @Test
