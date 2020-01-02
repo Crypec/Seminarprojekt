@@ -20,17 +20,17 @@ public class Emitter implements Stmt.Visitor<String>, Expr.Visitor<String> {
     }
 
     @Override
-    public String visitClassStmt(Stmt.Class classStmt) {
+    public String visitStructDeclStmt(Stmt.StructDecl ASTNode) {
 
 	var sb = new StringBuilder();
 
-	for (var member : classStmt.getMembers()) {
+	for (var member : ASTNode.getMembers()) {
 	    String type = resolveType(member.getType());
 	    String def = String.format("    %s %s;%n", type, member.getName().getLexeme());
 	    sb.append(def);
 	}
 
-	return String.format("struct %s {%n%s};", classStmt.getName().getLexeme(), sb.toString());
+	return String.format("struct %s {%n%s};", ASTNode.getName().getLexeme(), sb.toString());
     }
 
     public static String resolveType(Token type) {
@@ -57,7 +57,7 @@ public class Emitter implements Stmt.Visitor<String>, Expr.Visitor<String> {
 
     @Override
     public String visitExpressionStmt(Stmt.Expression expr) {
-	return null;
+	return String.format("%s;", expr.accept(this));
     }
 
     @Override
@@ -110,13 +110,9 @@ public class Emitter implements Stmt.Visitor<String>, Expr.Visitor<String> {
     }
 
     @Override
-    public String visitAssignmentStmt(Stmt.Assignment stmt) {
-	return String.format("%s = %s;", stmt.getVarName().getLexeme(), stmt.getValue().accept(this));
-    }
-
-    @Override
     public String visitWhileStmt(Stmt.While whileStmt) {
-	return null;
+	var block = visitBlockStmt(whileStmt.getBody());
+	return String.format("while (%s) %s", whileStmt.getCondition().accept(this), block);
     }
 
     @Override
@@ -169,11 +165,6 @@ public class Emitter implements Stmt.Visitor<String>, Expr.Visitor<String> {
     }
 
     @Override
-    public String visitLogicalExpr(Expr.Logical logical) {
-	throw new UnsupportedOperationException();
-    }
-
-    @Override
     public String visitSetExpr(Expr.Set set) {
 	throw new UnsupportedOperationException();
     }
@@ -184,12 +175,17 @@ public class Emitter implements Stmt.Visitor<String>, Expr.Visitor<String> {
     }
 
     @Override
-    public String visitThisExpr(Expr.This expr) {
+    public String visitSelfExpr(Expr.Self expr) {
 	throw new UnsupportedOperationException();
     }
 
     @Override
     public String visitInputExpr(Expr.Input expr) {
+	return null;
+    }
+
+    @Override
+    public String visitAssignExpr(Expr.Assign expr) {
 	return null;
     }
 }
