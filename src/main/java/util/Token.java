@@ -4,10 +4,11 @@ import com.google.gson.*;
 
 import java.util.*;
 import lombok.*;
+import java.io.Serializable;
 import core.Lexer;
 
 @Getter @Setter @Builder @AllArgsConstructor @EqualsAndHashCode
-public class Token {
+public class Token implements Serializable {
 
     private TokenType type;
     private String lexeme;
