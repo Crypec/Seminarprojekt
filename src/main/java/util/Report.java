@@ -16,7 +16,7 @@ public class Report {
     // if we encounter a fatal error while parsing we set this field to not execute corrupted code
     public static boolean hadErr = false;
 
-	private boolean wasFatal = false; 
+    private boolean wasFatal = false; 
 
     private String errType;
     private String errMsg;
@@ -81,6 +81,15 @@ public class Report {
     }
 
     public void sync() {
-	if (this.wasFatal) throw new Report.Error();
+	if (wasFatal) throw new Report.Error();
+    }
+
+    @Override
+    public String toString() {
+	return new GsonBuilder()
+	    .setPrettyPrinting()
+	    .serializeNulls()
+	    .create()
+	    .toJson(this);
     }
 }
