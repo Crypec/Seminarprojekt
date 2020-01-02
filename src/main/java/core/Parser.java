@@ -2,6 +2,7 @@ package core;
 
 import java.util.*;
 import util.*;
+import com.github.tomaslanger.chalk.*;
 
 // TODO(Simon): add parsing for function calls
 // TODO(Simon): finish parsing blocks
@@ -10,32 +11,240 @@ import util.*;
 public class Parser extends Iter<Token> {
 
     public Parser(Iter<Token> it) {
-	super(it.getBuffer()); // TODO(Simon): write better consturctor
+        super(it.getBuffer()); // TODO(Simon): write better consturctor
+    }
+
+    public List<Stmt> parse() {
+
+        var ast = new ArrayList();
+        if (check(TokenType.IMPORT)) {
+            var libs = parseImport();
+            ast.add(libs); // NOTE(Simon): we have to resolve this later to parse all sourcefiles, should be fairly easy to thread this
+        }
+        while (this.hasNext())   {
+            var stmt = parseStmt();
+            ast.add(stmt);
+        } 
+        return ast;
     }
 
     public void sync() {
-	// consume tokens until we reach the next stmt to continue parsing
-	while (hasNext()) {
-	    switch (peek().getType()) {
-	    case CLASS, FUNCTION, VARDEF:
-		return;
-	    }
-	    next();
-	}
+        while (hasNext()) {
+            switch (peek().getType()) {
+            case CLASS, FUNCTION, VARDEF, FOR, WHILE:
+                return;
+            }
+            next();
+        }
     }
-    public List<Stmt> parse() {
 
-	var ast = new ArrayList();
-	if (check(TokenType.IMPORT)) {
-		var libs = parseImport();
-		ast.add(libs); // NOTE(Simon): we have to resolve this later to parse all sourcefiles, should be fairly easy to thread this
-	}
-	while (this.hasNext())	 {
-	    var stmt = parseStmt();
-	    ast.add(stmt);
-	} 
-	return ast;
+    public Expr parseExpr() {
+	return parseAssignment();
     }
+
+    public Expr parseAssignment() {
+	var ASTNode = parseOr();
+
+	if (matchAny(TokenType.EQUALSIGN)) {
+	    var equals = previous();
+	    var value = parseAssignment();
+
+	    if (ASTNode instanceof Expr.Variable) {
+		var name = ((Expr.Variable)ASTNode).getName();
+		return new Expr.Assign(name, value, null); // TODO(Simon): Look into required args constructor when using lombok
+	    } else if (ASTNode instanceof Expr.Get) {
+		var getNode = (Expr.Get)ASTNode;
+		return new Expr.Set(getNode.getObject(), getNode.getName(), value);
+	    }
+	    System.out.printf("%s %s",Chalk.on("[DEBUG ERROR]"), "Invalid Assignment target!!");
+
+	}
+	return ASTNode;
+    }
+
+
+    private Expr parseOr() {
+	var ASTNode = parseAnd();
+
+	while (matchAny(TokenType.OR)) {
+	    var operator = previous();
+	    var right = parseAnd();
+	    ASTNode = new Expr.Binary(ASTNode, operator, right);
+	}
+	return ASTNode;
+    }
+
+    private Expr parseAnd() {
+	var ASTNode = parseEquality();
+
+	while (matchAny(TokenType.AND)) {
+	    var operator = previous();
+	    var right = parseEquality();
+	    ASTNode = new Expr.Binary(ASTNode, operator, right);
+	}
+	return ASTNode;
+    }
+
+    private Expr parseEquality() {
+	var ASTNode = parseComparison();
+
+	while (matchAny(TokenType.NOT, TokenType.NOTEQUAL)) {
+	    var operator = previous();
+	    var right = parseComparison();
+	    ASTNode = new Expr.Binary(ASTNode, operator, right);
+	}
+	return ASTNode;
+    }
+
+
+    private Expr parseComparison() {
+	var ASTNode = parseAddition();
+
+	while (matchAny(TokenType.GREATER, TokenType.GREATEREQUAL, TokenType.LESS, TokenType.LESSEQUAL)) {
+	    var operator = previous();
+	    var right = parseAddition();
+	    ASTNode = new Expr.Binary(ASTNode, operator, right);
+	}
+	return ASTNode;
+    }
+
+    private Expr parseAddition() {
+	var ASTNode = parseMultiplication();
+
+	while (matchAny(TokenType.MINUS, TokenType.PLUS)) {
+	    var operator = previous();
+	    var right = parseMultiplication();
+	    ASTNode = new Expr.Binary(ASTNode, operator, right);
+	}
+	return ASTNode;
+    }
+
+    private Expr parseMultiplication() {
+	var ASTNode = parseUnary();
+	while (matchAny(TokenType.MULTIPLY, TokenType.DIVIDE)) {
+	    var operator = previous();
+	    var right = parseUnary();
+	    ASTNode = new Expr.Binary(ASTNode, operator, right);
+	}
+	return ASTNode;
+    }
+
+    private Expr parseUnary() {
+	if (matchAny(TokenType.NOT, TokenType.MINUS)) {
+	    var operator = previous();
+	    var right = parseUnary();
+	    return new Expr.Unary(operator, right);
+	}
+	return parseFunctionCall();
+    }
+
+    private Expr parseFunctionCall() {
+	var ASTNode = parsePrimary();
+
+	while (true) {
+	    if (matchAny(TokenType.LPAREN)) {
+		ASTNode = finishParsingCall(ASTNode);
+	    } else if (matchAny(TokenType.DOT)) {
+
+		var err = Report.builder()
+		    .wasFatal(true)
+		    .errType("Unerwarteter Token!")
+		    .errMsg("Nach einem Punkt haben wir den namen des Feldes eines DatenTypen erwartet!")
+		    .example("foo.bar")
+		    .example("person.name")
+		    .example("konto.guthaben")
+		    .url("TODO")
+		    .build();
+		var name = consume(TokenType.IDEN, err);
+		ASTNode = new Expr.Get(ASTNode, name);
+	    } else {
+		break;
+	    }
+	}
+	return ASTNode;
+    }
+
+    private Expr finishParsingCall(Expr callee) {
+	var args = new ArrayList();
+
+	if (!check(TokenType.RPAREN)) {
+	    do {
+		args.add(parseExpr());
+	    } while (matchAny(TokenType.COMMA));
+	}
+	var err = Report.builder()
+	    .wasFatal(true)
+	    .errType("Unerwarteter Token!")
+	    .errMsg("Du scheinst eine schliessende Klammer in folgendem Funktionsaufruf vergessen zu haben!")
+	    .example("foo(42)")
+	    .example("bar(23, 23)")
+	    .example("""
+		     fooBar("Hallo", "Welt");
+		     """)
+	    .url("TODO")
+	    .build();
+	var paren = consume(TokenType.RPAREN, err);
+	return new Expr.Call(callee, paren, args);
+    }
+
+    private Expr parsePrimary() {
+
+	if (matchAny(TokenType.FALSE)) return new Expr.Literal(false);
+	if (matchAny(TokenType.TRUE)) return new Expr.Literal(true);
+	if (matchAny(TokenType.NULL)) return new Expr.Literal(null);
+	if (matchAny(TokenType.STRINGLITERAL, TokenType.NUMBERLITERAL)) {
+	    return new Expr.Literal(previous().getLiteral());  
+	} 
+	if (matchAny(TokenType.SELF)) return new Expr.Self(previous());
+
+	if (matchAny(TokenType.IDEN)) return new Expr.Variable(previous());
+
+	if (matchAny(TokenType.LPAREN)) {
+	    var ASTNode = parseExpr();
+
+	    var err = Report.builder()
+		.wasFatal(true)
+		.errType("Unerwarteter Token!")
+		.errMsg("Du scheinst eine schliessende Klammer in folgendem Mathematischem Ausdruck vergessen zu haben!")
+		.example("(a + 3)")
+		.example("((42 - 3) - 2)")
+		.example("(foo(2) -2)")
+		.url("TODO")
+		.build();
+	    consume(TokenType.RPAREN, err);
+	    return new Expr.Grouping(ASTNode);
+	}
+	var err = Report.builder()
+	    .wasFatal(true)
+	    .errType("Unerwarteter Token!")
+	    .errMsg("An dieser Stelle haben wir einen Mathematischen ausdruck erwartet!")
+	    .example("(a + 3)")
+	    .example("((42 - 3) - 2)")
+	    .example("(foo(2) -2)")
+	    .url("TODO")
+	    .build();
+	System.out.println(err);
+	err.sync();
+	System.out.println(Chalk.on("[Debug]").green().bold() + ":: This should be unreachable because of the exception thrown in the line before. Internal compiler error!");
+	return null;
+    }
+
+    
+    public Stmt.Expression parseExprStmt() {
+	var err = Report.builder()
+	    .wasFatal(true)
+	    .errType("Semicolon vergessen")
+	    .errMsg("Du scheinst ein Semicolon nach einem Ausdruck vergessen zu haben!")
+	    .example("test = 3;")
+	    .example("foo();")
+	    .example("foo().test = 23;")
+	    .url("TODO.de")
+	    .build();
+	var ASTNode = parseExpr();
+	consume(TokenType.SEMICOLON, err);
+	return new Stmt.Expression(ASTNode);
+    }
+
     public Stmt parseStmt() {
 	try {
 	    while (hasNext() && !check(TokenType.EOF)) {
@@ -45,123 +254,36 @@ public class Parser extends Iter<Token> {
 		case IDEN: yield parseVarDef();
 		default: {
 		    var err = Report.builder()
-                        .wasFatal(true)
+			.wasFatal(true)
 			.errType("Token nicht erkannt")
-                        .errMsg("lol")
-                        .token(next())
-                        .example(String.format("%s", "Typ: Haus {}"))
-                        .example(String.format(
-					       "%s", "Typ: Person {name :Text,\nalter: Zahl,\n}"))
-                        .url("TODO.de")
-                        .build();
+			.errMsg("lol")
+			.token(next())
+			.url("TODO.de")
+			.build();
 		    System.out.println(err);
 		    err.sync();
 		    yield null; // unreachable because we throw an exception
 		}
 		};
-	    
+            
 	    }
 	} catch(Report.Error e) {
+	    e.printStackTrace(); // TODO(Simon): remove for debuggging only!!
 	    sync();
-	    System.out.println("FAILED NEED TO SYNC PARSER");
+	    System.out.println(Chalk.on("[Debug]").green().bold() + ":: Parsing failed, need to backtrack!");
 	}
+	System.out.println(Chalk.on("[Debug]").green().bold() + ":: This should be unreachable because of the exception thrown in the line before. Internal compiler error!");
 	return null;
     }
 
-    public Expr parseExpr() { return equaly(); }
 
-    private Expr equaly() {
-	Expr expr = comparison();
-
-	while (matchAny(TokenType.NOTEQUAL, TokenType.EQUALEQUAL)) {
-	    Token operator = previous();
-	    Expr right = comparison();
-	    expr = new Expr.Binary(expr, operator, right);
-	}
-	return expr;
-    }
-
-    private Expr comparison() {
-	Expr expr = addtion();
-
-	while (matchAny(TokenType.GREATER, TokenType.GREATEREQUAL, TokenType.LESS,
-			TokenType.LESSEQUAL)) {
-	    Token operator = previous();
-	    Expr right = addtion();
-	    expr = new Expr.Binary(expr, operator, right);
-	}
-	return expr;
-    }
-
-    private Expr addtion() {
-	Expr expr = multiplication();
-
-	while (matchAny(TokenType.PLUS, TokenType.MINUS)) {
-	    Token operator = previous();
-	    Expr right = multiplication();
-	    expr = new Expr.Binary(expr, operator, right);
-	}
-	return expr;
-    }
-
-    private Expr multiplication() {
-	Expr expr = unary();
-
-	while (matchAny(TokenType.MULTIPLY, TokenType.DIVIDE)) {
-	    Token operator = previous();
-	    Expr right = unary();
-	    expr = new Expr.Binary(expr, operator, right);
-	}
-	return expr;
-    }
-
-    private Expr unary() {
-	if (matchAny(TokenType.NOT, TokenType.MINUS)) {
-	    Token operator = previous();
-	    Expr right = unary();
-	    return new Expr.Unary(operator, right);
-	}
-	return primary();
-    }
-
-    private Expr primary() {
-	if (matchAny(TokenType.NULL))
-	    return new Expr.Literal(null);
-	if (matchAny(TokenType.FALSE))
-	    return new Expr.Literal(false);
-	if (matchAny(TokenType.TRUE))
-	    return new Expr.Literal(true);
-
-	if (matchAny(TokenType.STRINGLITERAL, TokenType.NUMBERLITERAL)) {
-	    return new Expr.Literal(previous().getLiteral());
-	}
-
-	if (matchAny(TokenType.LPAREN)) {
-
-	    var err = Report.builder()
-		.wasFatal(true)
-		.errType("Mathematischer Ausdruck nicht geschlossen")
-		.errMsg("Hey wir waren gerade dabei einen Mathematischen Ausdruck zu parsen, es scheint als haettest du vergessen eine Klammer zu schliesen")
-		.url("www.TODO.de")
-		.build();
-
-	    Expr expr = parseExpr();
-	    consume(TokenType.RPAREN, err);
-	    return new Expr.Grouping(expr);
-	}
-	// TODO(Simon): We should provide a better error for the user if the parens
-	// are not balanced
-	return null; // should never be reached
-    }
-
-    // TODO(Simon): use our report system for error handling and warning
     public Stmt.FunctionDecl parseFunctionDecl() {
 
 
 	var err = Report.builder()
-            .wasFatal(true)
-            .errType("Fehler beim parsen einer Funktion")
-            .errMsg("Wir waren gerade dabei eine funktion zu parsen als wir einen Fehler gefunden haben. Nach dem Fun Schluesselwort haben wir den namen der funktion erwartet!")
+	    .wasFatal(true)
+	    .errType("Fehler beim parsen einer Funktion")
+	    .errMsg("Wir waren gerade dabei eine funktion zu parsen als wir einen Fehler gefunden haben. Nach dem Fun Schluesselwort haben wir den namen der funktion erwartet!")
 	    .url("TODO") 
 	    .build();
 	consume(TokenType.FUNCTION, err, "fun erwartet");
@@ -171,8 +293,8 @@ public class Parser extends Iter<Token> {
 
 	var params = new ArrayList();
 
-	while (!check(TokenType.RPAREN)) {
-	    Token paramName = consume(TokenType.IDEN, err);
+	    while (!check(TokenType.RPAREN)) {
+		Token paramName = consume(TokenType.IDEN, err);
 	    consume(TokenType.COLON, err);
 	    Token paramType = consume(TokenType.IDEN, err);
 	    params.add(new Stmt.FunctionDecl.Parameter(paramName, paramType));
@@ -210,7 +332,7 @@ public class Parser extends Iter<Token> {
 	    case IDEN: {
 		if (checkNext(TokenType.VARDEF)) yield parseVarDef();
 		if (checkNext(TokenType.COLON)) yield parseVarDef();
-		else if (checkNext(TokenType.EQUALSIGN)) yield parseAssignment();
+		else yield parseExprStmt();
 	    }
 	    case IF: yield parseIf();
 	    case FOR: yield parseForLoop();
@@ -255,22 +377,7 @@ public class Parser extends Iter<Token> {
 	return new Expr.Input(msg);
     }
 
-    public Stmt.Assignment parseAssignment() {
-
-	var err = Report.builder()
-            .wasFatal(true)
-            .errType("Fehler beim parsen einer Zuweisung")
-            .errMsg("Der = operator erlaubt es dir den in einer variablen gespeicherten Wert zu aendern!")
-            .url("www.TODO.de")
-            .build();
-	var varName = consume(TokenType.IDEN, err);
-	consume(TokenType.EQUALSIGN, err);
-	var expr = parseExpr();
-	consume(TokenType.SEMICOLON, err, "Semicolon erwartet");
-	return new Stmt.Assignment(varName, expr);
-    }
-
-    public Stmt.Print parsePrint() {
+	public Stmt.Print parsePrint() {
 
 	var err = Report.builder()
             .wasFatal(true)
@@ -278,7 +385,7 @@ public class Parser extends Iter<Token> {
             .errMsg("Hey wir waren gerade dabei einen Mathematischen Ausdruck zu parsen, es scheint als haettest du vergessen eine Klammer zu schliesen")
             .url("www.TODO.de")
             .build();
-
+	
 	consume(TokenType.PRINT, err);
 	consume(TokenType.LPAREN, err);
 
@@ -350,8 +457,6 @@ public class Parser extends Iter<Token> {
     */
     public Stmt.Import parseImport() {
 
-
-
 	var err = Report.builder()
             .wasFatal(true)
             .errType("Wir sind uns nicht ganz sicher welche Bibolotheken du meinst!")
@@ -394,20 +499,26 @@ public class Parser extends Iter<Token> {
 	return new Stmt.If(condion, body, null, null);
     }
 
-    public Stmt.Class parseStructDecl() {
+    public Stmt.StructDecl parseStructDecl() {
 
 	// NOTE(Simon): we arrive here after the Typ Keyword
-	next();
 
 	var err = Report.builder()
             .wasFatal(true)
             .errType("Fehler beim parsen eines DatenTypes!")
             .errMsg("Um komplexe Programme zu vereinfachen kannst du deine eigenen Datentypen definieren. Das erlaubt dir Daten effizient meinander abzuspichern")
-            .example(String.format("%s", "Typ: Haus {}"))
+            .example("""
+		     Typ: Person {
+			 name: Text,
+			 alter: Zahl,
+			     }
+		     """
+		     )
             .example(String.format("%s", "Typ: Person {name :Text,\nalter: Zahl,\n}"))
             .url("TODO.de")
             .build();
 
+	consume(TokenType.CLASS, err);
 	consume(TokenType.COLON, err);
 	var structName = consume(TokenType.IDEN, err);
 
@@ -422,14 +533,14 @@ public class Parser extends Iter<Token> {
 	    Token typeName = consume(TokenType.IDEN, err);
 	    consume(TokenType.COMMA, err);
 
-	    arguments.add(new Stmt.Class.Member(varName, typeName));
+	    arguments.add(new Stmt.StructDecl.Member(varName, typeName));
 	}
 	consume(TokenType.ENDBLOCK, err);
 
 	// TODO(Simon): After we parse an impl block should we associate the methods
 	// wh the right class?
 	// Maybe do in seperate pass?
-	return new Stmt.Class(structName, arguments, null);
+	return new Stmt.StructDecl(structName, arguments, null);
     }
 
     // TODO(Simon): add desugared increment in the body
@@ -465,10 +576,10 @@ public class Parser extends Iter<Token> {
 	var condion = new Expr.Binary(start, new Token(TokenType.LESS), end);
 
 	var incrementExpr = new Expr.Binary(new Expr.Literal(loopVar.getLexeme()), new Token(TokenType.PLUS), new Expr.Literal(1));
-	var incrementAssingment = new Stmt.Assignment(loopVar, incrementExpr);
+	var incrementAssingment = new Expr.Assign(loopVar, incrementExpr, null);
 
 	var body = parseBlock();
-	body.getStatements().add(incrementAssingment);
+	body.getStatements().add(new Stmt.Expression(incrementAssingment));
 	return new Stmt.While(condion, body);
     }
 
@@ -483,40 +594,46 @@ public class Parser extends Iter<Token> {
             .url("TODO.de")
             .build();
 
-	// we assume that we peeked ahead to find the :=  Symbol
 	Token varName = consume(TokenType.IDEN, err);
 
-	Token typeName = null;
+	Token type = null;
 	if (check(TokenType.VARDEF)) {
 	    consume(TokenType.VARDEF, err);
 	} else if (check(TokenType.COLON)) {
 	    // user provided type information, variable is typed
-	consume(TokenType.COLON, err);
-	typeName = consume(TokenType.IDEN, err);
-	consume(TokenType.EQUALSIGN, err);
+	    consume(TokenType.COLON, err);
+	    type = consume(TokenType.IDEN, err);
+	    consume(TokenType.EQUALSIGN, err);
+	} else {
+	    consume(TokenType.VARDEF, err); // FIXME(Simon): This is only a short fix to provide a error message
 	}
 
 	Expr value = parseExpr();
 	consume(TokenType.SEMICOLON, err);
-	return new Stmt.VarDef(varName, typeName, value);
+	return new Stmt.VarDef(varName, type, value);
     }
 
     private Token consume(TokenType type, Report err) {
-	if (check(type))
-	    return next();
-	err.setToken(next());
+	if (check(type)){
+	    return next();   
+	}
+	err.setToken(peek());
 	System.out.println(err);
 	err.sync();
+	System.out.println(Chalk.on("[Debug]").green().bold() + ":: This should be unreachable because of the exception thrown in the line before. Internal compiler error!");
 	return null; // unreachable code becase sync will throw an execption
     }
 
     private Token consume(TokenType type, Report err, String errMsg) {
-	if (check(type))
+	if (check(type)) {
 	    return next();
-	err.setToken(next());
-	err.setErrMsg(errMsg);
-	System.out.println(err);
-	err.sync();
+	} else {
+	    err.setToken(peek());
+	    err.setErrMsg(errMsg);
+	    System.out.println(err);
+	    err.sync();
+	}
+	System.out.println(Chalk.on("[Debug]").green().bold() + ":: This should be unreachable because of the exception thrown in the line before. Internal compiler error!");
 	return null; // unreachable code becase sync will throw an execption
     }
 
@@ -535,6 +652,6 @@ public class Parser extends Iter<Token> {
 
     public boolean check(TokenType type) {
 	if (!hasNext()) return false;
-	return peek().getType() == type;
+	return type == peek().getType();
     }
 }
