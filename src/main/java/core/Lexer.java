@@ -47,6 +47,7 @@ public class Lexer {
 	    }
 	    case '+': yield buildToken(TokenType.PLUS);
 	    case '*': yield buildToken(TokenType.MULTIPLY);
+	    case '%': yield buildToken(TokenType.MODULO);
 	    case '/': {
 		if (match('/')) while (peek() != '\n' && hasNext()) next();
 		else yield buildToken(TokenType.DIVIDE);
@@ -111,7 +112,7 @@ public class Lexer {
 	    var err = Report.builder()
 		.wasFatal(true)
 		.errType("Text nicht beendet")
-		.errMsg("Es scheint als haettest du vergessen einen Text block zu schliessen.")
+		.errMsg("Du hast einen nicht erlaubten Token verwendent. Um mehr ueber die namensgebungkonvention in dieser Sprache zu erfahren folge diesem Link")
 		.url("www.TODO.de")
 		.token(errLocation)
 		.build();
