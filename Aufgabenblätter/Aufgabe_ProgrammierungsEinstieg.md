@@ -1,4 +1,4 @@
-## Bevor Sie Anfangen zu Programmieren :  Informationen und Grundwissen
+## Bevor Sie Anfangen zu Programmieren :  Informationen und hilfreiche Tipps
 
 Was ist denn eigentlich Programmieren?<BR>
 
@@ -17,4 +17,4 @@ Schule.
 ####Wichtige Bemerkung:
 Haben Sie keine Angst vor Fehlern, denn aus seinen eigenen Fehlern lernt man am meisten. Fehler kosten einen oft ein wenig Zeit um sie zu lösen aber haben Sie gedult, es wird sich lohnen. Das wichtigste dabei ist das Sie Spaß mitbringen. Aber denken sie dran: Programmieren lernen ist ein niemals endender Prozess! <BR>
 
-Tipp: Wenn Sie einen Fehler haben, den sie nicht gelöst haben 
+Tipp: Wenn Sie einen Fehler haben, den sie nicht gelöst bekommen, können Sie immer in größen Communitys nachgucken bzw. nachfragen. Viele User können dir dort helfen. Sie können auch interessante Kenntnisse, die sie erlernt haben in einem Notizbuch aufschreiben, dies hilft ihnen später um bestimmte Problem zu lösen.
