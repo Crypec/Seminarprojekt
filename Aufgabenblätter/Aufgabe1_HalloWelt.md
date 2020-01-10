@@ -1,4 +1,4 @@
-##### Aufgabe 1: Hallo Welt
+## Aufgabe 1: Hallo Welt
 Das Programm "Hallo Welt" ist ein sehr einfaches Programm, welches zeigen soll wie die Programmiersprache KUZUTO aufgebaut ist. Dieses Programm soll lediglich erstmal die Worte "Hallo Welt" ausgeben :)
 
 Dafür legen sie in Ihrer Entwicklungsumgebung ein neues Projekt mit dem Namen "Aufgabe 1" an.
@@ -10,14 +10,14 @@ benutze
 [
  "IOTools"
 ]
-start
+fun Start {
 ausgabe "Hallo Welt!"
-[
+}
 ````
 Achten Sie vor allem darauf geöffnete Klammern auch wieder zu schließen! 
 Kompilieren Sie und führen Sie nun das Programm aus.
 
-######Aufgaben: <BR> 
+####Aufgaben: <BR> 
 Diese Aufgaben sollen Ihnen nicht nur helfen, die Grundlagen besser zuverstehen sondern sie auch dazu bringen zu Experimentieren. Denn das ist nicht nur erlaubt, es ist ein muss um Fortschritte zu machen.
 
 Wenn Sie Sachen in Ihrem Programm mit Notizen versehen wollen, können sie die folgende Klammern benutzen:<BR> //Dies ist ein Kommentar
@@ -34,7 +34,7 @@ benutze
 start
 ausgabe "Hallo Welt!"
 ausgabe "3+10" // mit hochgestellten Anführungszeichen
-ausgabe 3+10 //ohne hochgestellte Anführungszeichen
+ausgabe "{}", 3+10 //ohne hochgestellte Anführungszeichen
 [
 ````
 d) Was ist der Unterschied zwischen Textausgaben und Zahlen/Rechnungen?<BR>
@@ -45,10 +45,12 @@ benutze
 [
  "IOTools"
 ]
-start
+fun Start{
+
 a: Zahl = 2
-ausgabe "a hat den Wert {}!", a
-[
+Ausgabe "a hat den Wert {}!", a
+
+}
 ````
 Was passiert wenn Sie das Programm ausführen? Versuchen Sie es mit anderen Beispielen und mehreren Variablen!
 
