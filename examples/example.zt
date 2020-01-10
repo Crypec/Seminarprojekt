@@ -1,0 +1,14 @@
+#benutze [
+	 "Basis",
+]
+
+Typ: Adresse {
+      name: Text,
+      strasse: Text,
+      hausnummer: Zahl,
+      postleitzahl: Zahl,
+}
+
+fun test(i: Zahl) -> Zahl {
+
+}

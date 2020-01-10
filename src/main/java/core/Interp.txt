@@ -1,0 +1,58 @@
+package core;
+
+import util.*;
+
+public class Interp implements Expr.Visitor<Object> {
+
+    @Override
+    public static Object visitLiteralExpr(Expr.Literal ASTNode) {
+	return ASTNode.value;
+    }
+
+    public static Object eval(Expr ASTNode) {
+	return ASTNode.accept();
+    }
+
+    @Override
+    public Object visitGroupingExpr(Expr.Grouping ASTNode) {
+	return eval(ASTNode.expressions);
+    }
+
+    @Override
+    public Object visitUnaryExpr(Expr.Unary ASTNode) {
+
+	Object right = eval(expr.right);
+
+	return switch (ASTNode.operator.getType()) {
+	case MINUS -> -(double)right;
+	case NOT -> !isTruthy(right);
+	default -> null;
+	};
+    }
+
+    private boolean isTruthy(Object object) {               
+	if (object == null) return false;                     
+	if (object instanceof Boolean) return (boolean)object;
+	return true;                                          
+    }   
+
+    @Override                                        
+    public Object visitBinaryExpr(Expr.Binary expr) {
+
+	Object left = eval(expr.left);
+	Object right = eval(expr.right);
+
+	return switch (expr.operator.type) {                  
+	case MINUS -> (double)left - (double)right;       
+	case SLASH -> (double)left / (double)right;       
+	case STAR -> (double)left * (double)right;       
+
+	case PLUS -> plusOp(left, right);
+	};
+    }
+
+    public Object plusOp(Object left, Object right) {
+	if (left instanceof Double && right instanceof Double) return (double)left + (double)right;                  
+	if (left instanceof String && right instanceof String) return (String)left + (String)right;                  
+	}
+}
