@@ -10,14 +10,16 @@
 plugins {
     // Apply the java plugin to add support for Java
     id 'java'
+    id "jacoco"
 	
-	//
+    //
     id "com.adarshr.test-logger" version "2.0.0"
 
     // Apply the application plugin to add support for building a CLI application
     id 'application'
 
     id "io.freefair.lombok" version "4.1.6"
+    id "org.sonarqube" version "2.7"
 }
 
 apply plugin: "io.freefair.lombok"
@@ -29,10 +31,10 @@ repositories {
 }
 
 dependencies {
-    // This dependency is used by the application.
     implementation 'com.google.guava:guava:28.1-jre'
     implementation 'com.google.code.gson:gson:2.8.6'
     implementation 'org.javers:javers-core:5.8.7'
+
     // color printing for nice error messages
     implementation "org.slf4j:slf4j-simple:1.6.1"
     implementation "com.github.tomas-langer:chalk:1.0.2"
@@ -78,9 +80,9 @@ testlogger {
     slowThreshold 2000
     showSummary true
     showSimpleNames false
-    showPassed true
-    showSkipped true
-    showFailed true
+    showPassed false
+    showSkipped false
+    showFailed false
     showStandardStreams true
     showPassedStandardStreams true
     showSkippedStandardStreams true
