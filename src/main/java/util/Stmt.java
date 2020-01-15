@@ -1,6 +1,6 @@
-package util;;
+package util;
 
-import java.util.List;
+import java.util.*;
 import java.io.Serializable;
 
 import lombok.*;
@@ -21,7 +21,23 @@ public abstract class Stmt implements Serializable {
 	R visitWhileStmt(While stmt);
 	R visitBreakStmt(Break stmt);
 	R visitImportStmt(Import stmt);
+	R visitModuleStmt(Module stmt);
+	R visitImplBlockStmt(ImplBlock stmt);
     }
+
+    @Getter @Setter @AllArgsConstructor @EqualsAndHashCode(callSuper=true)
+    public static class Module extends Stmt {
+
+	private String moduleName;
+	private String filename;
+	private List<Stmt> body;
+
+	public <R> R accept(Visitor<R> visitor) {
+	    return visitor.visitModuleStmt(this);
+	}
+
+    }
+
 
     @Getter @Setter @AllArgsConstructor @EqualsAndHashCode(callSuper=true)
     public static class Block extends Stmt implements Serializable {
@@ -51,14 +67,25 @@ public abstract class Stmt implements Serializable {
     }
 
     @Getter @Setter @AllArgsConstructor @EqualsAndHashCode(callSuper=true)
-    public static class Expression extends Stmt implements Serializable {
-
+    public static class ImplBlock extends Stmt {
+	
 	public <R> R accept(Visitor<R> visitor) {
-	    return visitor.visitExpressionStmt(this);
+	    return visitor.visitImplBlockStmt(this);
 	}
-
-	final Expr expression;
+	
+	private final Token name;
+	private final List<Stmt.FunctionDecl> methods;
     }
+
+    @Getter @Setter @AllArgsConstructor @EqualsAndHashCode(callSuper=true)
+	public static class Expression extends Stmt implements Serializable {
+
+	    public <R> R accept(Visitor<R> visitor) {
+		return visitor.visitExpressionStmt(this);
+	    }
+
+	    final Expr expression;
+	}
 
     @Getter @Setter @AllArgsConstructor @EqualsAndHashCode(callSuper=true)
     public static class FunctionDecl extends Stmt implements Serializable {
@@ -82,14 +109,19 @@ public abstract class Stmt implements Serializable {
     @Getter @Setter @AllArgsConstructor @EqualsAndHashCode(callSuper=true)
     public static class If extends Stmt implements Serializable {
 
+	@Getter @Setter @AllArgsConstructor @EqualsAndHashCode
+	public static class Branch {
+	    private final Expr condition;
+	    private final Stmt.Block body;
+	}
+
 	public <R> R accept(Visitor<R> visitor) {
 	    return visitor.visitIfStmt(this);
 	}
 
-	final Expr condition;
-	final Stmt.Block body;
-	final Stmt.If thenBranch;
-	final Stmt.If elseBranch;
+	final Stmt.If.Branch primary;
+	final List<Stmt.If.Branch> alternatives;
+	final Stmt.If.Branch last;
     }
 
     @Getter @Setter @AllArgsConstructor @EqualsAndHashCode(callSuper=true)
@@ -113,7 +145,7 @@ public abstract class Stmt implements Serializable {
 	}
 
 	private final Token location;
-	public final Expr value;
+	private final Expr value;
     }
 
     /*
@@ -177,7 +209,7 @@ public abstract class Stmt implements Serializable {
 
     @Override
     public String toString() {
-	return this.getClass() + new GsonBuilder()
+	return new GsonBuilder()
 	    .setPrettyPrinting()
 	    .serializeNulls()
 	    .create()
