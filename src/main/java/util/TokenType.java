@@ -6,12 +6,14 @@ public enum TokenType {
     IDEN,
     FUNCTION,
     CLASS,
+    IMPL,
     SELF,
     WHILE,
     FOR,
     BREAK,
     UNTIL,
     IF,
+    THEN,
     ELSE,
     RETURN,
 
@@ -77,9 +79,11 @@ public enum TokenType {
 	case "solange" -> TokenType.WHILE;
 	case "für", "fuer" -> TokenType.FOR;
 	case "wenn" -> TokenType.IF;
+	case "dann" -> TokenType.THEN;
 	case "sonst" -> TokenType.ELSE;
 	case "rückgabe", "rueckgabe" -> TokenType.RETURN;
 	case "Typ" -> TokenType.CLASS;
+	case "impl", "implementiere" -> TokenType.IMPL;
 	case "selbst" -> TokenType.SELF;
 	case "bis" -> TokenType.UNTIL;
 	case "stopp" -> TokenType.BREAK;
