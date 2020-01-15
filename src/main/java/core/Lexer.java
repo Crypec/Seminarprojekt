@@ -109,14 +109,14 @@ public class Lexer {
 		.end(cursor)
 		.build();
 
-	    var err = Report.builder()
+	    Report.builder()
 		.wasFatal(true)
 		.errType("Text nicht beendet")
 		.errMsg("Du hast einen nicht erlaubten Token verwendent. Um mehr ueber die namensgebungkonvention in dieser Sprache zu erfahren folge diesem Link")
 		.url("www.TODO.de")
 		.token(errLocation)
-		.build();
-	    System.out.println(err);
+		.build()
+		.print();
 	    return null;
 	}
 	next();
@@ -134,7 +134,19 @@ public class Lexer {
 	} else if (peek() == '.' && peekNext() == '.') {
 	    //FIXME(Simon): return until iterator and num
 	}
-	Double literal = Double.parseDouble(source.substring(start, cursor));
+	Double literal = 0.0;  
+	try {
+	    literal = Double.parseDouble(source.substring(start, cursor));
+	} catch (Exception e) {
+	    Report.builder()
+		.wasFatal(true)
+		.errType("Zahl nicht richtig formatiert")
+		.errMsg("Wir hatten ein Problem beim Parsen einer Zahl im Lexer, achte darauf dass du zahlen richtig formatierst!")
+		.url("www.TODO.de")
+		.token(null)
+		.build()
+		.print();
+	}
 	return buildToken(TokenType.NUMBERLITERAL, literal);
     }
 
