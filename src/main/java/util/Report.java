@@ -81,15 +81,23 @@ public class Report {
     }
 
     public void sync() {
-	if (wasFatal) throw new Report.Error();
+	if (wasFatal) {
+	    Report.hadErr = true;
+	    throw new Report.Error();
+	}
+    }
+
+    public void print() {
+		System.out.println(this);
+		this.sync();
     }
 
     @Override
     public String toString() {
-	return new GsonBuilder()
-	    .setPrettyPrinting()
-	    .serializeNulls()
-	    .create()
-	    .toJson(this);
+		return new GsonBuilder()
+			.setPrettyPrinting()
+			.serializeNulls()
+			.create()
+			.toJson(this);
     }
 }
