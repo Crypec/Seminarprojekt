@@ -54,7 +54,7 @@ public abstract class Stmt implements Serializable {
 	@Getter @Setter @AllArgsConstructor @EqualsAndHashCode
 	public static class Member {
 	    private final Token name;
-	    private final Token type;
+	    private final TypeInfo type;
 	}
 
 	public <R> R accept(Visitor<R> visitor) {
@@ -81,7 +81,7 @@ public abstract class Stmt implements Serializable {
 	public static class Expression extends Stmt implements Serializable {
 
 	    public <R> R accept(Visitor<R> visitor) {
-		return visitor.visitExpressionStmt(this);
+			return visitor.visitExpressionStmt(this);
 	    }
 
 	    final Expr expression;
@@ -93,17 +93,17 @@ public abstract class Stmt implements Serializable {
 	@Getter @Setter @AllArgsConstructor @EqualsAndHashCode
 	public static class Parameter {
 	    private final Token name;
-	    private final Token type;
+	    private final TypeInfo type;
 	}
 	
 	public <R> R accept(Visitor<R> visitor) {
 	    return visitor.visitFunctionStmt(this);
 	}
 
-	private final Token name;
-	private final List<FunctionDecl.Parameter> parameters;
-	private final Token returnType;
-	private final Stmt.Block body;
+		private final Token name;
+		private final List<FunctionDecl.Parameter> parameters;
+		private final TypeInfo returnType;
+		private final Stmt.Block body;
     }
 
     @Getter @Setter @AllArgsConstructor @EqualsAndHashCode(callSuper=true)
@@ -169,8 +169,8 @@ public abstract class Stmt implements Serializable {
 	}
 
 	private final Token name;
-	private final Token type;
-	private final Expr initializer;
+		private final TypeInfo type;
+		private final Expr initializer;
     }
 
     @Getter @Setter @AllArgsConstructor @EqualsAndHashCode(callSuper=true)
