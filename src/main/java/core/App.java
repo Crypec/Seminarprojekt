@@ -4,19 +4,56 @@
 package core;
 
 import util.*;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.*;
+import java.nio.file.*;
+import com.github.tomaslanger.chalk.*;
 
 public class App {
 
-    public static void main(String... args) throws IOException {
+	public static void main(String... args) throws IOException {
+		String path = "./examples/example.zt";
+		String source = readFileToString(path);
+		long start = System.currentTimeMillis();
+		var tokenStream = new Lexer(source, path).tokenize();
+		var ASTNode = new Parser(tokenStream.toArray(Token[]::new)).parse();
+		String generated = new Emitter().emit(ASTNode);
+		if (!Report.hadErr) {
+			System.out.printf("%s %s %n", Chalk.on("[DEBUG]").green().bold(), "No errors found! :D");
+			try (var out = new PrintWriter("AST.json")) {
+				out.print(""); // clear file
+				out.println(ASTNode.toString());
+			}
+			try (var out = new PrintWriter("cpp_build/main.cpp")) {
+				out.print(""); // clear file
+				out.println(generated);
+			}
+		} else {
+			System.out.printf("%s %s %n", Chalk.on("[DEBUG]").red().bold(), "Failed to compile programm! :c");
+		}
+		long end = System.currentTimeMillis();
+		System.out.println(end - start);
+	}
 
-	String path = "./examples/example.zt";
-	String source = new String(Files.readAllBytes(Paths.get(path)));
+	public static String readFileToString(String path) {
+		try {
+			return new String(Files.readAllBytes(Paths.get(path)));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
 
-	var tokenStream = new Lexer(source, path).tokenize();
-	var ASTNode = new Parser(new Iter(tokenStream.toArray(Token[]::new))).parse();
-	System.out.println(tokenStream);
-    }
+	public static void exec(String command) {
+		String s = null;
+		try {
+			var p = Runtime.getRuntime().exec(command);
+			p.waitFor();
+			var stdInput = new BufferedReader(new InputStreamReader(p.getInputStream()));
+			while ((s = stdInput.readLine()) != null) {
+				System.out.println(s);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 }
