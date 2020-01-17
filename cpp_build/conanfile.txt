@@ -1,0 +1,6 @@
+[requires]
+fmt/6.1.2
+jsonformoderncpp/3.7.3@vthiery/stable
+
+[generators]
+cmake
