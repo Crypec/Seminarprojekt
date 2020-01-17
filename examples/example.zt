@@ -1,14 +1,25 @@
-#benutze [
-	 "Basis",
-]
-
-Typ: Adresse {
-      name: Text,
-      strasse: Text,
-      hausnummer: Zahl,
-      postleitzahl: Zahl,
+Typ: Person {
+     name: Text,
+     alter: Zahl,
 }
 
-fun test(i: Zahl) -> Zahl {
+fun Start() {
+	a: [Text] = "test";
+	foo := 2;
+	wenn foo == 2 dann {
+		 bar := #eingabe("was soll bar sein: ");
+		 #ausgabe("{}", bar);
+	}
 
+	#ausgabe("test" 2);
+
+	#ausgabe("hello World");
+	#ausgabe("{}", "wie geht es dir mir geht es gut");
+}
+
+
+fun test(x: [Zahl], index: Zahl) {
+	fuer i := 0 .. 10 {
+		#ausgabe("{}", i);
+	}
 }
