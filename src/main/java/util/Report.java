@@ -106,6 +106,24 @@ public class Report {
     }
 }
 	// this means we can try to detect all errors and not just a single error every time the user tries to compile a programm
+	public String toString() {
+	return String.format(
+			 " %s %n" + //errType
+					" %s %n " + //errMsg
+					"%s " + //atToken(bei Token File auslesen+line
+					 "%s  %n" +
+					 "%s ",this.errType(), this.errMsg, this.getExamples()   )
+	}
+
+	public String getExamples(){
+	String ergebnis;
+	for(int i = 0 ;i < this.examples.size();++i) {
+		ergebnis = ergebnis + this.examples.get(i);
+		}
+	return ergebnis;
+	}
+	
+	}
 	// TODO(Simon): Implement nice pretty prining of error/warning messages
 	@Override
 	public String toString() {
