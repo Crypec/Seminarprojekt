@@ -80,9 +80,9 @@ testlogger {
     slowThreshold 2000
     showSummary true
     showSimpleNames false
-    showPassed false
+    showPassed true
     showSkipped false
-    showFailed false
+    showFailed true
     showStandardStreams true
     showPassedStandardStreams true
     showSkippedStandardStreams true
