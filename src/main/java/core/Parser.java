@@ -28,10 +28,10 @@ public class Parser extends Iter<Token> {
 		while (hasNext()) {
 			switch (peek().getType()) {
 			case FUNCTION, CLASS, IMPL, IMPORT: return;
-			case IDEN: {
-				if (checkNext(TokenType.COLON)) return;
-				if (checkNext(TokenType.VARDEF)) return;
-			}
+				// case IDEN: {
+				// 	if (checkNext(TokenType.COLON)) return;
+				// 	if (checkNext(TokenType.VARDEF)) return;
+				// }
 			default: next();
 			}
 		}
@@ -152,7 +152,7 @@ public class Parser extends Iter<Token> {
 						 fun flaeche() -> Zahl {}
 					 }
 					 """)
-					 .token(peek())
+			.token(peek())
 			.url("TODO")
 			.build();
 					 consume(TokenType.IMPL, err);
@@ -643,13 +643,13 @@ public class Parser extends Iter<Token> {
 			.example("""
 					 fooBar("Hallo", "Welt");
 					 """)
-			.url("TODO")
-			.build();
-		var args = new ArrayList();
-		while (!check(TokenType.RPAREN)) {
-			args.add(parseExpr());
-			matchAny(TokenType.COMMA);
-		}
+		.url("TODO")
+		.build();
+	var args = new ArrayList();
+	while (!check(TokenType.RPAREN)) {
+		args.add(parseExpr());
+		matchAny(TokenType.COMMA);
+	}
 
 		var paren = consume(TokenType.RPAREN, err);
 		return new Expr.Call(callee, paren, args);
@@ -740,7 +740,6 @@ public class Parser extends Iter<Token> {
     private Token consume(TokenType type, Report err) {
 		if (check(type)) return next();   
 		err.setToken(peek());
-		System.out.println("fatal");
 		err.print();
 		System.out.println(Chalk.on("[Debug]").green().bold() + ":: This should be unreachable because of the exception thrown in the line before. Internal compiler error!");
 		return null; // unreachable code becase sync will throw an execption
@@ -750,7 +749,6 @@ public class Parser extends Iter<Token> {
 		if (check(type)) return next();
 		err.setToken(peek());
 	    err.setErrMsg(errMsg);
-		System.out.println("fatal");
 		err.print();
 		System.out.println(Chalk.on("[Debug]").green().bold() + ":: This should be unreachable because of the exception thrown in the line before. Internal compiler error!");
 		return null; // unreachable code becase sync will throw an execption
