@@ -6,15 +6,16 @@ import util.*;
 public class Lexer {
 
     private final String fileName;
-    private final String source;
+    private final String buffer;
 
     private int cursor = 0;
+
     private int start = 0;
     private int line = 1;
 
-    public Lexer(String source, String fileName) {
-	this.source = source;
-	this.fileName = fileName;
+	public Lexer(String buffer, String fileName) {
+		this.buffer = buffer;
+		this.fileName = fileName;
     }
 
     public List<Token> tokenize() {
@@ -76,8 +77,17 @@ public class Lexer {
 	    default: {
 		if (Character.isDigit(c)) yield getNumLiteral();
 		if (Character.isLetter(c) || c == '#') yield getIden(); // check for hashtag because compiler internal functions are prefixed with a hashtag
-		else yield null; // TODO(Simon): report error if invalid char is found
-	    }
+		else {
+			Report.builder()
+				.wasFatal(true)
+				.errType("Zeichen nicht erlaubt")
+				.errMsg(String.format("Du scheinst ein ein Zeichen zu benutzen das nicht erlaubt ist: %s", c))
+				.url("www.TODO.de")
+				.build()
+				.print();
+			yield null;
+		}
+		}
 	    };
 	    if (token != null) tokenStream.add(token);
 	}
@@ -86,7 +96,7 @@ public class Lexer {
 
     public Token getIden() {
 	while (Character.isDigit(peek()) || Character.isLetter(peek())) next();
-	String iden = source.substring(start, cursor);
+	String iden = buffer.substring(start, cursor);
 	return buildToken(TokenType.match(iden));
     }
 
@@ -102,26 +112,26 @@ public class Lexer {
 
 	    var errLocation = Token.builder()
 		.type(TokenType.STRINGLITERAL)
-		.lexeme(source.substring(start, cursor))
-		.fileName(fileName)
-		.line(line)
-		.start(start)
-		.end(cursor)
-		.build();
+		.lexeme(buffer.substring(start, cursor))
+			.fileName(fileName)
+			.line(line)
+			.start(start)
+			.end(cursor)
+			.build();
 
 	    Report.builder()
-		.wasFatal(true)
-		.errType("Text nicht beendet")
-		.errMsg("Du hast einen nicht erlaubten Token verwendent. Um mehr ueber die namensgebungkonvention in dieser Sprache zu erfahren folge diesem Link")
-		.url("www.TODO.de")
-		.token(errLocation)
-		.build()
-		.print();
+			.wasFatal(true)
+			.errType("Text nicht beendet")
+			.errMsg("Du hast einen nicht erlaubten Token verwendent. Um mehr ueber die namensgebungkonvention in dieser Sprache zu erfahren folge diesem Link")
+			.url("www.TODO.de")
+			.token(errLocation)
+			.build()
+			.print();
 	    return null;
 	}
 	next();
 
-	String literal = source.substring(start, cursor);
+	String literal = buffer.substring(start, cursor);
 	return buildToken(TokenType.STRINGLITERAL, literal);
     }
 
@@ -136,7 +146,7 @@ public class Lexer {
 	}
 	Double literal = 0.0;  
 	try {
-	    literal = Double.parseDouble(source.substring(start, cursor));
+	    literal = Double.parseDouble(buffer.substring(start, cursor));
 	} catch (Exception e) {
 	    Report.builder()
 		.wasFatal(true)
@@ -154,23 +164,23 @@ public class Lexer {
 	return Double.parseDouble(strNum);
     }
 
-    public boolean hasNext() { return this.source.length() > cursor; }
+    public boolean hasNext() { return this.buffer.length() > cursor; }
 
-    public char next() { return this.source.charAt(cursor++); }
+    public char next() { return this.buffer.charAt(cursor++); }
 
     public char peek() {
 	if (!hasNext()) return '\0';
-	return source.charAt(cursor);
+	return buffer.charAt(cursor);
     }
 
     public char peekNext() {
-	if (cursor + 1 >= source.length()) return '\0';
-	return this.source.charAt(cursor++);
+	if (cursor + 1 >= buffer.length()) return '\0';
+	return this.buffer.charAt(cursor++);
     }
 
     public boolean match(char expected) {
 	if (!hasNext()) return false;
-	if (source.charAt(cursor) != expected) {
+	if (buffer.charAt(cursor) != expected) {
 	    return false;  
 	}  else {
 	    next();
@@ -183,7 +193,7 @@ public class Lexer {
     private Token buildToken(TokenType type, Object literal) {
 	return Token.builder()
 	    .type(type)
-	    .lexeme(source.substring(start, cursor))
+	    .lexeme(buffer.substring(start, cursor))
 	    .fileName(fileName)
 	    .line(line)
 	    .start(start)
