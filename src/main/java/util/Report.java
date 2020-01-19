@@ -88,7 +88,7 @@ public class Report {
     }
 
     public void print() {
-		System.out.println(this);
+		System.err.println(this);
 		this.sync();
     }
 
@@ -96,7 +96,6 @@ public class Report {
     public String toString() {
 		return new GsonBuilder()
 			.setPrettyPrinting()
-			.serializeNulls()
 			.create()
 			.toJson(this);
     }
