@@ -17,13 +17,12 @@ public class Emitter implements Stmt.Visitor<String>, Expr.Visitor<String> {
 		return prelude + stmts.stream()
 			.filter(stmt -> stmt != null)
 			.map(stmt -> stmt.accept(this))
-			.collect(Collectors.joining("\n\n")) + "\nint main() {Start();}" ;
+			.collect(Collectors.joining("\n\n")) + "\nint main() {\n\tStart();\n}" ;
     }
 
     public String visitModuleStmt(Stmt.Module ASTNode) {
 		return null;
     }
-
 
     @Override
     public String visitStructDeclStmt(Stmt.StructDecl structDecl) {
@@ -31,21 +30,22 @@ public class Emitter implements Stmt.Visitor<String>, Expr.Visitor<String> {
 	    .map(member -> String.format("    %s %s;", resolveType(member.getType()), member.getName().getLexeme()))
 	    .collect(Collectors.joining("\n"));
 
-	return String.format("struct %s {%n%s%n};", structDecl.getName().getLexeme(), members);
+	return String.format("struct %s {%n%s %s %n};", structDecl.getName().getLexeme(), members, emitJsonSerialization(structDecl));
     }
 
 	public static String emitJsonSerialization(Stmt.StructDecl structDecl) {
-
-		var paramaterName = Character.toLowerCase(structDecl.getName().getLexeme().toCharArray()[0]);
-		
-		// String members = structDecl.getMembers().stream()
-		// 	.map(member -> String.format("""
-		// 								 {"%s, %s"}
-		// 								 """,
-		// 								 member.getParameter().getLexeme()),
-		// 		 paramaterName)
-		// 	.collect(Collectors.joining(", "));
-		return null;
+		String structName = structDecl.getName().getLexeme();
+		String paramName = String.format("__param__%s", structName);
+		var sb = new StringBuilder();
+		for (val member : structDecl.getMembers()) {
+			sb.append(String.format("""
+									{"%s", %s.%s}
+									""",
+									member.getName(),
+									paramName,
+									member.getName()));
+		}
+		return String.format("void to_json(json& j, const %s&) {%s}", structName, paramName, sb.toString());
 
 	}
 
