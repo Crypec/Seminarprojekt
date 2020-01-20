@@ -40,16 +40,22 @@ public abstract class Expr implements Serializable {
 
     @Getter @Setter @AllArgsConstructor @EqualsAndHashCode(callSuper=true)
     public static class StructLiteral extends Expr implements Serializable {
+		
+		@Getter @Setter @AllArgsConstructor 
+		public static class Field {
+			private final Token fieldName;
+			private final Expr value;
+		}
 
-	public StructLiteral(TypeInfo type, HashMap<Token, Expr> values) {
-	    this.type = type;
-	    this.values = values;
-	}
+		public StructLiteral(TypeInfo type, List<Field> values) {
+			this.type = type;
+			this.values = values;
+		}
 
-	public <R> R accept(Visitor<R> visitor) {
-	    return visitor.visitStructLiteralExpr(this);
-	}
-	private final HashMap<Token, Expr> values;
+		public <R> R accept(Visitor<R> visitor) {
+			return visitor.visitStructLiteralExpr(this);
+		}
+		private final List<Field> values;
     }
     @Getter @Setter @RequiredArgsConstructor @EqualsAndHashCode(callSuper=true)
     public static class Binary extends Expr implements Serializable {
