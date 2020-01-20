@@ -9,8 +9,10 @@ import java.util.stream.*;
 // Transpiles our language to cpp code
 // TODO(Simon): replace all usages of String.format because it is slow and not very readable
 public class Emitter implements Stmt.Visitor<String>, Expr.Visitor<String> {
-    
-    public String emit(List<Stmt> stmts) {
+
+	private static final String lineSeperator = System.getProperty("line.separator");
+	
+	public String emit(List<Stmt> stmts) {
 
 		var prelude = App.readFileToString("./prelude.cpp");
 
@@ -30,32 +32,59 @@ public class Emitter implements Stmt.Visitor<String>, Expr.Visitor<String> {
 	    .map(member -> String.format("    %s %s;", resolveType(member.getType()), member.getName().getLexeme()))
 	    .collect(Collectors.joining("\n"));
 
-	return String.format("struct %s {%n%s %s %n};", structDecl.getName().getLexeme(), members, emitJsonSerialization(structDecl));
+	return new StringBuffer().append(String.format("struct %s {%n%s%n};", structDecl.getName().getLexeme(), members))
+		.append(lineSeperator)
+		.append(jsonSerializerFunc(structDecl))
+		.append(lineSeperator)
+		.append(buildFormatterTemplate(structDecl))
+		.toString();
     }
 
-	public static String emitJsonSerialization(Stmt.StructDecl structDecl) {
-		String structName = structDecl.getName().getLexeme();
-		String paramName = String.format("__param__%s", structName);
-		var sb = new StringBuilder();
-		for (val member : structDecl.getMembers()) {
-			sb.append(String.format("""
-									{"%s", %s.%s}
-									""",
-									member.getName(),
-									paramName,
-									member.getName()));
-		}
-		return String.format("void to_json(json& j, const %s&) {%s}", structName, paramName, sb.toString());
+	public static String jsonSerializerFunc(Stmt.StructDecl node) {
 
+		String paramName = "__param__" + node.getName().getLexeme();
+		var sb = new StringBuffer();
+		for (val member : node.getMembers()) {
+			String memberName = member.getName().getLexeme();
+			String template = """
+				{"%s", %s.%s},
+				""";
+			sb.append(String.format(template, memberName, paramName, memberName));
+		}
+		String structName = node.getName().getLexeme();
+		String template = """
+			void to_json(json& j, const %s& %s) {
+			j = json{%s};
+		}
+		""";
+		return String.format(template, structName, paramName, sb);
+	}
+
+	public static String buildFormatterTemplate(Stmt.StructDecl node) {
+		String template = """
+			template <>
+			struct fmt::formatter<%s> {
+			constexpr auto parse(format_parse_context& ctx) { return ctx.begin(); }
+
+			template <typename FormatContext>
+			auto format(const %s& %s, FormatContext& ctx) {
+				json j = %s;
+				return format_to(ctx.out(), "{}", j.dump(4));
+			}
+		};
+		""";
+		String paramName = "__param__" + node.getName().getLexeme();
+		String structName = node.getName().getLexeme();
+		return String.format(template, structName, structName, paramName, paramName);
 	}
 
 	public static String resolveType(TypeInfo type) {
-		return switch (type.getType()) {
+		return switch (type.getTypeString()) {
 		case "Zahl": yield "double";
 		case "Text": yield "std::string";
 		case "Bool": yield "boolean";
 		case "#Null": yield "null";
-		default: yield type.getType() ;
+		default: yield type.getTypeString();
 		};
     }
     
@@ -227,8 +256,22 @@ public class Emitter implements Stmt.Visitor<String>, Expr.Visitor<String> {
 
     @Override
     public String visitStructLiteralExpr(Expr.StructLiteral literal) {
-	return String.format("new %s()", literal.getType());
-    }
+
+		/* TODO(Simon):
+		 * Right now order of declaration in the structliteral matters and has  to be the same as in the structdecl. 
+		 * This should not be the case, to fix this we could either generate a constructor for the class and math the
+		 * index of the struct against the value at the index of the structliteral, or we generate a builder for
+		 *  every struct in the programm, to set all the values in the fields with a setter method.
+		 */
+		
+		System.out.println(literal.getType().getTypeString());
+		var sb = new StringBuffer();
+		for (val entry : literal.getValues()) {
+			sb.append(String.format(".%s = %s, ", entry.getFieldName().getLexeme(), entry.getValue().accept(this)));
+		}
+		if (sb.length() > 0) sb.setLength(sb.length() - 1); // remove trailing comma
+		return String.format("%s {%s}", literal.getType().getTypeString(), sb);
+	}
 
     @Override
     public String visitAssignExpr(Expr.Assign expr) {
