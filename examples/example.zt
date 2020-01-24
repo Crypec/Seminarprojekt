@@ -3,23 +3,21 @@ Typ: Person {
      alter: Zahl,
 }
 
+Typ: Adresse {
+	 strasse: Text, 
+	 nummer: Zahl,
+	 postleitzahl: Zahl,
+}
+
 fun Start() {
-	a: [Text] = "test";
-	foo := 2;
-	wenn foo == 2 dann {
-		 bar := #eingabe("was soll bar sein: ");
-		 #ausgabe("{}", bar);
+	
+	me := Person{name: "Simon", alter: 18};
+	wenn test.nummer == 2 dann {
+		 #ausgabe("Hello World\n");
 	}
+	asd
+	#ausgabe("{}\n", me);
+	#ausgabe("{}\n", test);
 
-	#ausgabe("test" 2);
-
-	#ausgabe("hello World");
-	#ausgabe("{}", "wie geht es dir mir geht es gut");
 }
 
-
-fun test(x: [Zahl], index: Zahl) {
-	fuer i := 0 .. 10 {
-		#ausgabe("{}", i);
-	}
-}

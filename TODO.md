@@ -1,17 +1,13 @@
 # TODO
 	1. Parser
-	2. Interp
+	2. C Emitter
 	3. CLI tool
 
 
-#  Ideas
-	 Implementing different number bases in the compiler is clearly stupid, we should try to make the simplest language possible.
-	 Easy to learn and understand not really easy to use. We can provide a function in the std to convert different nums.
-	 Enum support would be super cool. 
-	 
-# Lexer
-	* StringIterator emit tokens on line per line basis insert semicolon if statement is detected
-	* Init Token with right metaData -> right now we don't care about line number and filename but for errorReporting in the future we defenetly should
+## TODO(Bugs)
+
+1. Fix start and end position of token in lexer
+2. Fix array access parsing
 
 Tasks:
 
@@ -20,9 +16,4 @@ Tasks:
 		2. zuse start
 		3. zuse Filename
 		4. zuse installiere 
-<<<<<<< HEAD
-		5. zuse update
-=======
-
 We could use slf4j MessageFormatter for pretty Printing to stdout
->>>>>>> feature/cpp_emitter

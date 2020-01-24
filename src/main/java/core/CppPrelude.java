@@ -15,6 +15,5 @@ public class CppPrelude {
 		#include <iostream>
 		""";
 
-
 	public static final String input = "__internal_get_input";
 }

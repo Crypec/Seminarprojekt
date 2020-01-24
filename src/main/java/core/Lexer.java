@@ -95,9 +95,9 @@ public class Lexer {
     }
 
     public Token getIden() {
-	while (Character.isDigit(peek()) || Character.isLetter(peek())) next();
-	String iden = buffer.substring(start, cursor);
-	return buildToken(TokenType.match(iden));
+		while (Character.isDigit(peek()) || Character.isLetter(peek()) || peek() == '_') next();
+		String iden = buffer.substring(start, cursor);
+		return buildToken(TokenType.match(iden));
     }
 
     public Token getStringLiteral() {

@@ -37,7 +37,7 @@ public class Parser extends Iter<Token> {
 		}
     }
 
-    public Stmt parseStmt() {
+	public Stmt parseStmt() {
 		try {
 			while (hasNext() && !check(TokenType.EOF)) {
 				return switch (peek().getType()) {
@@ -68,8 +68,7 @@ public class Parser extends Iter<Token> {
 		return null;
     }
 
-    public Stmt.FunctionDecl parseFunctionDecl(boolean selfParamAllowed) {
-
+	public Stmt.FunctionDecl.Signature parseFunctionSignature(boolean selfParamAllowed) {
 		var err = Report.builder()
 			.wasFatal(true)
 			.errType("Fehler beim parsen einer Funktion")
@@ -87,17 +86,18 @@ public class Parser extends Iter<Token> {
 		if (selfParamAllowed && check(TokenType.SELF)) {
 			var location = consume(TokenType.SELF, "Der Parameter selbst darf nur als Parameter zu Methoden eines Datentypes vorkommen, er erlaubt dir die Werte des DatenTypes auf den die Methode agiert zu aendern",  err);
 			consume(TokenType.COMMA, "An dieser Stelle haben wir ein Komma erwartet, um die Parameter in der Funktionssignatur voneinander zu trennen", err);
-			params.add(new Stmt.FunctionDecl.Parameter(location, null));
+			params.add(new Stmt.FunctionDecl.Signature.Parameter(location, null));
 		}
 
 		while (!check(TokenType.RPAREN)) {
 			Token paramName = consume(TokenType.IDEN, "An dieser Stelle haben wir den Namen des Parameters erwartet", err);
 			consume(TokenType.COLON, "An dieser Stelle haben wir einen Doppelpunkt : erwartet, er trennt den Parameternamen von dessen DatenTyp", err);
 			var paramType = parseTypeSpecifier();
-			params.add(new Stmt.FunctionDecl.Parameter(paramName, paramType));
+			params.add(new Stmt.FunctionDecl.Signature.Parameter(paramName, paramType));
 			if (check(TokenType.RPAREN)) break;
 			consume(TokenType.COMMA, "An dieser Stelle haben wir ein Komma erwartet, um die einzelnen Parameter in der Funktionssignatur voneinander zu trennen", err);
 		}
+
 		consume(TokenType.RPAREN, "An dieser Stelle haben wir eine schliessende Klammer: ) erwartet", err);
 
 		TypeInfo returnType = null;
@@ -105,8 +105,14 @@ public class Parser extends Iter<Token> {
 			consume(TokenType.ARROW, "wenn deine Funktion einen Wert zurueckgeben soll, musst du den DatenTypes nach einem Pfeil -> angeben", err);
 			returnType = parseTypeSpecifier();
 		}
+
+		return new Stmt.FunctionDecl.Signature(functionName, params, returnType);
+	}
+
+	public Stmt.FunctionDecl parseFunctionDecl(boolean selfParamAllowed) {
+		var signature = parseFunctionSignature(selfParamAllowed);
 		var body = parseBlock();
-		return new Stmt.FunctionDecl(functionName, params, returnType, body);
+		return new Stmt.FunctionDecl(signature, body);
     }
 
 	public TypeInfo parseTypeSpecifier() {
@@ -332,7 +338,6 @@ public class Parser extends Iter<Token> {
     }
 
     public Expr.StructLiteral parseStructLiteral() {
-
 		var err = Report.builder()
             .wasFatal(true)
             .errType("Fehler beim parsen eines StruktLiterals")
@@ -350,12 +355,13 @@ public class Parser extends Iter<Token> {
 		var structName = consume(TokenType.IDEN, "An diser Stelle haben wir den Namen des zu erstellden Typen erwartet", err);
 		consume(TokenType.STARTBLOCK, "An dieser Stelle haben wir eine oeffnende Klammer: { erwartet", err);
 
-		var fields = new HashMap();
+		var fields = new ArrayList();
 		while (!check(TokenType.ENDBLOCK)) {
 			var fieldName = consume(TokenType.IDEN, "An dieser Stelle haben wir den Namen des Feldes dass du beschreiben moechtest erwartet" ,err);
 			consume(TokenType.COLON, "An dieser Stelle haben wir ein : erwartet", err);
 			var value = parseExpr();
-			fields.put(fieldName, value);
+			fields.add(new Expr.StructLiteral.Field(fieldName, value));
+			if (check(TokenType.ENDBLOCK)) break;
 			consume(TokenType.COMMA, "An dieser Stelle haben wir ein Komma erwartet", err);
 		}
 		consume(TokenType.ENDBLOCK, "An dieser Stelle haben wir ein schliessende Klammer } erwartet", err);
@@ -648,27 +654,27 @@ public class Parser extends Iter<Token> {
 	var args = new ArrayList();
 	while (!check(TokenType.RPAREN)) {
 		args.add(parseExpr());
-		matchAny(TokenType.COMMA);
+		if (check(TokenType.RPAREN)) break;
+		consume(TokenType.COMMA, "Argumente einer Funktion muessen mit einem Komma getrennt werden", err);
 	}
 
-		var paren = consume(TokenType.RPAREN, err);
-		return new Expr.Call(callee, paren, args);
+					 var paren = consume(TokenType.RPAREN, err);
+	return new Expr.Call(callee, paren, args);
     }
 
     private Expr.ArrayAccess parseArrayAccess() {
 		var err = Report.builder()
 			.wasFatal(true)
 			.errType("Unerwarteter Token!")
-			.errMsg("An dieser Stelle haben wir einen Feldzugriff erwartet")
 			.example("a[0]")
 			.example("foo[d +2]")
 			.example("a[2][2]")
 			.url("TODO")
 			.build();
-		var arrayName = consume(TokenType.IDEN, err);
-		consume(TokenType.LBRACKET, err);
+		var arrayName = consume(TokenType.IDEN, "An dieser Stelle haben wir den Namen des Arrays erwartet", err);
+		consume(TokenType.LBRACKET, "An dieser Stelle haben wir eine oeffnende Klammer erwartet: [", err);
 	    var index = parseExpr();
-	    consume(TokenType.RBRACKET, err);
+	    consume(TokenType.RBRACKET, "An dieser Stelle haben wir ein schliessende Klammer erwartet: ]", err);
 	    return new Expr.ArrayAccess(arrayName, index);
 	}
 

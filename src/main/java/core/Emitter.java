@@ -1,6 +1,7 @@
 package core;
 
 import util.*;
+import java.io.*;
 import lombok.*;
 import java.util.*;
 import java.util.stream.*;
@@ -28,17 +29,28 @@ public class Emitter implements Stmt.Visitor<String>, Expr.Visitor<String> {
 
     @Override
     public String visitStructDeclStmt(Stmt.StructDecl structDecl) {
-	String members = structDecl.getMembers().stream()
-	    .map(member -> String.format("    %s %s;", resolveType(member.getType()), member.getName().getLexeme()))
-	    .collect(Collectors.joining("\n"));
 
-	return new StringBuffer().append(String.format("struct %s {%n%s%n};", structDecl.getName().getLexeme(), members))
-		.append(lineSeperator)
-		.append(jsonSerializerFunc(structDecl))
-		.append(lineSeperator)
-		.append(buildFormatterTemplate(structDecl))
-		.toString();
-    }
+		String members = structDecl.getMembers().stream()
+			.map(member -> String.format("    %s %s;", resolveType(member.getType()), member.getName().getLexeme()))
+			.collect(Collectors.joining("\n"));
+
+		String path = "cpp_build/src/types/" + structDecl.getName().getLexeme();
+
+		var sb = new StringBuffer().append(String.format("struct %s {%n%s%n};", structDecl.getName().getLexeme(), members))
+			.append(lineSeperator)
+			.append(jsonSerializerFunc(structDecl))
+			.append(lineSeperator)
+			.append(buildFormatterTemplate(structDecl))
+			.toString();
+
+		try (var out = new PrintWriter(path)) {
+out.print(""); // clear file
+		out.println(sb.toString());
+	} catch(Exception e) {
+		e.printStackTrace();
+	}
+		return null;
+	}
 
 	public static String jsonSerializerFunc(Stmt.StructDecl node) {
 
@@ -90,9 +102,9 @@ public class Emitter implements Stmt.Visitor<String>, Expr.Visitor<String> {
     
     @Override
     public String visitBlockStmt(Stmt.Block block) {
-	return "{" + block.getStatements().stream()
-	    .map(stmt -> stmt.accept(this))
-	    .map(stmt -> String.format("%n%s%n", stmt))
+		return "{" + block.getStatements().stream()
+			.map(stmt -> stmt.accept(this))
+.map(stmt -> String.format("%n%s%n", stmt))
 	    .collect(Collectors.joining())
 	    .concat("}");
     }
@@ -105,15 +117,15 @@ public class Emitter implements Stmt.Visitor<String>, Expr.Visitor<String> {
     @Override
     public String visitFunctionStmt(Stmt.FunctionDecl func) {
 
-	String params = func.getParameters()
-	    .stream()
-	    .map(param -> String.format("%s &%s", resolveType(param.getType()), param.getName().getLexeme())) // TODO(Simon): getType().getType() :D
-		.collect(Collectors.joining(","));
+		String params = func.getSignature().getParameters()
+			.stream()
+			.map(param -> String.format("%s &%s", resolveType(param.getType()), param.getName().getLexeme())) // TODO(Simon): getType().getType() :D
+			.collect(Collectors.joining(","));
 
-	String returnType = func.getReturnType() == null ? "void" : resolveType(func.getReturnType());
-	var body = visitBlockStmt(func.getBody());
+		String returnType = func.getSignature().getReturnType() == null ? "void" : resolveType(func.getSignature().getReturnType());
+		var body = visitBlockStmt(func.getBody());
 
-	return String.format("%s %s(%s) %s", returnType, func.getName().getLexeme(), params, body);
+		return String.format("%s %s(%s) %s", returnType, func.getSignature().getName().getLexeme(), params, body);
     }
 
     @Override
@@ -199,15 +211,15 @@ public class Emitter implements Stmt.Visitor<String>, Expr.Visitor<String> {
 
     @Override
     public String visitCallExpr(Expr.Call call) {
+		
+		var callee = call.getCallee().accept(this);
 
-	var callee = call.getCallee().accept(this);
-
-	var sb = new StringBuilder();
-	for (var arg : call.getArguments()) {
-	    sb.append(arg.accept(this));
-	    sb.append(", ");
-	}
-	if (sb.length() > 0) sb.setLength(sb.length() -2); //remove trailing comma
+		var sb = new StringBuilder();
+		for (var arg : call.getArguments()) {
+			sb.append(arg.accept(this));
+			sb.append(", ");
+		}
+		if (sb.length() > 0) sb.setLength(sb.length() -2); //remove trailing comma
 
 	return String.format("%s(%s)", callee, sb.toString());
     }
@@ -281,7 +293,7 @@ public class Emitter implements Stmt.Visitor<String>, Expr.Visitor<String> {
 
     @Override
     public String visitArrayAccessExpr(Expr.ArrayAccess expr) {
-	return String.format("%s[%s]", expr.getName().getLexeme(), expr.getIndex().accept(this));
+		return String.format("%s[(int)%s]", expr.getName().getLexeme(), expr.getIndex().accept(this));
     }
 
     @Override
