@@ -11,6 +11,7 @@ import java.util.stream.*;
 // TODO(Simon): replace all usages of String.format because it is slow and not very readable
 public class Emitter implements Stmt.Visitor<String>, Expr.Visitor<String> {
 
+	
 	private static final String lineSeperator = System.getProperty("line.separator");
 	
 	public String emit(List<Stmt> stmts) {
@@ -20,7 +21,7 @@ public class Emitter implements Stmt.Visitor<String>, Expr.Visitor<String> {
 		return prelude + stmts.stream()
 			.filter(stmt -> stmt != null)
 			.map(stmt -> stmt.accept(this))
-			.collect(Collectors.joining("\n\n")) + "\nint main() {\n\tStart();\n}" ;
+			.collect(Collectors.joining("\n\n")) + "\nint main() {\n\tstart();\n}" ;
     }
 
     public String visitModuleStmt(Stmt.Module ASTNode) {
@@ -29,47 +30,37 @@ public class Emitter implements Stmt.Visitor<String>, Expr.Visitor<String> {
 
     @Override
     public String visitStructDeclStmt(Stmt.StructDecl structDecl) {
-
-		String members = structDecl.getMembers().stream()
-			.map(member -> String.format("    %s %s;", resolveType(member.getType()), member.getName().getLexeme()))
-			.collect(Collectors.joining("\n"));
-
-		String path = "cpp_build/src/types/" + structDecl.getName().getLexeme();
-
-		var sb = new StringBuffer().append(String.format("struct %s {%n%s%n};", structDecl.getName().getLexeme(), members))
-			.append(lineSeperator)
-			.append(jsonSerializerFunc(structDecl))
-			.append(lineSeperator)
-			.append(buildFormatterTemplate(structDecl))
-			.toString();
-
-		try (var out = new PrintWriter(path)) {
-out.print(""); // clear file
-		out.println(sb.toString());
-	} catch(Exception e) {
-		e.printStackTrace();
-	}
+		// String members = structDecl.getMembers().stream()
+		// 	.map(member -> String.format("    %s %s;", resolveType(member.getType()), member.getName().getLexeme()))
+		// 	.collect(Collectors.joining("\n"));
 		return null;
+		// return new StringBuffer().append(String.format("struct %s {%n%s%n};", structDecl.getName().getLexeme(), members))
+		// 	.append(lineSeperator)
+		// 	.append(jsonSerializerFunc(structDecl))
+		// 	.append(lineSeperator)
+		// 	.append(buildFormatterTemplate(structDecl))
+		// 	.toString();
 	}
 
 	public static String jsonSerializerFunc(Stmt.StructDecl node) {
 
-		String paramName = "__param__" + node.getName().getLexeme();
-		var sb = new StringBuffer();
-		for (val member : node.getMembers()) {
-			String memberName = member.getName().getLexeme();
-			String template = """
-				{"%s", %s.%s},
-				""";
-			sb.append(String.format(template, memberName, paramName, memberName));
-		}
-		String structName = node.getName().getLexeme();
-		String template = """
-			void to_json(json& j, const %s& %s) {
-			j = json{%s};
-		}
-		""";
-		return String.format(template, structName, paramName, sb);
+		// String paramName = "__param__" + node.getName().getLexeme();
+		// var sb = new StringBuffer();
+		// for (val member : node.getMembers()) {
+		// 	String memberName = member.getName().getLexeme();
+		// 	String template = """
+		// 		{"%s", %s.%s},
+		// 		""";
+		// 	sb.append(String.format(template, memberName, paramName, memberName));
+		// }
+		// String structName = node.getName().getLexeme();
+		// String template = """
+		// 	void to_json(json& j, const %s& %s) {
+		// 	j = json{%s};
+		// }
+		// """;
+		// return String.format(template, structName, paramName, sb);
+		return null;
 	}
 
 	public static String buildFormatterTemplate(Stmt.StructDecl node) {
@@ -174,20 +165,28 @@ out.print(""); // clear file
 
     @Override
     public String visitVarDefStmt(Stmt.VarDef varDef) {
+		//TODO(Simon): emit mangled name for shadowing support in c++
+		String target = emitAssignmentTarget(varDef);
 		// TODO(Simon): Use own infered type!!!
-		String varType = varDef.getType() == null? "auto": resolveType(varDef.getType());
-		var expr = varDef.getInitializer().accept(this);
-		return String.format("%s %s = %s;", varType, varDef.getName().getLexeme(), expr);
+		String type = varDef.getType() == null? "auto": resolveType(varDef.getType());
+		String value = varDef.getInitializer().accept(this);
+		return String.format("%s %s = %s;", type, target, value);
     }
 
-    @Override
-    public String visitWhileStmt(Stmt.While whileStmt) {
+	private static String emitAssignmentTarget(Stmt.VarDef node) {
+		return node.getTarget().stream()
+			.map(Token::getLexeme)
+			.collect(Collectors.joining("."));
+	}
+
+	@Override
+	public String visitWhileStmt(Stmt.While whileStmt) {
 		var block = visitBlockStmt(whileStmt.getBody());
 		return String.format("while (%s) %s", whileStmt.getCondition().accept(this), block);
-    }
+	}
 
-    @Override
-    public String visitImportStmt(Stmt.Import importStmt) {
+	@Override
+	public String visitImportStmt(Stmt.Import importStmt) {
 
 		String alwaysImport = """
 			#include <vector>
@@ -197,20 +196,20 @@ out.print(""); // clear file
 			""";
 
 		return String.format("%s%n", alwaysImport);
-    }
+	}
 
-    @Override
-    public String visitBreakStmt(Stmt.Break breakStmt) {
-	return "break;";
-    }
+	@Override
+	public String visitBreakStmt(Stmt.Break breakStmt) {
+		return "break;";
+	}
 
-    @Override
-    public String visitBinaryExpr(Expr.Binary binary) {
-	return String.format("%s %s %s", binary.getLeft().accept(this) , binary.getOperator().getLexeme(), binary.getRight().accept(this));
-    }
+	@Override
+	public String visitBinaryExpr(Expr.Binary binary) {
+		return String.format("%s %s %s", binary.getLeft().accept(this) , binary.getOperator().getLexeme(), binary.getRight().accept(this));
+	}
 
-    @Override
-    public String visitCallExpr(Expr.Call call) {
+	@Override
+	public String visitCallExpr(Expr.Call call) {
 		
 		var callee = call.getCallee().accept(this);
 
@@ -221,53 +220,53 @@ out.print(""); // clear file
 		}
 		if (sb.length() > 0) sb.setLength(sb.length() -2); //remove trailing comma
 
-	return String.format("%s(%s)", callee, sb.toString());
-    }
+		return String.format("%s(%s)", callee, sb.toString());
+	}
 
-    @Override
-    public String visitGetExpr(Expr.Get get) {
-	var expr  = get.getObject().accept(this);
-	return String.format("%s.%s", expr, get.getName().getLexeme());
-    }
+	@Override
+	public String visitGetExpr(Expr.Get get) {
+		var expr  = get.getObject().accept(this);
+		return String.format("%s.%s", expr, get.getName().getLexeme());
+	}
 
-    @Override
-    public String visitGroupingExpr(Expr.Grouping grouping) {
-	return String.format("(%s)", grouping.getExpression().accept(this));
-    }
+	@Override
+	public String visitGroupingExpr(Expr.Grouping grouping) {
+		return String.format("(%s)", grouping.getExpression().accept(this));
+	}
 
-    @Override
-    public String visitVariableExpr(Expr.Variable expr) {
+	@Override
+	public String visitVariableExpr(Expr.Variable expr) {
 		return expr.getName().getLexeme();
-    }
+	}
 
-    @Override
-    public String visitLiteralExpr(Expr.Literal literal) {
-	if (literal.getValue() == null) return "null";
-	return literal.getValue().toString();
-    }
+	@Override
+	public String visitLiteralExpr(Expr.Literal literal) {
+		if (literal.getValue() == null) return "null";
+		return literal.getValue().toString();
+	}
 
-    @Override
-    public String visitSetExpr(Expr.Set set) {
-	throw new UnsupportedOperationException();
-    }
+	@Override
+	public String visitSetExpr(Expr.Set set) {
+		throw new UnsupportedOperationException();
+	}
 
-    @Override
-    public String visitUnaryExpr(Expr.Unary expr) {
-	return String.format("%s %s", expr.getOperator().getLexeme(), expr.accept(this));
-    }
+	@Override
+	public String visitUnaryExpr(Expr.Unary expr) {
+		return String.format("%s %s", expr.getOperator().getLexeme(), expr.accept(this));
+	}
 
-    @Override
-    public String visitSelfExpr(Expr.Self expr) {
-	return "this";
-    }
+	@Override
+	public String visitSelfExpr(Expr.Self expr) {
+		return "this";
+	}
 
-    @Override
-    public String visitInputExpr(Expr.Input expr) {
+	@Override
+	public String visitInputExpr(Expr.Input expr) {
 		return String.format("%s(%s)",CppPrelude.input, expr.getMessage().accept(this));
 	}
 
-    @Override
-    public String visitStructLiteralExpr(Expr.StructLiteral literal) {
+	@Override
+	public String visitStructLiteralExpr(Expr.StructLiteral literal) {
 
 		/* TODO(Simon):
 		 * Right now order of declaration in the structliteral matters and has  to be the same as in the structdecl. 
@@ -285,19 +284,19 @@ out.print(""); // clear file
 		return String.format("%s {%s}", literal.getType().getTypeString(), sb);
 	}
 
-    @Override
-    public String visitAssignExpr(Expr.Assign expr) {
-	var value = expr.getValue().accept(this);
+	@Override
+	public String visitAssignExpr(Expr.Assign expr) {
+		var value = expr.getValue().accept(this);
 	return String.format("%s = %s;", expr.getName().getLexeme(), value);
-    }
+	}
 
-    @Override
-    public String visitArrayAccessExpr(Expr.ArrayAccess expr) {
+	@Override
+	public String visitArrayAccessExpr(Expr.ArrayAccess expr) {
 		return String.format("%s[(int)%s]", expr.getName().getLexeme(), expr.getIndex().accept(this));
-    }
+	}
 
-    @Override
-    public String visitImplBlockStmt(Stmt.ImplBlock ASTNode) {
-	return null;
-    }
+	@Override
+	public String visitImplBlockStmt(Stmt.ImplBlock ASTNode) {
+		return null;
+	}
 }
