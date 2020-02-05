@@ -46,29 +46,25 @@ dependencies {
     implementation 'junit:junit:4.12'
 }
 
-jar {
-    manifest {
-	attributes 'Main-Class' : 'core.App'
-    }
-    from {
-        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
-    }
+compileJava {
+    options.compilerArgs += ["--enable-preview"]
 }
+test {
+    jvmArgs '--enable-preview'
+}
+
+// jar {
+//     manifest {
+// 	attributes 'Main-Class' : 'core.App'
+//     }
+//     from {
+//         configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+//     }
+// }
 
 application {
     // Define the main class for the application
     mainClassName = 'core.App'
-}
-
-tasks.withType(JavaCompile).each {
-    it.options.compilerArgs.add('--enable-preview')
-    // add compiler checks for unchecked and unsafe operations
-    // it.options.compilerArgs.add('-Xlint:unchecked') 
-}
-//enable java 12 features for tests
-test {
-    ignoreFailures = true
-    jvmArgs(['--enable-preview'])
 }
 
 run {
