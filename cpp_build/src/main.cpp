@@ -40,10 +40,24 @@ struct Person {
 };
 
 
-void Start() {
+void start() {
 auto me = Person {.name = "Simon", .alter = 18.0,};
 
+if (me.name == "Simon") {
+fmt::print("Hallo Simon");
+}
+
+auto bar = foo();
+
+auto bar = 20.0;
+
+auto bar = "test";
+
 fmt::print("{}\n",me);
+}
+
+double addiere(double &x,double &y) {
+return x + y;
 }
 int main() {
 	Start();

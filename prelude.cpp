@@ -14,7 +14,6 @@ std::string __internal_get_input(std::string message) {
   return input;
 }
 
-template <typename T>
-T __internal__array_access(const std::vector<T> buffer) {
-  
+int main() {
+	start();
 }

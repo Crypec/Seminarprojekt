@@ -3,21 +3,24 @@ Typ: Person {
      alter: Zahl,
 }
 
-Typ: Adresse {
-	 strasse: Text, 
-	 nummer: Zahl,
-	 postleitzahl: Zahl,
-}
 
-fun Start() {
-	
-	me := Person{name: "Simon", alter: 18};
-	wenn test.nummer == 2 dann {
-		 #ausgabe("Hello World\n");
+impl SpielFeld {
+	fun neu(groesse: Zahl) -> SpieldFeld {
+		rueckgabe 20;
 	}
-	asd
-	#ausgabe("{}\n", me);
-	#ausgabe("{}\n", test);
 
+	fun name(selbst) -> Text {
+		rueckgabe selbst.name;
+	}
+}
+fun start() {
+	foo := bar("test") + 2;
 }
 
+fun bar(x: Zahl) -> Zahl {
+	rueckgabe 2;
+}
+
+fun bar(x: Text) -> Text {
+	rueckgabe 3;
+}
