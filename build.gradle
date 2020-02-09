@@ -44,13 +44,14 @@ dependencies {
 
     // Use JUnit test framework
     implementation 'junit:junit:4.12'
+    //spotbugsPlugins 'com.h3xstream.findsecbugs:findsecbugs-plugin:1.7.1'
 }
 
 compileJava {
     options.compilerArgs += ["--enable-preview"]
 }
-test {
-    jvmArgs '--enable-preview'
+compileTestJava {
+    options.compilerArgs += ["--enable-preview"]
 }
 
 // jar {
@@ -70,8 +71,12 @@ application {
 run {
     jvmArgs(['--enable-preview'])
 }
+
+test {
+    jvmArgs(['--enable-preview'])
+}
 testlogger {
-    theme 'mocha'
+    theme 'mocha-parallel'
     showExceptions true
     showStackTraces true
     showFullStackTraces false
@@ -80,7 +85,7 @@ testlogger {
     showSummary true
     showSimpleNames false
     showPassed true
-    showSkipped false
+    showSkipped true
     showFailed true
     showStandardStreams true
     showPassedStandardStreams true
