@@ -20,6 +20,7 @@ public class App {
         long start = System.currentTimeMillis();
         var tokenStream = new Lexer(source, path).tokenize();
         var ASTNode = new Parser(tokenStream.toArray(Token[]::new)).parse();
+		new Typer().infer(ASTNode);
         String generated = new Emitter().emit(ASTNode);
         if (!Report.hadErr) {
             System.out.printf(

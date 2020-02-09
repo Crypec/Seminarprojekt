@@ -188,7 +188,7 @@ public class Lexer {
 	}
     }
 
-    private Token buildToken(TokenType type) { return buildToken(type, null); }
+    private Token buildToken(TokenType type) { return buildToken(type, Optional.empty()); }
 
     private Token buildToken(TokenType type, Object literal) {
 	return Token.builder()
@@ -198,7 +198,7 @@ public class Lexer {
 	    .line(line)
 	    .start(start)
 	    .end(cursor)
-	    .literal(literal)
+	    .literal(Optional.of(literal))
 	    .build();
     }
 }
