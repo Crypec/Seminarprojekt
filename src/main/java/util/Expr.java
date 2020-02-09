@@ -11,47 +11,35 @@ public abstract class Expr implements Serializable {
 
     public interface Visitor<R> {
         R visitBinaryExpr(Binary expr);
-
         R visitCallExpr(Call expr);
-
         R visitGetExpr(Get expr);
-
         R visitGroupingExpr(Grouping expr);
-
         R visitLiteralExpr(Literal expr);
-
         R visitSetExpr(Set expr);
-
         R visitSelfExpr(Self expr);
-
         R visitUnaryExpr(Unary expr);
-
         R visitVariableExpr(Variable expr);
-
         R visitInputExpr(Input expr);
-
         R visitAssignExpr(Assign expr);
-
         R visitStructLiteralExpr(StructLiteral expr);
-
         R visitArrayAccessExpr(ArrayAccess expr);
     }
 
-    protected TypeInfo type = null; // set type for all expr nodes to null
+    protected Optional<TypeInfo> type = Optional.empty(); // set type for all expr nodes to null
 
-    @Getter
-    @Setter
-    @RequiredArgsConstructor
-    @EqualsAndHashCode(callSuper = true)
-    public static class Assign extends Expr implements Serializable {
+	@Getter
+	@Setter
+	@RequiredArgsConstructor
+	@EqualsAndHashCode(callSuper = true)
+	public static class Assign extends Expr implements Serializable {
 
-        private final Token name;
-        private final Expr value;
+		private final Token name;
+		private final Expr value;
 
-        public <R> R accept(Visitor<R> visitor) {
-            return visitor.visitAssignExpr(this);
-        }
-    }
+		public <R> R accept(Visitor<R> visitor) {
+			return visitor.visitAssignExpr(this);
+		}
+	}
 
     @Getter
     @Setter
@@ -67,8 +55,8 @@ public abstract class Expr implements Serializable {
             private final Expr value;
         }
 
-        public StructLiteral(TypeInfo type, List<Field> values) {
-            this.type = type;
+        public StructLiteral(@NonNull TypeInfo type, List<Field> values) {
+            this.type = Optional.of(type);
             this.values = values;
         }
 
@@ -107,7 +95,7 @@ public abstract class Expr implements Serializable {
         public <R> R accept(Visitor<R> visitor) {
             return visitor.visitCallExpr(this);
         }
-    }
+	}
 
     @Getter
     @Setter
@@ -155,11 +143,9 @@ public abstract class Expr implements Serializable {
     @EqualsAndHashCode(callSuper = true)
     public static class Set extends Expr implements Serializable {
 
-        private final Expr object;
-        private final Token name;
-        private final Expr value;
+		private final List<Token> targetList;
 
-        public <R> R accept(Visitor<R> visitor) {
+		public <R> R accept(Visitor<R> visitor) {
             return visitor.visitSetExpr(this);
         }
     }
