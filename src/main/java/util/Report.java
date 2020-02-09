@@ -86,13 +86,13 @@ public class Report {
         }
     }
 
-    public void print() {
+    public Report print() {
         System.err.println(this);
-        this.sync();
-    }
+		return this;
+	}
 
-    @Override
-    public String toString() {
+	@Override
+	public String toString() {
         return new GsonBuilder().setPrettyPrinting().create().toJson(this);
     }
 }
