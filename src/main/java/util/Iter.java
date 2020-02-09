@@ -42,11 +42,14 @@ public class Iter<T> implements Iterator {
         return buffer[cursor + 1];
     }
 
-    public void setBackOnePosition() {
-        cursor -= 1;
-    }
+	public T peek(int offset) {
+		if (cursor + offset > buffer.length) {
+			return null;
+		}
+		return buffer[cursor + offset];
+	}
 
-    public void remove() {
+	public void remove() {
         throw new UnsupportedOperationException();
     }
 
