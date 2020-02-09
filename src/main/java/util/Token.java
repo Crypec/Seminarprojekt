@@ -14,7 +14,7 @@ public class Token implements Serializable {
 
     private TokenType type;
     private String lexeme;
-    private Object literal;
+    private Optional<Object> literal;
 
     private String fileName;
     private int line;
