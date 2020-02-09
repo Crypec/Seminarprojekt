@@ -1,5 +1,5 @@
 # TODO
-	1. Parser
+	1. Typechecker
 	2. C Emitter
 	3. CLI tool
 
