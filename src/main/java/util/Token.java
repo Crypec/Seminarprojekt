@@ -22,10 +22,6 @@ public class Token implements Serializable {
     private int start;
     private int end;
 
-    public Token(TokenType type) {
-        this.type = type;
-    }
-
     public Token(TokenType type, String lexeme) {
         this.type = type;
         this.lexeme = lexeme;
