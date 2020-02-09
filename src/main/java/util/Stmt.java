@@ -1,6 +1,9 @@
 package util;
 
 import com.google.gson.*;
+import com.google.common.collect.*;
+import java.util.stream.*;
+import java.util.function.*;
 import java.io.Serializable;
 import java.util.*;
 import lombok.*;
@@ -9,29 +12,17 @@ public abstract class Stmt implements Serializable {
 
     public interface Visitor<R> {
         R visitBlockStmt(Block stmt);
-
         R visitStructDeclStmt(StructDecl stmt);
-
         R visitExpressionStmt(Expression stmt);
-
         R visitFunctionStmt(FunctionDecl stmt);
-
         R visitIfStmt(If stmt);
-
         R visitPrintStmt(Print stmt);
-
         R visitReturnStmt(Return stmt);
-
         R visitVarDefStmt(VarDef stmt);
-
         R visitWhileStmt(While stmt);
-
         R visitBreakStmt(Break stmt);
-
         R visitImportStmt(Import stmt);
-
         R visitModuleStmt(Module stmt);
-
         R visitImplBlockStmt(ImplBlock stmt);
     }
 
@@ -69,25 +60,16 @@ public abstract class Stmt implements Serializable {
     @EqualsAndHashCode(callSuper = true)
     public static class StructDecl extends Stmt implements Serializable {
 
-        @Getter
-        @Setter
-        @AllArgsConstructor
-        @EqualsAndHashCode
-        public static class Member {
-            private final Token name;
-            private final TypeInfo type;
+		public String getStringName() {
+			return this.name.getLexeme();
+		}
 
-            public String toString() {
-                return new GsonBuilder().setPrettyPrinting().create().toJson(this);
-            }
-        }
-
-        public <R> R accept(Visitor<R> visitor) {
+		public <R> R accept(Visitor<R> visitor) {
             return visitor.visitStructDeclStmt(this);
         }
 
         private final Token name;
-        private final List<Member> members;
+        private final LinkedHashMap<String, Token> members;
         private final List<FunctionDecl> methods;
     }
 
@@ -115,7 +97,7 @@ public abstract class Stmt implements Serializable {
             return visitor.visitExpressionStmt(this);
         }
 
-        final Expr expression;
+        Expr expression;
     }
 
     @Getter
@@ -130,17 +112,29 @@ public abstract class Stmt implements Serializable {
         @EqualsAndHashCode
         public static class Signature {
 
-            private final Token name;
+            private Token name;
             private final List<FunctionDecl.Signature.Parameter> parameters;
-            private final TypeInfo returnType;
 
-            @Getter
-            @Setter
-            @AllArgsConstructor
-            @EqualsAndHashCode
-            public static class Parameter {
+			private Optional<TypeInfo> returnType;
+
+			public boolean argTypesEqual(Expr.Call call) {
+				if (call.getArguments().size() != this.parameters.size()) {
+					return false;
+				}
+				if (call.getArguments().size() == 0 && this.parameters.size() == 0) return true;
+				val callArgs = call.getArguments().stream();
+				val paramArgs = parameters.stream();
+				return Streams.zip(callArgs, paramArgs, (a, b) -> a.getType().get().getTypeString().equals(b.getType().get().getTypeString()))
+					.anyMatch(x -> x);
+			}
+
+			@Getter
+			@Setter
+			@AllArgsConstructor
+			@EqualsAndHashCode
+			public static class Parameter {
                 private final Token name;
-                private final TypeInfo type;
+                private final Optional<TypeInfo> type;
             }
         }
 
@@ -148,7 +142,7 @@ public abstract class Stmt implements Serializable {
             return visitor.visitFunctionStmt(this);
         }
 
-        private final Stmt.FunctionDecl.Signature signature;
+		private final Stmt.FunctionDecl.Signature signature;
         private final Stmt.Block body;
     }
 
@@ -163,8 +157,8 @@ public abstract class Stmt implements Serializable {
         @AllArgsConstructor
         @EqualsAndHashCode
         public static class Branch {
-            private final Expr condition;
-            private final Stmt.Block body;
+            private Expr condition;
+            private Stmt.Block body;
         }
 
         public <R> R accept(Visitor<R> visitor) {
@@ -199,9 +193,8 @@ public abstract class Stmt implements Serializable {
         public <R> R accept(Visitor<R> visitor) {
             return visitor.visitReturnStmt(this);
         }
-
-        private final Token location;
-        private final Expr value;
+        private Token location;
+        private Expr value;
     }
 
     /*
@@ -227,8 +220,8 @@ public abstract class Stmt implements Serializable {
             return visitor.visitVarDefStmt(this);
         }
 
-        private final Token name;
-        private final TypeInfo type;
+        private final List<Token> target;
+        private Optional<TypeInfo> type;
         private final Expr initializer;
     }
 
