@@ -86,14 +86,14 @@ public class Parser extends Iter<Token> {
 		var params = new ArrayList();
 		if (selfParamAllowed && check(TokenType.SELF)) {
 			var location = consume(TokenType.SELF, "Der Parameter selbst darf nur als Parameter zu Methoden eines Datentypes vorkommen, er erlaubt dir die Werte des DatenTypes auf den die Methode agiert zu aendern",  err);
-			consume(TokenType.COMMA, "An dieser Stelle haben wir ein Komma erwartet, um die Parameter in der Funktionssignatur voneinander zu trennen", err);
+			if (!check(TokenType.RPAREN)) consume(TokenType.COMMA, "An dieser Stelle haben wir ein Komma erwartet, um die Parameter in der Funktionssignatur voneinander zu trennen", err);
 			params.add(new Stmt.FunctionDecl.Signature.Parameter(location, null));
 		}
 
 		while (!check(TokenType.RPAREN)) {
 			Token paramName = consume(TokenType.IDEN, "An dieser Stelle haben wir den Namen des Parameters erwartet", err);
 			consume(TokenType.COLON, "An dieser Stelle haben wir einen Doppelpunkt : erwartet, er trennt den Parameternamen von dessen DatenTyp", err);
-			var paramType = parseTypeSpecifier();
+			var paramType = Optional.of(parseTypeSpecifier());
 			params.add(new Stmt.FunctionDecl.Signature.Parameter(paramName, paramType));
 			if (check(TokenType.RPAREN)) break;
 			consume(TokenType.COMMA, "An dieser Stelle haben wir ein Komma erwartet, um die einzelnen Parameter in der Funktionssignatur voneinander zu trennen", err);
@@ -101,12 +101,11 @@ public class Parser extends Iter<Token> {
 
 		consume(TokenType.RPAREN, "An dieser Stelle haben wir eine schliessende Klammer: ) erwartet", err);
 
-		TypeInfo returnType = null;
+		Optional<TypeInfo> returnType = Optional.empty();
 		if (!check(TokenType.STARTBLOCK)) {
 			consume(TokenType.ARROW, "wenn deine Funktion einen Wert zurueckgeben soll, musst du den DatenTypes nach einem Pfeil -> angeben", err);
-			returnType = parseTypeSpecifier();
-		}
-
+			returnType = Optional.of(parseTypeSpecifier());
+		} 
 		return new Stmt.FunctionDecl.Signature(functionName, params, returnType);
 	}
 
@@ -135,7 +134,12 @@ public class Parser extends Iter<Token> {
 		for (int i = 0; i < arrayLevel; i++) {
 			consume(TokenType.RBRACKET, "An dieser Stelle haben wir eine schliessende eckige Klammer erwartet: ], es scheint als haettest du mehr oeffnende Klammern wie schliessende", err);
 		}
-		return new TypeInfo(typeName.getLexeme(), typeName, arrayLevel);
+		return TypeInfo.builder()
+			.typeString(typeName.getLexeme())
+			.arrayLevel(arrayLevel)
+			.isDirty(false)
+			.location(typeName)
+			.build();
 	}
 
 	public Stmt.ImplBlock parseImplBlock() {
@@ -367,7 +371,13 @@ public class Parser extends Iter<Token> {
 			consume(TokenType.COMMA, "An dieser Stelle haben wir ein Komma erwartet", err);
 		}
 		consume(TokenType.ENDBLOCK, "An dieser Stelle haben wir ein schliessende Klammer } erwartet", err);
-		return new Expr.StructLiteral(new TypeInfo(structName.getLexeme(), structName), fields);
+		var type = TypeInfo.builder()
+					.typeString(structName.getLexeme())
+					.arrayLevel(0)
+					.isDirty(false)
+					.location(structName)
+					.build();
+		return new Expr.StructLiteral(type, fields);
     }
 
 
@@ -522,13 +532,12 @@ public class Parser extends Iter<Token> {
 
 		var target = parseAssignmentTarget();
 
-		TypeInfo type = null;
-
+		Optional<TypeInfo> type = Optional.empty();
 		if (check(TokenType.VARDEF)) {
 			consume(TokenType.VARDEF, err);
 		} else if (check(TokenType.COLON)) {
 			consume(TokenType.COLON, err); // user provided type information, variable is typed
-			type = parseTypeSpecifier();
+			type = Optional.of(parseTypeSpecifier());
 			consume(TokenType.EQUALSIGN, err);
 		} else {
 			consume(TokenType.VARDEF, err); // FIXME(Simon): This is only a short fix to provide a error message
