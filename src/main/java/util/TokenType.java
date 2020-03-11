@@ -19,13 +19,8 @@ public enum TokenType {
 
     // Compiler native functions
     READINPUT,
+	WRITE,
     PRINT,
-
-    // TODO(Simon): remove primitive types we could desugar them in the parser, this would save use the time to check them seperately in typechecking phase
-    // primitive Types
-    // STRINGTYPE,
-    // NUMBERTYPE,
-    // BOOLEANTYPE,
 
     STRINGLITERAL,
     NUMBERLITERAL,
@@ -44,6 +39,7 @@ public enum TokenType {
     EQUALSIGN,
     SEMICOLON,
     COMMA,
+	PLACEHOLDER,
 
     EOF, // the EndOfFile token specifies the end of a file, if we reach this token we are finished with parsing
 
@@ -75,7 +71,7 @@ public enum TokenType {
     public static TokenType match(String s) {
 	return switch (s) {
 	    // keywords
-	case "fun" -> TokenType.FUNCTION;
+	case "fn", "fun", "funktion" -> TokenType.FUNCTION;
 	case "solange" -> TokenType.WHILE;
 	case "für", "fuer" -> TokenType.FOR;
 	case "wenn" -> TokenType.IF;
@@ -90,6 +86,7 @@ public enum TokenType {
 
 	// Compiler native functions
 	case "#eingabe" -> TokenType.READINPUT;
+	case "#schreibe" -> TokenType.WRITE;
 	case "#ausgabe" -> TokenType.PRINT;
 	case "#benutze" -> TokenType.IMPORT;
 
@@ -130,6 +127,7 @@ public enum TokenType {
 	case "]" -> TokenType.RBRACKET;
 	case ":" -> TokenType.COLON;
 	case "." -> TokenType.DOT;
+	case "_" -> TokenType.PLACEHOLDER;
 	case "=" -> TokenType.EQUALSIGN;
 	case "," -> TokenType.COMMA;
 
@@ -145,12 +143,12 @@ public enum TokenType {
 	};
     }
 
-    public static boolean isNumeric(String s) {
-	try {
-	    Double.parseDouble(s);
-	} catch (Exception e) {
-	    return false;
-	}
-	return true;
-    }
+    // public static boolean isNumeric(String s) {
+	// try {
+	//     Double.parseDouble(s);
+	// } catch (Exception e) {
+	//     return false;
+	// }
+	// return true;
+    // }
 }

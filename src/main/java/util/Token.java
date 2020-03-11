@@ -12,23 +12,27 @@ import lombok.*;
 @EqualsAndHashCode
 public class Token implements Serializable {
 
-    private TokenType type;
-    private String lexeme;
-    private Optional<Object> literal;
+	private TokenType type;
+	private String lexeme;
+	private Object literal;
 
-    private String fileName;
-    private int line;
+	private String fileName;
+	private int line;
 
-    private int start;
-    private int end;
+	private int start;
+	private int end;
 
-    public Token(TokenType type, String lexeme) {
-        this.type = type;
-        this.lexeme = lexeme;
-    }
+	public Token(TokenType type, String lexeme) {
+		this.type = type;
+		this.lexeme = lexeme;
+	}
 
-    @Override
-    public String toString() {
-        return new GsonBuilder().setPrettyPrinting().create().toJson(this);
-    }
+	@Override
+	public String toString() {
+		return new GsonBuilder()
+			.setPrettyPrinting()
+			.disableHtmlEscaping()
+			.create()
+			.toJson(this);
+	}
 }

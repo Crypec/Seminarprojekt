@@ -23,8 +23,8 @@ public class Lexer {
 	while (this.hasNext()) {
 	    start = cursor;
 
-	    var c = this.next();
-	    var token = switch (c) {
+	    char c = this.next();
+		var token = switch (c) {
 	    case '(': yield buildToken(TokenType.LPAREN);
 	    case ')': yield buildToken(TokenType.RPAREN);
 	    case '[': yield buildToken(TokenType.LBRACKET);
@@ -50,12 +50,15 @@ public class Lexer {
 	    case '*': yield buildToken(TokenType.MULTIPLY);
 	    case '%': yield buildToken(TokenType.MODULO);
 	    case '/': {
-		if (match('/')) while (peek() != '\n' && hasNext()) next();
-		else yield buildToken(TokenType.DIVIDE);
-	    }
+			if (match('/')) {
+			 while (peek() != '\n' && hasNext()) next();
+			 yield null;
+			} 
+			else yield buildToken(TokenType.DIVIDE);
+		}
 	    case '!': {
-		if (match('=')) yield buildToken(TokenType.NOTEQUAL);
-		else yield buildToken(TokenType.NOT);
+			if (match('=')) yield buildToken(TokenType.NOTEQUAL);
+			else yield buildToken(TokenType.NOT);
 	    }
 	    case '=': {
 		if (match('=')) yield buildToken(TokenType.EQUALEQUAL);
@@ -169,8 +172,8 @@ public class Lexer {
     public char next() { return this.buffer.charAt(cursor++); }
 
     public char peek() {
-	if (!hasNext()) return '\0';
-	return buffer.charAt(cursor);
+		if (!hasNext()) return '\0';
+		return buffer.charAt(cursor);
     }
 
     public char peekNext() {
@@ -188,7 +191,7 @@ public class Lexer {
 	}
     }
 
-    private Token buildToken(TokenType type) { return buildToken(type, Optional.empty()); }
+    private Token buildToken(TokenType type) { return buildToken(type, null); }
 
     private Token buildToken(TokenType type, Object literal) {
 	return Token.builder()
@@ -198,7 +201,7 @@ public class Lexer {
 	    .line(line)
 	    .start(start)
 	    .end(cursor)
-	    .literal(Optional.of(literal))
+	    .literal(literal)
 	    .build();
     }
 }

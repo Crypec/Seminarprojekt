@@ -1,274 +1,358 @@
 package util;
 
-import com.google.gson.*;
+import com.google.common.base.Functions;
+import static java.text.MessageFormat.format;
 import com.google.common.collect.*;
-import java.util.stream.*;
-import java.util.function.*;
+import com.google.gson.*;
 import java.io.Serializable;
 import java.util.*;
+import java.util.function.*;
+import java.util.stream.*;
 import lombok.*;
 
 public abstract class Stmt implements Serializable {
 
-    public interface Visitor<R> {
-        R visitBlockStmt(Block stmt);
-        R visitStructDeclStmt(StructDecl stmt);
-        R visitExpressionStmt(Expression stmt);
-        R visitFunctionStmt(FunctionDecl stmt);
-        R visitIfStmt(If stmt);
-        R visitPrintStmt(Print stmt);
-        R visitReturnStmt(Return stmt);
-        R visitVarDefStmt(VarDef stmt);
-        R visitWhileStmt(While stmt);
-        R visitBreakStmt(Break stmt);
-        R visitImportStmt(Import stmt);
-        R visitModuleStmt(Module stmt);
-        R visitImplBlockStmt(ImplBlock stmt);
-    }
+	public interface Visitor<R> {
+		R visitBlockStmt(Block stmt);
 
-    @Getter
-    @Setter
-    @AllArgsConstructor
-    @EqualsAndHashCode(callSuper = true)
-    public static class Module extends Stmt {
+		R visitStructDeclStmt(StructDecl stmt);
 
-        private String moduleName;
-        private String filename;
-        private List<Stmt> body;
+		R visitExpressionStmt(Expression stmt);
 
-        public <R> R accept(Visitor<R> visitor) {
-            return visitor.visitModuleStmt(this);
-        }
-    }
+		R visitFunctionStmt(FunctionDecl stmt);
 
-    @Getter
-    @Setter
-    @AllArgsConstructor
-    @EqualsAndHashCode(callSuper = true)
-    public static class Block extends Stmt implements Serializable {
+		R visitIfStmt(If stmt);
 
-        public <R> R accept(Visitor<R> visitor) {
-            return visitor.visitBlockStmt(this);
-        }
+		R visitPrintStmt(Print stmt);
 
-        private final List<Stmt> statements;
-    }
+		R visitReturnStmt(Return stmt);
 
-    @Getter
-    @Setter
-    @AllArgsConstructor
-    @EqualsAndHashCode(callSuper = true)
-    public static class StructDecl extends Stmt implements Serializable {
+		R visitVarDefStmt(VarDef stmt);
+
+		R visitWhileStmt(While stmt);
+
+		R visitForStmt(For stmt);
+
+		R visitBreakStmt(Break stmt);
+
+		R visitImportStmt(Import stmt);
+
+		R visitModuleStmt(Module stmt);
+
+		R visitImplBlockStmt(ImplBlock stmt);
+	}
+
+	@Getter
+	@Setter
+	@AllArgsConstructor
+	@EqualsAndHashCode(callSuper = true)
+	public static class Module extends Stmt {
+		private String moduleName;
+		private String filename;
+		private List<Stmt> body;
+
+		public <R> R accept(Visitor<R> visitor) {
+			return visitor.visitModuleStmt(this);
+		}
+	}
+
+	@Getter
+	@Setter
+	@AllArgsConstructor
+	@EqualsAndHashCode(callSuper = true)
+	public static class Block extends Stmt implements Serializable {
+
+		public <R> R accept(Visitor<R> visitor) {
+			return visitor.visitBlockStmt(this);
+		}
+
+		private final List<Stmt> statements;
+	}
+
+	@Getter
+	@Setter
+	@AllArgsConstructor
+	@EqualsAndHashCode(callSuper = true)
+	public static class StructDecl extends Stmt implements Serializable {
 
 		public String getStringName() {
 			return this.name.getLexeme();
 		}
 
 		public <R> R accept(Visitor<R> visitor) {
-            return visitor.visitStructDeclStmt(this);
-        }
+			return visitor.visitStructDeclStmt(this);
+		}
 
-        private final Token name;
-        private final LinkedHashMap<String, Token> members;
-        private final List<FunctionDecl> methods;
+		public boolean hasField(String fieldName) {
+			return fields != null && fields.containsKey(fieldName);
+		}
+
+		public boolean hasMethod(String methodName) {
+			if (methods == null) return false;
+
+			return methods.stream()
+				.filter(f -> f.getStringName().equals(methodName))
+				.findAny()
+				.isPresent();
+		}
+
+		public TypeInfo getFieldType(String field) {
+			return fields.get(field);
+		}
+
+		private final Token name;
+		private final LinkedHashMap<String, TypeInfo> fields;
+		private List<FunctionDecl> methods;
+	}
+
+	@Getter
+	@Setter
+	@AllArgsConstructor
+	@EqualsAndHashCode(callSuper = true)
+	public static class ImplBlock extends Stmt {
+
+		public <R> R accept(Visitor<R> visitor) {
+      return visitor.visitImplBlockStmt(this);
     }
+
+	  public String getStringName() {
+		  return this.name.getLexeme();
+	  }
+
+	  private final Token name;
+    private final List<FunctionDecl> methods;
+  }
+
+  @Getter
+  @Setter
+  @AllArgsConstructor
+  @EqualsAndHashCode(callSuper = true)
+  public static class Expression extends Stmt implements Serializable {
+
+    public <R> R accept(Visitor<R> visitor) {
+      return visitor.visitExpressionStmt(this);
+    }
+
+	  Expr expression;
+  }
+
+  @Getter
+  @Setter
+  @AllArgsConstructor
+  @EqualsAndHashCode(callSuper = true)
+  public static class FunctionDecl extends Stmt implements Serializable {
 
     @Getter
     @Setter
     @AllArgsConstructor
-    @EqualsAndHashCode(callSuper = true)
-    public static class ImplBlock extends Stmt {
+    @EqualsAndHashCode
+    public static class Signature {
 
-        public <R> R accept(Visitor<R> visitor) {
-            return visitor.visitImplBlockStmt(this);
-        }
+		private Token name;
+		private final List<FunctionDecl.Signature.Parameter> parameters;
+		private TypeInfo returnType;
+		private boolean isStatic;
 
-        private final Token name;
-        private final List<Stmt.FunctionDecl> methods;
-    }
+		@Getter
+		@Setter
+		@AllArgsConstructor
+@EqualsAndHashCode
+		public static class Parameter {
+			private final Token name;
+			private final TypeInfo type;
 
-    @Getter
-    @Setter
-    @AllArgsConstructor
-    @EqualsAndHashCode(callSuper = true)
-    public static class Expression extends Stmt implements Serializable {
+			@Override
+			public String toString() {
+				return name.getLexeme() + ": " + type;
+			}
 
-        public <R> R accept(Visitor<R> visitor) {
-            return visitor.visitExpressionStmt(this);
-        }
+		}
 
-        Expr expression;
-    }
 
-    @Getter
-    @Setter
-    @AllArgsConstructor
-    @EqualsAndHashCode(callSuper = true)
-    public static class FunctionDecl extends Stmt implements Serializable {
+		public boolean argTypesEqual(Expr.Call call) {
+			if (call.getArguments().size() == 0 && this.parameters.size() == 0) return true;
 
-        @Getter
-        @Setter
-        @AllArgsConstructor
-        @EqualsAndHashCode
-        public static class Signature {
+			// TODO(Simon): fixme
+			val callArgs = call.getArguments().stream();
+			val paramArgs = parameters.stream();
 
-            private Token name;
-            private final List<FunctionDecl.Signature.Parameter> parameters;
+			if (parameters.get(0).getName().getLexeme().equals("selbst")) {
 
-			private Optional<TypeInfo> returnType;
-
-			public boolean argTypesEqual(Expr.Call call) {
-				if (call.getArguments().size() != this.parameters.size()) {
-					return false;
+				if ((parameters.size() -1) == 0 && call.getArguments().size() == 0){
+					return true;
 				}
-				if (call.getArguments().size() == 0 && this.parameters.size() == 0) return true;
-				val callArgs = call.getArguments().stream();
-				val paramArgs = parameters.stream();
-				return Streams.zip(callArgs, paramArgs, (a, b) -> a.getType().get().getTypeString().equals(b.getType().get().getTypeString()))
+				return Streams
+					.zip(paramArgs.skip(1), callArgs, (a, b) -> a.getType().equals(b.getType()))
 					.anyMatch(x -> x);
 			}
 
-			@Getter
-			@Setter
-			@AllArgsConstructor
-			@EqualsAndHashCode
-			public static class Parameter {
-                private final Token name;
-                private final Optional<TypeInfo> type;
-            }
-        }
+	return Streams
+				.zip(callArgs, paramArgs, (a, b) -> a.getType().equals(b.getType()))
+				.anyMatch(x -> x);
+		}
+		@Override
+		public String toString() {
+			String paramString = parameters.stream()
+				.map(Signature.Parameter::toString)
+				.collect(Collectors.joining(","));
+			return format("{0}({1} -> {2})", name.getLexeme(), paramString, returnType);
+		}
+	}
 
-        public <R> R accept(Visitor<R> visitor) {
-            return visitor.visitFunctionStmt(this);
-        }
+	  public <R> R accept(Visitor<R> visitor) {
+		  return visitor.visitFunctionStmt(this);
+	  }
 
-		private final Stmt.FunctionDecl.Signature signature;
-        private final Stmt.Block body;
-    }
+	  public String getStringName() {
+		  return this.signature.getName().getLexeme();
+	  }
 
-    @Getter
-    @Setter
-    @AllArgsConstructor
-    @EqualsAndHashCode(callSuper = true)
-    public static class If extends Stmt implements Serializable {
+	  private final Stmt.FunctionDecl.Signature signature;
+	  private final Stmt.Block body;
+  }
 
-        @Getter
-        @Setter
-        @AllArgsConstructor
-        @EqualsAndHashCode
-        public static class Branch {
-            private Expr condition;
-            private Stmt.Block body;
-        }
-
-        public <R> R accept(Visitor<R> visitor) {
-            return visitor.visitIfStmt(this);
-        }
-
-        final Stmt.If.Branch primary;
-        final List<Stmt.If.Branch> alternatives;
-        final Stmt.If.Branch last;
-    }
+  @Getter
+  @Setter
+  @AllArgsConstructor
+  @EqualsAndHashCode(callSuper = true)
+  public static class If extends Stmt implements Serializable {
 
     @Getter
     @Setter
     @AllArgsConstructor
-    @EqualsAndHashCode(callSuper = true)
-    public static class Print extends Stmt implements Serializable {
-
-        public <R> R accept(Visitor<R> visitor) {
-            return visitor.visitPrintStmt(this);
-        }
-
-        private final Token formatter;
-        private final List<Expr> expressions;
+    @EqualsAndHashCode
+    public static class Branch {
+      private Expr condition;
+      private Stmt.Block body;
     }
 
-    @Getter
-    @Setter
-    @AllArgsConstructor
-    @EqualsAndHashCode(callSuper = true)
-    public static class Return extends Stmt implements Serializable {
-
-        public <R> R accept(Visitor<R> visitor) {
-            return visitor.visitReturnStmt(this);
-        }
-        private Token location;
-        private Expr value;
+    public <R> R accept(Visitor<R> visitor) {
+      return visitor.visitIfStmt(this);
     }
 
-    /*
-      The  operator for variable defintions allows you to specify a new variable, which can be used later.
-      By default you dont have to specify the type of a variable, the compiler is going to figure it for you.
+    final Stmt.If.Branch primary;
+    final List<Stmt.If.Branch> alternatives;
+    final Stmt.If.Branch last;
+  }
 
-      Example:
-      foo := (10 + 3)
+  @Getter
+  @Setter
+  @AllArgsConstructor
+  @EqualsAndHashCode(callSuper = true)
+  public static class Print extends Stmt implements Serializable {
 
-      If you want to explicatly specify the type of a variable you can do this using the following syntax:
-
-      bar: Text = "Hello World"
-
-      it differs from the assingment operator which is just a = (equalsign) that it shadows the old variable and its type
-    */
-    @Getter
-    @Setter
-    @AllArgsConstructor
-    @EqualsAndHashCode(callSuper = true)
-    public static class VarDef extends Stmt implements Serializable {
-
-        public <R> R accept(Visitor<R> visitor) {
-            return visitor.visitVarDefStmt(this);
-        }
-
-        private final List<Token> target;
-        private Optional<TypeInfo> type;
-        private final Expr initializer;
+    public <R> R accept(Visitor<R> visitor) {
+      return visitor.visitPrintStmt(this);
     }
 
-    @Getter
-    @Setter
-    @AllArgsConstructor
-    @EqualsAndHashCode(callSuper = true)
-    public static class While extends Stmt implements Serializable {
+    private final Token formatter;
+    private final List<Expr> expressions;
+  }
 
-        public <R> R accept(Visitor<R> visitor) {
-            return visitor.visitWhileStmt(this);
-        }
+  @Getter
+  @Setter
+  @AllArgsConstructor
+  @EqualsAndHashCode(callSuper = true)
+  public static class Return extends Stmt implements Serializable {
 
-        final Expr condition;
-        final Stmt.Block body;
+    public <R> R accept(Visitor<R> visitor) {
+      return visitor.visitReturnStmt(this);
     }
+	  private Token location;
+	  private Expr value;
+  }
 
-    @Getter
-    @Setter
-    @AllArgsConstructor
-    @EqualsAndHashCode(callSuper = true)
-    public static class Break extends Stmt implements Serializable {
+	/*
+	  The  operator for variable defintions allows you to specify a new variable, which can be used later.
+	  By default you dont have to specify the type of a variable, the compiler is going to figure it for you.
 
-        public <R> R accept(Visitor<R> visitor) {
-            return visitor.visitBreakStmt(this);
-        }
+	  Example:
+	  foo := (10 + 3)
 
-        private final Token location;
-    }
+	  If you want to explicatly specify the type of a variable you can do this using the following syntax:
 
-    @Getter
-    @Setter
-    @AllArgsConstructor
-    @EqualsAndHashCode(callSuper = true)
-    public static class Import extends Stmt implements Serializable {
+	  bar: Text = "Hello World"
 
-        private final List<Token> libs;
+	  it differs from the assingment operator which is just a = (equalsign) that it shadows the old variable and its type
+	*/
+	@Getter
+	@Setter
+	@AllArgsConstructor
+	@EqualsAndHashCode(callSuper = true)
+	public static class VarDef extends Stmt implements Serializable {
 
-        public <R> R accept(Visitor<R> visitor) {
-            return visitor.visitImportStmt(this);
-        }
-    }
+		public <R> R accept(Visitor<R> visitor) {
+			return visitor.visitVarDefStmt(this);
+		}
 
-    public abstract <R> R accept(Visitor<R> visitor);
+		private final List<Token> target;
+		private TypeInfo type;
+		private final Expr initializer;
+	}
 
-    @Override
-    public String toString() {
-        return new GsonBuilder().setPrettyPrinting().serializeNulls().create().toJson(this);
-    }
+	@Getter
+	@Setter
+	@AllArgsConstructor
+	@EqualsAndHashCode(callSuper = true)
+	public static class While extends Stmt implements Serializable {
+
+		public <R> R accept(Visitor<R> visitor) {
+			return visitor.visitWhileStmt(this);
+		}
+
+		final Expr condition;
+		final Stmt.Block body;
+	}
+
+	@Getter
+	@Setter
+	@AllArgsConstructor
+	@EqualsAndHashCode(callSuper = true)
+	public static class For extends Stmt implements Serializable {
+		private Expr start;
+		private Expr end;
+
+		private Token loopVar;
+		private Stmt.Block body;
+
+		public <R> R accept(Visitor<R> visitor) {
+			return visitor.visitForStmt(this);
+		}
+	}
+
+	@Getter
+	@Setter
+	@AllArgsConstructor
+	@EqualsAndHashCode(callSuper = true)
+	public static class Break extends Stmt implements Serializable {
+
+		public <R> R accept(Visitor<R> visitor) {
+			return visitor.visitBreakStmt(this);
+		}
+
+		private final Token location;
+	}
+
+	@Getter
+	@Setter
+	@AllArgsConstructor
+	@EqualsAndHashCode(callSuper = true)
+	public static class Import extends Stmt implements Serializable {
+		private final List<Token> libs;
+
+		public <R> R accept(Visitor<R> visitor) {
+			return visitor.visitImportStmt(this);
+		}
+	}
+
+	public abstract <R> R accept(Visitor<R> visitor);
+
+	@Override
+	public String toString() {
+		return new GsonBuilder()
+			.setPrettyPrinting()
+			.serializeNulls()
+			.create()
+			.toJson(this);
+	}
 }
