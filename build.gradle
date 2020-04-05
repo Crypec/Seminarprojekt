@@ -42,7 +42,7 @@ dependencies {
     // color printing for nice error messages
     implementation "org.slf4j:slf4j-simple:1.6.1"
     implementation "com.github.tomas-langer:chalk:1.0.2"
-
+	implementation "org.javatuples:javatuples:1.2"
     // Use JUnit test framework
     implementation 'junit:junit:4.12'
     //spotbugsPlugins 'com.h3xstream.findsecbugs:findsecbugs-plugin:1.7.1'

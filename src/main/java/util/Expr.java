@@ -219,6 +219,11 @@ public abstract class Expr implements Serializable {
 		public <R> R accept(Visitor<R> visitor) {
 			return visitor.visitUnaryExpr(this);
 		}
+
+		public String getOperatorString() {
+			return this.operator.getLexeme();
+		}
+
 	}
 
 	@Getter

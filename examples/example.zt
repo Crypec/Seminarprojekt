@@ -1,26 +1,21 @@
 Typ: Person {
-     name: Text,
-     alter: Zahl,
+	 name: Text,
+	 alter: Zahl,
+}
+impl Person {
+	 fn neu(name: Text, alter: Zahl) -> Person {
+	      rueckgabe Person {
+		  			name: name,
+					alter: alter,
+		  };
+	 }
+	 fn darf_fahren(selbst) -> Bool {
+	 	 rueckgabe selbst.alter >= 18;
+	 }
+
 }
 
-
-impl SpielFeld {
-	fun neu(groesse: Zahl) -> SpieldFeld {
-		rueckgabe 20;
-	}
-
-	fun name(selbst) -> Text {
-		rueckgabe selbst.name;
-	}
-}
-fun start() {
-	foo := bar("test") + 2;
-}
-
-fun bar(x: Zahl) -> Zahl {
-	rueckgabe 2;
-}
-
-fun bar(x: Text) -> Text {
-	rueckgabe 3;
+fn start() {
+     simon := Person::neu("simon", 18);
+     a := 10;
 }

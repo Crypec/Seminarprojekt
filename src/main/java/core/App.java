@@ -3,69 +3,115 @@
  */
 package core;
 
+import static java.text.MessageFormat.format;
+
 import com.github.tomaslanger.chalk.*;
 import java.io.*;
+import java.lang.reflect.*;
 import java.nio.file.*;
+import java.text.MessageFormat;
+import java.util.*;
+import java.util.stream.*;
+
 import lombok.*;
 import util.*;
 
 public class App {
 
-    public static void main(String... args) throws IOException {
-        compile("./examples/example.zt");
-    }
+  public static void main(String... args) throws IOException {
+    disableAccessWarnings();
+    compile("./examples/example.zt");
+  }
+  public static void compile(String path) {
 
-    public static void compile(String path) {
-        String source = readFileToString(path);
-        long start = System.currentTimeMillis();
-        var tokenStream = new Lexer(source, path).tokenize();
-        var ASTNode = new Parser(tokenStream.toArray(Token[]::new)).parse();
-		new Typer().infer(ASTNode);
-        String generated = new Emitter().emit(ASTNode);
-        if (!Report.hadErr) {
-            System.out.printf(
-                    "%s %s %n", Chalk.on("[DEBUG]").green().bold(), "No errors found! :D");
-            try (var out = new PrintWriter("AST.json")) {
-                out.print(""); // clear file
-                out.println(ASTNode.toString());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            try (var out = new PrintWriter("cpp_build/main.cpp")) {
-                out.print(""); // clear file
-                out.println(generated);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+	  System.out.println(Chalk.on("[INFO]").green().bold() + " compile " + path);
 
-        } else {
-            System.out.printf(
-                    "%s %s %n", Chalk.on("[DEBUG]").red().bold(), "Failed to compile programm! :c");
-        }
-        long end = System.currentTimeMillis();
-        System.out.println(end - start);
-    }
 
-    public static String readFileToString(String path) {
-        try {
-            return new String(Files.readAllBytes(Paths.get(path)));
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
+	  String source = readFileToString(path);
+	  long start = System.currentTimeMillis();
+	  var tokenStream = new Lexer(source, path).tokenize();
+	  var ASTNode = new Parser(tokenStream.toArray(Token[]::new)).parse();
+	  new Typer().infer(ASTNode);
+	  if (!Report.hadErr) {
+		  System.out.printf(
+							"%s %s %n",
+							Chalk.on("[DEBUG]").green().bold(),
+							"No errors found! :D"
+							);
+		  try (var out = new PrintWriter("AST.json")) {
+			  out.print(""); // clear file
+			  out.println(ASTNode.toString());
+		  } catch (Exception e) {
+			  e.printStackTrace();
+		  }
+		  try (var out = new PrintWriter("cpp_build/main.c")) {
+			  out.print(""); // clear file
+			  System.out.println(new Emitter().stringify(ASTNode));
+			  out.print(new Emitter().stringify(ASTNode));
+		  } catch (Exception e) {
+			  e.printStackTrace();
+		  }
+	  } else {
+		  System.out.printf(
+							"%s %s %n",
+							Chalk.on("[DEBUG]").red().bold(),
+							"Failed to compile programm! :c"
+							);
+	  }
+	  long end = System.currentTimeMillis();
+	  System.out.printf(Chalk.on("[TIME] :: %s").blue().bold().toString(), end - start);
+  }
 
-    public static void exec(String command) {
-        String s = null;
-        try {
-            var p = Runtime.getRuntime().exec(command);
-            p.waitFor();
-            var stdInput = new BufferedReader(new InputStreamReader(p.getInputStream()));
-            while ((s = stdInput.readLine()) != null) {
-                System.out.println(s);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+  public static String readFileToString(String path) {
+    try {
+      return new String(Files.readAllBytes(Paths.get(path)));
+    } catch (Exception e) {
+      e.printStackTrace();
+      return null;
     }
+  }
+
+  public static void exec(String command) {
+    String s = null;
+    try {
+      var p = Runtime.getRuntime().exec(command);
+      p.waitFor();
+      var stdInput = new BufferedReader(
+        new InputStreamReader(p.getInputStream())
+      );
+      while ((s = stdInput.readLine()) != null) {
+        System.out.println(s);
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  public static void disableAccessWarnings() {
+    try {
+      var unsafeClass = Class.forName("sun.misc.Unsafe");
+      var field = unsafeClass.getDeclaredField("theUnsafe");
+      field.setAccessible(true);
+      var unsafe = field.get(null);
+
+      var putObjectVolatile = unsafeClass.getDeclaredMethod(
+        "putObjectVolatile",
+        Object.class,
+        long.class,
+        Object.class
+      );
+      var staticFieldOffset = unsafeClass.getDeclaredMethod(
+        "staticFieldOffset",
+        Field.class
+      );
+
+      var loggerClass = Class.forName(
+        "jdk.internal.module.IllegalAccessLogger"
+      );
+      var loggerField = loggerClass.getDeclaredField("logger");
+      Long offset = (Long) staticFieldOffset.invoke(unsafe, loggerField);
+      putObjectVolatile.invoke(unsafe, loggerClass, offset, null);
+    } catch (Exception ignored) {}
+  }
 }

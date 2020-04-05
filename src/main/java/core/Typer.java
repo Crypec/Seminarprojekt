@@ -451,8 +451,6 @@ public class Typer implements Expr.Visitor<Void>, Stmt.Visitor<Void> {
 			return null;
 		}
 		if (!contextContains(expr.getName().getLexeme())) {
-			System.out.println(contextStack);
-
 			Report.builder()
 				.wasFatal(true)
 				.errType("Typenfehler")
@@ -558,7 +556,7 @@ expr.setType(type);
 
   @Override
   public Void visitGroupingExpr(@NonNull Expr.Grouping expr) {
-    expr.getExpression().accept(this);
+	  expr.getExpression().accept(this);
     return null;
   }
 
@@ -697,8 +695,9 @@ expr.setType(type);
 
   @Override
 	  public Void visitBinaryExpr(@NonNull Expr.Binary expr) {
-	  expr.getLeft().accept(this);
-	  expr.getRight().accept(this);
+
+	  inferType(expr.getLeft());
+	  inferType(expr.getRight());
 
 	  val leftType = expr.getLeft().getType();
 	  val rightType = expr.getRight().getType();
@@ -725,11 +724,11 @@ expr.setType(type);
 	  }
   }
 
-  // TODO(Simon): REMOVE
-  public static TypeInfo checkType(TypeInfo actual, TypeInfo expected,
-								   Token operator, String errMsg) {
-	  var typeCopy = (TypeInfo)memClone(actual);
-	  if (!TypeInfo.isAllowed(actual, operator)) {
+  public static TypeInfo checkType(TypeInfo lhs, TypeInfo rhs, Token operator, String errMsg) {
+	  val reduced = TypeInfo.reduce(lhs, rhs, operator);
+	  if (reduced.isPresent()) {
+		  return reduced.get();
+	  } else {
 		  Report.builder()
 			  .wasFatal(true)
 			  .errType("Typenfehler")
@@ -737,29 +736,10 @@ expr.setType(type);
 			  .token(operator)
 			  .url("TODO")
 			  .build()
-				.print();
-		}
-		if (!actual.equals(expected)) {
-			Report.builder()
-				.wasFatal(true)
-				.errType("Typenfehler")
-				.errMsg(errMsg)
-				.token(operator)
-				.url("TODO")
-				.build()
-				.print();
-			return typeCopy;
-		}
-		//TODO(Simon): proper type reduction
-		switch (operator.getType()) {
-		case EQUALEQUAL, NOTEQUAL, LESSEQUAL, GREATEREQUAL:
-			typeCopy = TypeInfo.Primitive.builder()
-				.typeString(TypeInfo.BOOLEANTYPE)
-				.location(typeCopy.getLocation())
-				.build();
-		}
-		return typeCopy;
-	}
+			  .print();
+		return TypeInfo.voidType(operator);
+	  }
+  }
 
 	public static TypeInfo checkTypeEqual(TypeInfo actual, TypeInfo expected,
 										  String errMsg, Token location) {

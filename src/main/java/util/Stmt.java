@@ -285,7 +285,7 @@ public abstract class Stmt implements Serializable {
 			return visitor.visitVarDefStmt(this);
 		}
 
-		private final List<Token> target;
+		private List<Token> target;
 		private TypeInfo type;
 		private final Expr initializer;
 	}

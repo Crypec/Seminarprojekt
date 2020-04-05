@@ -143,12 +143,16 @@ public enum TokenType {
 	};
     }
 
-    // public static boolean isNumeric(String s) {
-	// try {
-	//     Double.parseDouble(s);
-	// } catch (Exception e) {
-	//     return false;
-	// }
-	// return true;
-    // }
+	public boolean isComparisonOperator() {
+		return switch (this) {
+		case EQUALEQUAL -> true;
+		case NOTEQUAL -> true;	
+		case GREATER -> true;
+		case GREATEREQUAL -> true;
+		case LESS -> true;
+		case LESSEQUAL -> true;
+		default -> false;
+		};
+	}
+	
 }

@@ -860,8 +860,8 @@ public class Parser extends Iter<Token> {
 			.url("TODO.de")
 			.build();
 		var ASTNode = parseExpr();
-		consume(TokenType.SEMICOLON, err);
-		return new Stmt.Expression(ASTNode);
+	consume(TokenType.SEMICOLON, err);
+	return new Stmt.Expression(ASTNode);
     }
 
     private Token consume(TokenType type, Report err) {

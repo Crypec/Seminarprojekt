@@ -12,11 +12,24 @@ public class Emitter implements Stmt.Visitor<StringBuilder>, Expr.Visitor<String
 
 	private static final String lineSeperator = System.getProperty("line.separator");
 
-	public String emit(List<Stmt> stmts) {
-		//stmts.forEach(stmt -> stmt.accept(this));
-		return null;
+	public String stringify(List<Stmt> stmts) {
+		return stmts
+			.stream()
+			.map(stmt -> stringify(stmt))
+			.filter(Objects::nonNull) // FIXME(Simon): we can probably remove this filter
+			.map(StringBuilder::toString)
+			.collect(Collectors.joining(lineSeperator));
 	}
 
+	public StringBuilder stringify(Expr expr) {
+		return expr.accept(this);
+	}
+
+	public StringBuilder stringify(Stmt stmt) {
+		return stmt.accept(this);
+	}
+
+	@Override
 	public StringBuilder visitModuleStmt(Stmt.Module ASTNode) {
 		return null;
 	}
@@ -26,30 +39,44 @@ public class Emitter implements Stmt.Visitor<StringBuilder>, Expr.Visitor<String
 		return null;
 	}
 
-	public static StringBuilder jsonSerializerFunc(Stmt.StructDecl node) {
-
-		return null;
-	}
-
 	public static StringBuilder resolveType(TypeInfo type) {
-		// return switch (type.getTypeStringBuilder()) {
-		// case "Zahl": yield "double";
-		// case "Text": yield "std::string";
-		// case "Bool": yield "boolean";
-		// case "#Null": yield "null";
-		// default: yield type.getTypeStringBuilder();
-		// };
-		return null;
+
+		if (type instanceof TypeInfo.Array) {
+			val array = (TypeInfo.Array) type;
+			return new StringBuilder(resolveType(array.getElementType()))
+				.append(("[]"));
+		} else if (type instanceof TypeInfo.Primitive) {
+			val primitive = (TypeInfo.Primitive) type;
+			String typeString = switch (primitive.getTypeString()) {
+			case "Zahl" -> "int";
+			case "Text" -> "char[]";
+			case "Bool" -> "boolean";
+			default -> primitive.getTypeString();
+			};
+			return new StringBuilder(typeString);
+		} else {
+			throw new UnsupportedOperationException();
+		}
 	}
 
 	@Override
 	public StringBuilder visitBlockStmt(Stmt.Block block) {
-		return null;
+		val blockStmts = block.getStatements()
+			.stream()
+			.map(stmt -> stringify(stmt))
+			.map(stmt -> lineSeperator + stmt + lineSeperator)
+			.collect(StringBuilder::new, StringBuilder::append, StringBuilder::append);
+		return new StringBuilder()
+			.append("{")
+			.append(lineSeperator)
+			.append(blockStmts)
+			.append(lineSeperator)
+			.append("}");
 	}
 
 	@Override
 	public StringBuilder visitExpressionStmt(Stmt.Expression ASTNode) {
-		return null;
+		return stringify(ASTNode).append(";");
 	}
 
 	@Override
@@ -66,11 +93,11 @@ public class Emitter implements Stmt.Visitor<StringBuilder>, Expr.Visitor<String
 		return null;
 	}
 
-
-
 	@Override
 	public StringBuilder visitFunctionStmt(Stmt.FunctionDecl func) {
-		return null;
+		return new StringBuilder("void ")
+			.append(func.getStringName())
+			.append(stringify(func.getBody()));
 	}
 
 	@Override
@@ -89,8 +116,22 @@ public class Emitter implements Stmt.Visitor<StringBuilder>, Expr.Visitor<String
 	}
 
 	@Override
-	public StringBuilder visitVarDefStmt(Stmt.VarDef varDef) {
-		return null;
+	public StringBuilder visitVarDefStmt(Stmt.VarDef varDefNode) {
+
+		
+		val target = varDefNode.getTarget()
+			.stream()
+			.map(t -> t.getLexeme())
+			.collect(StringBuilder::new, StringBuilder::append, StringBuilder::append);
+
+		val buffer = new StringBuilder()
+			.append(resolveType(varDefNode.getType()))
+			.append(" ")
+			.append(target)
+			.append(" ")
+			.append(stringify(varDefNode.getInitializer()))
+			.append(";");
+		return buffer;
 	}
 
 	@Override
@@ -110,7 +151,11 @@ public class Emitter implements Stmt.Visitor<StringBuilder>, Expr.Visitor<String
 
 	@Override
 	public StringBuilder visitBinaryExpr(Expr.Binary binary) {
-		return null;
+		val left = stringify(binary.getLeft());
+		val right = stringify(binary.getRight());
+		return new StringBuilder()
+			.append(left)
+			.append(right);
 	}
 
 	@Override
@@ -135,7 +180,7 @@ public class Emitter implements Stmt.Visitor<StringBuilder>, Expr.Visitor<String
 
 	@Override
 	public StringBuilder visitLiteralExpr(Expr.Literal literal) {
-		return null;
+		return new StringBuilder(literal.getValue().toString());
 	}
 
 	@Override
@@ -146,6 +191,9 @@ public class Emitter implements Stmt.Visitor<StringBuilder>, Expr.Visitor<String
 	@Override
 	public StringBuilder visitUnaryExpr(Expr.Unary expr) {
 		return null;
+		// return new StringBuilder()
+		// 	.append(expr.getOperatorString())
+		// 	.append(emit(expr));
 	}
 
 	@Override
@@ -182,5 +230,4 @@ public class Emitter implements Stmt.Visitor<StringBuilder>, Expr.Visitor<String
 	public StringBuilder visitForStmt(Stmt.For ASTNode) {
 		return null;
 	}
-
 }
