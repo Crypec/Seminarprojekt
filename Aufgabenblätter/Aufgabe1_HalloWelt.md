@@ -1,5 +1,5 @@
 ## Aufgabe 1: Hallo Welt
-Das Programm "Hallo Welt" ist ein sehr einfaches Programm, welches zeigen soll wie die Programmiersprache KUZUTO aufgebaut ist. Dieses Programm soll lediglich erstmal die Worte "Hallo Welt" ausgeben :)
+Das Programm "Hallo Welt" ist ein sehr einfaches Programm, welches zeigen soll wie die Programmiersprache STGI aufgebaut ist. Dieses Programm soll lediglich erstmal die Worte "Hallo Welt" ausgeben :)
 
 Dafür legen sie in Ihrer Entwicklungsumgebung ein neues Projekt mit dem Namen "Aufgabe 1" an.
 In diesem Projekt dann eine neue Quelltextdatei mit dem Namen "HalloWelt".

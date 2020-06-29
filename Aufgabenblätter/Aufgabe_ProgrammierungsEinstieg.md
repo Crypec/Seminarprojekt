@@ -1,6 +1,6 @@
 ## Bevor Sie Anfangen zu Programmieren :  Informationen und hilfreiche Tipps
 
-Was ist denn eigentlich Programmieren?<BR>
+Was ist eigentlich Programmieren?<BR>
 
 Durch Programmieren sagen Sie ihrem Computer was er tun soll. Grundsätzlich sind Computer nur dumme Maschinen, denn ohne unsere Anweisung können sie nichts. Unsere Aufgabe ist es hierbei, ihnen alles bis ins kleinste Detail zu erklären.
 
