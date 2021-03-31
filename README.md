@@ -1,4 +1,4 @@
-# Kuzoto 
+# Stegi 
 
 Kuzoto ist eine Programmiersprache speziell fuer Programmieranfanger. Ihr Ziel ist es den Start ins Programmieren moeglichst einfach zu gestalten.
 
